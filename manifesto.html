@@ -66,22 +66,5 @@
   <footer id="contact" class="footer">
     <p>Email: <a href="mailto:tunerobotics@gmail.com">tunerobotics@gmail.com</a></p>
   </footer>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const fixedLogo = document.querySelector('.logo-fixed');
-      if (fixedLogo) {
-        let lastScrollY = window.scrollY;
-        window.addEventListener('scroll', () => {
-          if (window.scrollY > 50 && window.scrollY > lastScrollY) {
-            fixedLogo.classList.add('hidden');
-          } else {
-            fixedLogo.classList.remove('hidden');
-          }
-          lastScrollY = window.scrollY;
-        });
-      }
-    });
-  </script>
 </body>
 </html> 
