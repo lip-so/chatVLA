@@ -357,6 +357,17 @@ body {
   text-decoration: none;
 }
 
+/* Prevent header links from changing color after being visited */
+.logo-fixed:visited,
+header a:visited {
+  color: var(--text-primary) !important;
+}
+
+.logo-fixed a {
+  color: var(--text-primary) !important;
+  text-decoration: none;
+}
+
 @media (max-width: 600px) {
   .hero {
     padding: 2rem 0.5rem 1.5rem 0.5rem;
