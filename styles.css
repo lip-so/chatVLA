@@ -440,4 +440,11 @@ header a:visited {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
+}
+
+.vision-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  font-weight: 400;
 } 
