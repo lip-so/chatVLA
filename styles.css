@@ -358,68 +358,73 @@ body {
 }
 
 @media (max-width: 600px) {
+  html, body {
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    overflow-x: hidden;
+  }
   .hero {
-    padding: 2rem 0.5rem 1.5rem 0.5rem;
-    margin-top: 2rem;
-  }
-  .hero h1 {
-    font-size: 1.5rem;
-    max-width: 100%;
-  }
-  .features {
-    gap: 1rem;
+    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
     margin-top: 1.2rem;
   }
+  .hero h1, .hero h2 {
+    font-size: 1.1rem;
+    max-width: 100%;
+    word-break: break-word;
+  }
+  .features {
+    gap: 0.7rem;
+    margin-top: 0.7rem;
+  }
   .feature {
-    padding: 0.8rem 0.7rem;
-    font-size: 0.95rem;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.92rem;
     max-width: 100%;
     min-width: 0;
+    word-break: break-word;
   }
   .feature h3 {
-    font-size: 0.98rem;
+    font-size: 0.95rem;
   }
   .feature p, .feature ul, .feature blockquote {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    word-break: break-word;
   }
   .logo-fixed {
-    top: 0.7rem;
-    left: 0.7rem;
-    font-size: 0.95rem;
-    padding: 0.2rem 0.5rem;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.15rem 0.4rem;
   }
   .landing-content {
-    padding: 1rem 0.5rem;
+    padding: 0.7rem 0.3rem;
   }
   .landing-super-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
   .landing-title {
-    font-size: 1.1rem;
-    min-height: 1.3rem;
+    font-size: 1rem;
+    min-height: 1.1rem;
   }
   .landing-subtitle {
-    font-size: 0.7rem;
-    max-width: 95vw;
-  }
-  .cta-button {
     font-size: 0.9rem;
-    padding: 0.5rem 1rem;
   }
   .pre-register-placeholder {
     font-size: 0.85rem;
-    padding: 0.7rem;
-  }
-  .chat-container {
-    padding: 0.3rem 0.3rem;
-    max-width: 98vw;
-  }
-  .chat-input, .chat-submit {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.7rem;
   }
   .footer {
-    font-size: 0.8rem;
-    padding: 1rem 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.2rem;
+  }
+  pre, code, blockquote {
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    max-width: 100vw;
+  }
+  main, .main {
+    padding: 0.5rem 0.1rem;
   }
 } 
