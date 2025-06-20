@@ -434,4 +434,10 @@ header a:visited {
     font-size: 0.8rem;
     padding: 1rem 0.5rem;
   }
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
 } 
