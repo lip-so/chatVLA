@@ -6,7 +6,7 @@
   <title>Tune Robotics - Plug & Play Installation</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     /* Plug-and-play specific styles that integrate with main website theme */
@@ -15,6 +15,7 @@
       margin: 0 auto;
       padding: 6rem 2rem 2rem 2rem;
       min-height: 100vh;
+      background: var(--background-light);
     }
 
     .pnp-header {
@@ -23,26 +24,29 @@
     }
 
     .pnp-title {
-      font-size: 2.8rem;
-      font-weight: 700;
+      font-size: 3.5rem;
+      font-weight: 800;
       color: var(--text-primary);
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 1rem;
+      letter-spacing: -0.025em;
     }
 
     .pnp-title i {
       color: var(--accent);
+      font-size: 3rem;
     }
 
     .pnp-subtitle {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text-secondary);
-      max-width: 600px;
+      max-width: 700px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.7;
+      font-weight: 400;
     }
 
     .pnp-cards {
@@ -55,9 +59,17 @@
 
     .pnp-card {
       background: var(--surface);
-      border: 2px solid var(--border);
-      padding: 2rem;
-      border-radius: 0;
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .pnp-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
     }
 
     .pnp-card-header {
@@ -70,16 +82,18 @@
     }
 
     .pnp-card-title {
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--text-primary);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      letter-spacing: -0.025em;
     }
 
     .pnp-card-title i {
       color: var(--accent);
+      font-size: 1.25rem;
     }
 
     .system-status {
@@ -92,10 +106,12 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      background: none;
+      padding: 0.75rem 1rem;
+      background: var(--surface-hover);
       border: 1px solid var(--border);
       color: var(--text-secondary);
+      border-radius: 8px;
+      font-weight: 500;
     }
 
     .status-item.available {
@@ -116,8 +132,8 @@
       display: block;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
     }
 
     .form-help {
@@ -133,37 +149,43 @@
 
     .pnp-input {
       flex: 1;
-      background: var(--background);
+      background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text-primary);
-      padding: 0.75rem 1rem;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.9rem;
+      padding: 0.875rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
     }
 
     .pnp-input:focus {
       outline: none;
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
     .pnp-btn {
-      background: none;
-      border: 2px solid var(--border);
+      background: var(--surface);
+      border: 1px solid var(--border);
       color: var(--text-primary);
-      padding: 0.75rem 1.5rem;
-      font-family: 'Roboto Mono', monospace;
+      padding: 0.875rem 1.5rem;
+      font-family: 'Inter', sans-serif;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      font-size: 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      border-radius: 8px;
     }
 
     .pnp-btn:hover:not(:disabled) {
-      background: var(--surface);
+      background: var(--surface-hover);
       color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     .pnp-btn:disabled {
@@ -173,13 +195,15 @@
 
     .pnp-btn.primary {
       background: var(--accent);
-      color: var(--background);
+      color: white;
       border-color: var(--accent);
     }
 
     .pnp-btn.primary:hover:not(:disabled) {
-      background: var(--text-primary);
-      border-color: var(--text-primary);
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
 
     .pnp-btn.danger {
@@ -204,17 +228,19 @@
 
     .progress-bar {
       width: 100%;
-      height: 8px;
-      background: var(--border);
-      margin-bottom: 0.5rem;
+      height: 12px;
+      background: var(--border-light);
+      margin-bottom: 1rem;
       overflow: hidden;
+      border-radius: 6px;
     }
 
     .progress-fill {
       height: 100%;
-      background: var(--accent);
+      background: linear-gradient(90deg, var(--accent) 0%, #764ba2 100%);
       width: 0%;
       transition: width 0.3s ease;
+      border-radius: 6px;
     }
 
     .progress-text {
@@ -310,15 +336,16 @@
     }
 
     .log-container {
-      background: #000b2a;
-      color: var(--text-primary);
+      background: #1a202c;
+      color: #e2e8f0;
       padding: 1.5rem;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      max-height: 300px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      max-height: 320px;
       overflow-y: auto;
       border: 1px solid var(--border);
+      border-radius: 12px;
       margin-top: 1rem;
     }
 
