@@ -138,6 +138,21 @@ body {
   justify-content: center;
   text-align: center;
   margin-top: 0;
+  background: var(--background);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+  z-index: -1;
 }
 
 .landing-content {
@@ -145,6 +160,8 @@ body {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .landing-super-title {
@@ -155,6 +172,7 @@ body {
   margin-top: 0;
   letter-spacing: -0.025em;
   color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .landing-title {
@@ -163,8 +181,9 @@ body {
   font-weight: 600;
   margin-bottom: 2.5rem;
   margin-top: 0;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   letter-spacing: -0.025em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes blink {
@@ -174,13 +193,14 @@ body {
 
 .landing-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   margin: 1.5rem 0 0 0;
   line-height: 1.6;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
   font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .landing-actions {
@@ -239,8 +259,27 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* Remove nav bar styles if present */
-.navbar, .nav-links { display: none !important; }
+/* Landing page specific navbar styling */
+.landing-main .navbar {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.landing-main .nav-links a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.landing-main .nav-links a:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.landing-main .logo {
+  color: white;
+  background: none;
+  -webkit-text-fill-color: white;
+}
 
 /* Manifesto page adjustments */
 .hero {
