@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tune Robotics - Plug & Play Installation</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Plug-and-play specific styles that integrate with main website theme */
+    .pnp-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem 2rem 2rem;
+      min-height: 100vh;
+    }
+
+    .pnp-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .pnp-title {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .pnp-title i {
+      color: var(--accent);
+    }
+
+    .pnp-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .pnp-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .pnp-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      padding: 2rem;
+      border-radius: 0;
+    }
+
+    .pnp-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pnp-card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pnp-card-title i {
+      color: var(--accent);
+    }
+
+    .system-status {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .status-item.available {
+      color: #10b981;
+      border-color: #10b981;
+    }
+
+    .status-item.unavailable {
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-help {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .pnp-input {
+      flex: 1;
+      background: var(--background);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+    }
+
+    .pnp-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .pnp-btn {
+      background: none;
+      border: 2px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pnp-btn:hover:not(:disabled) {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    .pnp-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pnp-btn.primary {
+      background: var(--accent);
+      color: var(--background);
+      border-color: var(--accent);
+    }
+
+    .pnp-btn.primary:hover:not(:disabled) {
+      background: var(--text-primary);
+      border-color: var(--text-primary);
+    }
+
+    .pnp-btn.danger {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .pnp-btn.danger:hover:not(:disabled) {
+      background: #ef4444;
+      color: var(--background);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .progress-section {
+      margin: 2rem 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      margin-bottom: 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      background: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .status-indicator.running {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .status-indicator.completed {
+      border-color: #10b981;
+      color: #10b981;
+    }
+
+    .status-indicator.failed {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .status-icon {
+      animation: pulse 2s infinite;
+    }
+
+    .status-completed .status-icon,
+    .status-failed .status-icon {
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      background: none;
+      transition: all 0.2s;
+    }
+
+    .step.active {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .step.completed {
+      border-color: #10b981;
+      color: #10b981;
+    }
+
+    .step-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .step-text {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .step-check {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .step.completed .step-check {
+      opacity: 1;
+    }
+
+    .log-container {
+      background: #000b2a;
+      color: var(--text-primary);
+      padding: 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .log-message {
+      margin: 2px 0;
+      word-wrap: break-word;
+    }
+
+    .log-message.info { color: #7aa2f7; }
+    .log-message.success { color: #10b981; }
+    .log-message.error { color: #ef4444; }
+    .log-message.warning { color: #f59e0b; }
+    .log-message.welcome { color: var(--accent); font-weight: bold; }
+
+    .pnp-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .pnp-footer-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .pnp-footer-text code {
+      background: var(--surface);
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--border);
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .pnp-footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .pnp-footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pnp-footer-link:hover {
+      color: var(--accent);
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 2rem;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 2rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .modal-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 1rem;
+    }
+
+    .modal-body {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+    }
+
+    .success-icon { color: #10b981; font-size: 2rem; }
+    .error-icon { color: #ef4444; font-size: 2rem; }
+
+    .success-summary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+    }
+
+    .summary-item i {
+      color: #10b981;
+      width: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .pnp-container {
+        padding: 4rem 1rem 2rem 1rem;
+      }
+      
+      .pnp-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .input-group,
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .system-status {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .pnp-footer-links {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="landing.html" class="logo-fixed">Tune</a>
+  
+  <div class="pnp-container">
+    <header class="pnp-header">
+      <h1 class="pnp-title">
+        <i class="fas fa-robot"></i>
+        Plug & Play Installation
+      </h1>
+      <p class="pnp-subtitle">
+        Automated LeRobot installation with USB port detection. 
+        Get your robotic arms up and running with zero technical knowledge required.
+      </p>
+    </header>
+
+    <div class="pnp-cards">
+      <!-- System Status Card -->
+      <div class="pnp-card">
+        <div class="pnp-card-header">
+          <h2 class="pnp-card-title">
+            <i class="fas fa-desktop"></i>
+            System Status
+          </h2>
+          <div class="system-status">
+            <div class="status-item" id="gitStatus">
+              <i class="fas fa-code-branch"></i>
+              <span>Git: Checking...</span>
+            </div>
+            <div class="status-item" id="condaStatus">
+              <i class="fas fa-cube"></i>
+              <span>Conda: Checking...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Card -->
+      <div class="pnp-card">
+        <div class="pnp-card-header">
+          <h2 class="pnp-card-title">
+            <i class="fas fa-cog"></i>
+            Installation Configuration
+          </h2>
+        </div>
+        
+        <div class="form-group">
+          <label for="installationPath" class="form-label">Installation Directory</label>
+          <p class="form-help">Choose where LeRobot will be installed on your computer</p>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="installationPath" 
+              class="pnp-input"
+              placeholder="/Users/username/lerobot"
+              value=""
+            >
+            <button type="button" class="pnp-btn" id="browseBtn">
+              <i class="fas fa-folder-open"></i>
+              Browse
+            </button>
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button type="button" class="pnp-btn primary" id="startInstallBtn">
+            <i class="fas fa-play"></i>
+            Start Installation
+          </button>
+          <button type="button" class="pnp-btn danger" id="cancelInstallBtn" disabled>
+            <i class="fas fa-stop"></i>
+            Cancel Installation
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Card -->
+      <div class="pnp-card">
+        <div class="pnp-card-header">
+          <h2 class="pnp-card-title">
+            <i class="fas fa-tasks"></i>
+            Installation Progress
+          </h2>
+          <button type="button" class="pnp-btn" id="clearLogBtn">
+            <i class="fas fa-trash"></i>
+            Clear Log
+          </button>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="progressPercent">0%</span>
+          </div>
+          
+          <div class="status-indicator" id="statusIndicator">
+            <i class="fas fa-circle status-icon" id="statusIcon"></i>
+            <span class="status-text" id="statusText">Ready to install LeRobot</span>
+          </div>
+          
+          <div class="steps-container" id="stepsContainer">
+            <div class="step" data-step="checking_prerequisites">
+              <i class="fas fa-search step-icon"></i>
+              <span class="step-text">Checking Prerequisites</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+            <div class="step" data-step="cloning_repository">
+              <i class="fas fa-download step-icon"></i>
+              <span class="step-text">Cloning Repository</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+            <div class="step" data-step="creating_environment">
+              <i class="fas fa-box step-icon"></i>
+              <span class="step-text">Creating Environment</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+            <div class="step" data-step="installing_ffmpeg">
+              <i class="fas fa-video step-icon"></i>
+              <span class="step-text">Installing FFmpeg</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+            <div class="step" data-step="installing_lerobot">
+              <i class="fas fa-robot step-icon"></i>
+              <span class="step-text">Installing LeRobot</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+            <div class="step" data-step="detecting_usb_ports">
+              <i class="fas fa-usb step-icon"></i>
+              <span class="step-text">USB Port Detection</span>
+              <i class="fas fa-check step-check"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="log-container" id="logContainer">
+          <div class="log-message welcome">🤖 Welcome to the LeRobot Installation Assistant</div>
+          <div class="log-message info">Click "Start Installation" to begin the automated setup process</div>
+          <div class="log-message">This will install LeRobot from HuggingFace with all dependencies</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pnp-footer">
+      <p class="pnp-footer-text">
+        After installation completes, activate the environment with: 
+        <code>conda activate lerobot</code>
+      </p>
+      <div class="pnp-footer-links">
+        <a href="Plug-and-play/frontend/port-detection.html" class="pnp-footer-link">
+          <i class="fas fa-usb"></i>
+          USB Port Detection
+        </a>
+        <a href="https://github.com/huggingface/lerobot" target="_blank" class="pnp-footer-link">
+          <i class="fab fa-github"></i>
+          LeRobot Repository
+        </a>
+        <a href="https://docs.conda.io/en/latest/miniconda.html" target="_blank" class="pnp-footer-link">
+          <i class="fas fa-cube"></i>
+          Get Miniconda
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal" id="successModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h3>Installation Complete!</h3>
+      </div>
+      <div class="modal-body">
+        <p>🎉 <strong>Congratulations!</strong> LeRobot has been installed and configured successfully!</p>
+        <div class="success-summary">
+          <div class="summary-item">
+            <i class="fas fa-check-circle"></i>
+            <span>LeRobot framework installed</span>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Conda environment created</span>
+          </div>
+          <div class="summary-item">
+            <i class="fas fa-check-circle"></i>
+            <span>All dependencies installed</span>
+          </div>
+          <div class="summary-item" id="portConfigStatus">
+            <i class="fas fa-check-circle"></i>
+            <span>Robotic arms configured</span>
+          </div>
+        </div>
+        <div class="instructions">
+          <h4>Your robots are ready to use!</h4>
+          <p>Everything has been set up automatically. You can now start using your robotic arms with LeRobot.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pnp-btn primary" id="closeSuccessModal">
+          <i class="fas fa-check"></i>
+          Got it!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div class="modal" id="errorModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h3>Installation Failed</h3>
+      </div>
+      <div class="modal-body">
+        <p id="errorMessage">An error occurred during installation.</p>
+        <p>Please check the installation log for more details.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pnp-btn primary" id="closeErrorModal">
+          <i class="fas fa-times"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+  <script src="Plug-and-play/frontend/script.js"></script>
+</body>
+</html> 

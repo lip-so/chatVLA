@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeRobot Installation Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="title">
+                        <i class="fas fa-robot icon"></i>
+                        LeRobot Installation Assistant
+                    </h1>
+                    <p class="subtitle">
+                        Automated installation of LeRobot from HuggingFace with all dependencies
+                    </p>
+                </div>
+                <div class="header-right">
+                    <div class="system-status" id="systemStatus">
+                        <div class="status-item">
+                            <i class="fas fa-code-branch" id="gitIcon"></i>
+                            <span id="gitStatus">Checking...</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-cube" id="condaIcon"></i>
+                            <span id="condaStatus">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Configuration Card -->
+            <div class="card config-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-cog"></i>
+                        Installation Configuration
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="installationPath" class="form-label">
+                            Installation Directory
+                        </label>
+                        <p class="form-help">
+                            Choose where LeRobot will be installed on your computer
+                        </p>
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="installationPath" 
+                                class="form-input"
+                                placeholder="/Users/username/lerobot"
+                                value=""
+                            >
+                            <button type="button" class="btn btn-secondary" id="browseBtn">
+                                <i class="fas fa-folder-open"></i>
+                                Browse
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" id="startInstallBtn">
+                            <i class="fas fa-play"></i>
+                            Start Installation
+                        </button>
+                        <button type="button" class="btn btn-danger" id="cancelInstallBtn" disabled>
+                            <i class="fas fa-stop"></i>
+                            Cancel Installation
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card progress-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-tasks"></i>
+                        Installation Progress
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progressPercent">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="status-container">
+                        <div class="status-indicator" id="statusIndicator">
+                            <i class="fas fa-circle status-icon" id="statusIcon"></i>
+                            <span class="status-text" id="statusText">Ready to install LeRobot</span>
+                        </div>
+                    </div>
+                    
+                    <div class="steps-container" id="stepsContainer">
+                        <div class="step" data-step="checking_prerequisites">
+                            <i class="fas fa-search step-icon"></i>
+                            <span class="step-text">Checking Prerequisites</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step" data-step="cloning_repository">
+                            <i class="fas fa-download step-icon"></i>
+                            <span class="step-text">Cloning Repository</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step" data-step="creating_environment">
+                            <i class="fas fa-box step-icon"></i>
+                            <span class="step-text">Creating Environment</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step" data-step="installing_ffmpeg">
+                            <i class="fas fa-video step-icon"></i>
+                            <span class="step-text">Installing FFmpeg</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step" data-step="installing_lerobot">
+                            <i class="fas fa-robot step-icon"></i>
+                            <span class="step-text">Installing LeRobot</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step" data-step="detecting_usb_ports">
+                            <i class="fas fa-usb step-icon"></i>
+                            <span class="step-text">USB Port Detection</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Card -->
+            <div class="card log-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-terminal"></i>
+                        Installation Log
+                    </h2>
+                    <button type="button" class="btn btn-ghost btn-small" id="clearLogBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="log-container" id="logContainer">
+                        <div class="log-message welcome">
+                            Welcome to the LeRobot Installation Assistant
+                        </div>
+                        <div class="log-message info">
+                            Click "Start Installation" to begin the automated setup process
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-text">
+                    After installation completes, activate the environment with: 
+                    <code>conda activate lerobot</code>
+                </p>
+                <div class="footer-links">
+                    <a href="port-detection.html" class="footer-link">
+                        <i class="fas fa-usb"></i>
+                        USB Port Detection
+                    </a>
+                    <a href="https://github.com/huggingface/lerobot" target="_blank" class="footer-link">
+                        <i class="fab fa-github"></i>
+                        LeRobot Repository
+                    </a>
+                    <a href="https://docs.conda.io/en/latest/miniconda.html" target="_blank" class="footer-link">
+                        <i class="fas fa-cube"></i>
+                        Get Miniconda
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h3>Installation Complete!</h3>
+            </div>
+            <div class="modal-body">
+                <p>🎉 <strong>Congratulations!</strong> LeRobot has been installed and configured successfully!</p>
+                <div class="success-summary">
+                    <div class="summary-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>LeRobot framework installed</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Conda environment created</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>All dependencies installed</span>
+                    </div>
+                    <div class="summary-item" id="portConfigStatus">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Robotic arms configured</span>
+                    </div>
+                </div>
+                <div class="instructions">
+                    <h4>Your robots are ready to use!</h4>
+                    <p class="ready-message">Everything has been set up automatically. You can now start using your robotic arms with LeRobot.</p>
+                    <div class="next-steps">
+                        <h5>Quick Start:</h5>
+                        <ol>
+                            <li>Your robotic arms are already configured and ready</li>
+                            <li>All code examples will work immediately</li>
+                            <li>Check the LeRobot documentation for tutorials</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="closeSuccessModal">
+                    <i class="fas fa-check"></i>
+                    Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal" id="errorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle error-icon"></i>
+                <h3>Installation Failed</h3>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage">An error occurred during installation.</p>
+                <p class="error-help">Please check the installation log for more details.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="closeErrorModal">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
