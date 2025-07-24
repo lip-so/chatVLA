@@ -211,7 +211,7 @@
 }
 
 .port-item.detected {
-    background: rgb(16 185 129 / 0.1);
+    background: rgba(0, 0, 0, 0.05);
     border-color: var(--success-color);
 }
 
@@ -240,12 +240,12 @@
 }
 
 .port-status.leader {
-    background: rgb(59 130 246 / 0.1);
+    background: rgba(0, 0, 0, 0.1);
     color: var(--primary-color);
 }
 
 .port-status.follower {
-    background: rgb(16 185 129 / 0.1);
+    background: rgba(0, 0, 0, 0.1);
     color: var(--success-color);
 }
 
