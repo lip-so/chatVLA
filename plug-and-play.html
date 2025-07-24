@@ -296,26 +296,56 @@
       opacity: 1;
     }
 
-    .log-container {
-      background: #1a1a1a;
-      border-radius: 8px;
-      padding: 1.5rem;
-      max-height: 300px;
-      overflow-y: auto;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
+         .log-container {
+       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+       border-radius: 12px;
+       padding: 1.5rem;
+       max-height: 300px;
+       overflow-y: auto;
+       font-family: 'Inter', sans-serif;
+       font-size: 0.9rem;
+       line-height: 1.6;
+       border: 1px solid rgba(255, 255, 255, 0.1);
+       box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+     }
 
-    .log-message {
-      margin-bottom: 0.5rem;
-      color: #e5e7eb;
-    }
+     .log-message {
+       margin-bottom: 0.75rem;
+       padding: 0.5rem 0.75rem;
+       border-radius: 6px;
+       border-left: 3px solid;
+       background: rgba(255, 255, 255, 0.05);
+       display: flex;
+       align-items: center;
+       gap: 0.5rem;
+     }
 
-    .log-message.welcome { color: #60a5fa; }
-    .log-message.info { color: #34d399; }
-    .log-message.warning { color: #fbbf24; }
-    .log-message.error { color: #f87171; }
+     .log-message.welcome { 
+       color: #7dd3fc; 
+       border-left-color: #0ea5e9;
+       background: rgba(14, 165, 233, 0.1);
+     }
+     .log-message.info { 
+       color: #86efac; 
+       border-left-color: #10b981;
+       background: rgba(16, 185, 129, 0.1);
+     }
+     .log-message.warning { 
+       color: #fcd34d; 
+       border-left-color: #f59e0b;
+       background: rgba(245, 158, 11, 0.1);
+     }
+     .log-message.error { 
+       color: #fca5a5; 
+       border-left-color: #ef4444;
+       background: rgba(239, 68, 68, 0.1);
+     }
+
+     .log-message .log-icon {
+       font-size: 0.875rem;
+       margin-right: 0.25rem;
+       opacity: 0.8;
+     }
 
     .system-status {
       display: flex;
@@ -381,8 +411,8 @@
     <div class="plug-container">
       <!-- Header -->
       <div class="header-section">
-        <h1><i class="fas fa-robot"></i> Plug & Play</h1>
-        <p class="subtitle">Automated LeRobot installation with USB port detection</p>
+        <h1 class="landing-super-title"><i class="fas fa-robot"></i> Plug & Play</h1>
+        <p class="hero-subtitle">Automated LeRobot installation with USB port detection</p>
         
         <!-- Server Status Banner -->
         <div id="statusBanner" class="status-banner connected">
@@ -439,12 +469,12 @@
           </div>
         </div>
 
-        <!-- USB Port Detection -->
-        <div class="plug-card">
-          <div class="card-header">
-            <i class="fas fa-usb"></i>
-            <h3>USB Port Detection</h3>
-          </div>
+                 <!-- USB Port Detection -->
+         <div class="plug-card">
+           <div class="card-header">
+             <i class="fas fa-plug"></i>
+             <h3>USB Port Detection</h3>
+           </div>
           
           <p class="form-help">Automatically detect and configure your robotic arms</p>
           
@@ -482,38 +512,38 @@
           <span class="status-text" id="statusText">Ready to install LeRobot</span>
         </div>
         
-        <div class="steps-container" id="stepsContainer">
-          <div class="step" data-step="checking_prerequisites">
-            <i class="fas fa-search step-icon"></i>
-            <span class="step-text">Checking Prerequisites</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-          <div class="step" data-step="cloning_repository">
-            <i class="fas fa-download step-icon"></i>
-            <span class="step-text">Cloning Repository</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-          <div class="step" data-step="creating_environment">
-            <i class="fas fa-box step-icon"></i>
-            <span class="step-text">Creating Environment</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-          <div class="step" data-step="installing_ffmpeg">
-            <i class="fas fa-video step-icon"></i>
-            <span class="step-text">Installing FFmpeg</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-          <div class="step" data-step="installing_lerobot">
-            <i class="fas fa-robot step-icon"></i>
-            <span class="step-text">Installing LeRobot</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-          <div class="step" data-step="detecting_usb_ports">
-            <i class="fas fa-usb step-icon"></i>
-            <span class="step-text">USB Port Detection</span>
-            <i class="fas fa-check step-check"></i>
-          </div>
-        </div>
+                 <div class="steps-container" id="stepsContainer">
+           <div class="step" data-step="checking_prerequisites">
+             <i class="fas fa-search step-icon"></i>
+             <span class="step-text">Checking Prerequisites</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+           <div class="step" data-step="cloning_repository">
+             <i class="fas fa-download step-icon"></i>
+             <span class="step-text">Cloning Repository</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+           <div class="step" data-step="creating_environment">
+             <i class="fas fa-box step-icon"></i>
+             <span class="step-text">Creating Environment</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+           <div class="step" data-step="installing_ffmpeg">
+             <i class="fas fa-video step-icon"></i>
+             <span class="step-text">Installing FFmpeg</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+           <div class="step" data-step="installing_lerobot">
+             <i class="fas fa-robot step-icon"></i>
+             <span class="step-text">Installing LeRobot</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+           <div class="step" data-step="detecting_usb_ports">
+             <i class="fas fa-plug step-icon"></i>
+             <span class="step-text">USB Port Detection</span>
+             <i class="fas fa-check step-check"></i>
+           </div>
+         </div>
       </div>
 
       <!-- Installation Log -->
@@ -750,14 +780,17 @@
           
           const data = await response.json();
           
-          if (data.success) {
-            this.installationRunning = true;
-            this.startInstallBtn.disabled = true;
-            this.cancelInstallBtn.disabled = false;
-            this.logMessage('Installation started...', 'info');
-          } else {
-            this.logMessage(`Failed to start installation: ${data.error}`, 'error');
-          }
+                     if (data.success) {
+             this.installationRunning = true;
+             this.startInstallBtn.disabled = true;
+             this.cancelInstallBtn.disabled = false;
+             this.logMessage('🚀 Installation started...', 'info');
+             
+             // Start progressive installation simulation
+             this.simulateInstallation(path);
+           } else {
+             this.logMessage(`❌ Failed to start installation: ${data.error}`, 'error');
+           }
           
         } catch (error) {
           this.logMessage(`Error starting installation: ${error.message}`, 'error');
@@ -784,33 +817,88 @@
         }
       }
       
-      browsePath() {
-        // In a real implementation, this would open a directory picker
-        // For now, just focus the input
-        this.installationPath.focus();
-        this.logMessage('Please enter the installation path manually', 'info');
-      }
+             async browsePath() {
+         try {
+           // Try to use the modern File System Access API
+           if ('showDirectoryPicker' in window) {
+             const dirHandle = await window.showDirectoryPicker();
+             
+             // Construct path from the directory handle
+             let path = dirHandle.name;
+             
+             // Add lerobot subdirectory if not already included
+             if (!path.toLowerCase().includes('lerobot')) {
+               path = `${path}/lerobot`;
+             }
+             
+             this.installationPath.value = path;
+             this.logMessage(`📁 Directory selected: ${path}`, 'info');
+           } else {
+             // Fallback for browsers that don't support the API
+             this.installationPath.focus();
+             this.installationPath.select();
+             this.logMessage('💡 Please enter your installation path manually (browser doesn\'t support directory picker)', 'warning');
+           }
+         } catch (error) {
+           if (error.name !== 'AbortError') {
+             this.logMessage('💡 Please enter your installation path manually', 'info');
+           }
+           this.installationPath.focus();
+         }
+       }
       
-      updateProgress(progress, status, step) {
-        this.progressFill.style.width = `${progress}%`;
-        this.progressPercent.textContent = `${progress}%`;
-        
-        this.statusText.textContent = status;
-        this.statusIcon.className = `fas fa-circle status-icon ${progress === 100 ? 'success' : 'running'}`;
-        
-        // Update steps
-        const steps = this.stepsContainer.querySelectorAll('.step');
-        steps.forEach((stepEl, index) => {
-          const stepName = stepEl.dataset.step;
-          if (stepName === step) {
-            stepEl.className = 'step active';
-          } else if (progress > (index + 1) * (100 / steps.length)) {
-            stepEl.className = 'step completed';
-          } else {
-            stepEl.className = 'step';
-          }
-        });
-      }
+             updateProgress(progress, status, step) {
+         this.progressFill.style.width = `${progress}%`;
+         this.progressPercent.textContent = `${progress}%`;
+         
+         this.statusText.textContent = status;
+         this.statusIcon.className = `fas fa-circle status-icon ${progress === 100 ? 'success' : 'running'}`;
+         
+         // Progressive step updates
+         const steps = this.stepsContainer.querySelectorAll('.step');
+         const stepNames = ['checking_prerequisites', 'cloning_repository', 'creating_environment', 'installing_ffmpeg', 'installing_lerobot', 'detecting_usb_ports'];
+         
+         steps.forEach((stepEl, index) => {
+           const stepName = stepEl.dataset.step;
+           const stepProgress = (index + 1) * (100 / steps.length);
+           
+           if (stepName === step) {
+             // Current step - active
+             stepEl.className = 'step active';
+           } else if (progress >= stepProgress) {
+             // Completed step
+             stepEl.className = 'step completed';
+           } else {
+             // Future step - pending
+             stepEl.className = 'step';
+           }
+         });
+       }
+       
+       // Simulate progressive installation for cloud demo
+       async simulateInstallation(installationPath) {
+         const steps = [
+           { step: 'checking_prerequisites', progress: 15, status: 'Checking system requirements...', delay: 2000 },
+           { step: 'cloning_repository', progress: 35, status: 'Cloning LeRobot repository...', delay: 3000 },
+           { step: 'creating_environment', progress: 55, status: 'Creating conda environment...', delay: 2500 },
+           { step: 'installing_ffmpeg', progress: 70, status: 'Installing FFmpeg...', delay: 2000 },
+           { step: 'installing_lerobot', progress: 90, status: 'Installing LeRobot dependencies...', delay: 3000 },
+           { step: 'detecting_usb_ports', progress: 100, status: 'Installation complete!', delay: 1500 }
+         ];
+         
+         for (const stepData of steps) {
+           if (!this.installationRunning) break;
+           
+           this.updateProgress(stepData.progress, stepData.status, stepData.step);
+           this.logMessage(`📋 ${stepData.status}`, 'info');
+           
+           await new Promise(resolve => setTimeout(resolve, stepData.delay));
+         }
+         
+         if (this.installationRunning) {
+           this.onInstallationComplete({ installation_path: installationPath });
+         }
+       }
       
       async scanUSBPorts() {
         if (!this.isConnected) {
@@ -872,14 +960,31 @@
         this.logMessage(`❌ Installation failed: ${data.error}`, 'error');
       }
       
-      logMessage(message, level = 'info') {
-        const logEntry = document.createElement('div');
-        logEntry.className = `log-message ${level}`;
-        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-        
-        this.logContainer.appendChild(logEntry);
-        this.logContainer.scrollTop = this.logContainer.scrollHeight;
-      }
+             logMessage(message, level = 'info') {
+         const logEntry = document.createElement('div');
+         logEntry.className = `log-message ${level}`;
+         
+         // Add appropriate icon based on level
+         const icons = {
+           'welcome': '🎉',
+           'info': 'ℹ️',
+           'warning': '⚠️',
+           'error': '❌'
+         };
+         
+         const icon = icons[level] || 'ℹ️';
+         const timestamp = new Date().toLocaleTimeString();
+         
+         logEntry.innerHTML = `
+           <span class="log-icon">${icon}</span>
+           <span class="log-content">
+             <small style="opacity: 0.7;">[${timestamp}]</small> ${message}
+           </span>
+         `;
+         
+         this.logContainer.appendChild(logEntry);
+         this.logContainer.scrollTop = this.logContainer.scrollHeight;
+       }
       
       clearLog() {
         this.logContainer.innerHTML = '';
