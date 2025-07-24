@@ -1179,15 +1179,8 @@
       }
 
       getMetricKey(code) {
-        const keys = {
-          'a': 'action_consistency',
-          'v': 'visual_diversity',
-          'h': 'hfv_overall_score',
-          't': 'trajectory_quality',
-          'c': 'dataset_coverage',
-          'r': 'robot_action_quality'
-        };
-        return keys[code] || code;
+        // Railway API returns metric codes directly (a, v, h, t, c, r)
+        return code;
       }
 
       displayResults(results) {
