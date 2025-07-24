@@ -3,105 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tune Robotics Plug & Play - Professional LeRobot Installation with USB Port Detection">
   <title>Tune Robotics - Plug & Play</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
   <style>
-    .pnp-hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      min-height: 90vh;
-      padding: 8rem 2rem 4rem 2rem;
-      box-sizing: border-box;
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
-      color: #000000;
-      position: relative;
-      overflow: hidden;
+    .plug-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
     }
 
-    .pnp-hero h1 {
-      font-size: 2.5rem;
-      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+    .header-section {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header-section h1 {
+      font-size: 3rem;
+      font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       margin-bottom: 1rem;
-      letter-spacing: 0.05em;
-      color: #000000;
-      text-shadow: 
-        0 2px 4px rgba(0, 0, 0, 0.1),
-        1px 1px 0px rgba(0, 0, 0, 0.8),
-        2px 2px 0px rgba(0, 0, 0, 0.6);
-      text-transform: uppercase;
-      line-height: 1.1;
-      position: relative;
       background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      white-space: nowrap;
     }
 
-    .pnp-hero .subtitle {
-      font-size: 1.5rem;
-      font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
-      font-weight: 400;
-      color: rgba(0, 0, 0, 0.8);
-      max-width: 700px;
-      margin: 0 auto 2rem auto;
-      line-height: 1.7;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      font-style: italic;
-      letter-spacing: 0.02em;
+    .header-section .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
     }
 
-    .mode-indicator {
-      display: inline-flex;
+    .status-banner {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 50px;
-      margin: 1rem 0;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border: 2px solid;
+      justify-content: space-between;
     }
 
-    .mode-indicator.local {
+    .status-banner.connected {
       background: rgba(34, 197, 94, 0.1);
       border-color: rgba(34, 197, 94, 0.3);
       color: #16a34a;
     }
 
-    .mode-indicator.demo {
-      background: rgba(59, 130, 246, 0.1);
-      border-color: rgba(59, 130, 246, 0.3);
-      color: #2563eb;
+    .status-banner.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #dc2626;
     }
 
-    .installation-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem;
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
     }
 
-    .installation-card {
+    @media (max-width: 768px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .plug-card {
       background: var(--surface);
-      border-radius: 24px;
-      padding: 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 2rem;
       transition: all 0.3s ease;
     }
 
-    .installation-card:hover {
+    .plug-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
@@ -109,142 +89,103 @@
     .card-header {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border-light);
     }
 
-    .card-icon {
-      background: var(--accent);
-      color: white;
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
+    .card-header i {
+      font-size: 1.5rem;
+      color: var(--accent);
     }
 
-    .card-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--text-primary);
+    .card-header h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
       margin: 0;
     }
 
-    .card-subtitle {
-      font-family: 'Inter', sans-serif;
-      color: var(--text-secondary);
-      margin: 0.5rem 0 0 0;
-      font-size: 0.95rem;
+    .form-group {
+      margin-bottom: 1.5rem;
     }
 
-    .system-status {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem;
-      background: var(--surface-hover);
-      border-radius: 12px;
-      border: 1px solid var(--border-light);
-    }
-
-    .status-icon {
-      font-size: 1.2rem;
-    }
-
-    .status-icon.ready { color: #22c55e; }
-    .status-icon.checking { color: #f59e0b; }
-    .status-icon.error { color: #ef4444; }
-
-    .status-text {
-      font-family: 'Inter', sans-serif;
+    .form-label {
+      display: block;
       font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .form-help {
       font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
     }
 
     .input-group {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.5rem;
     }
 
     .form-input {
       flex: 1;
-      padding: 1rem;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-size: 1rem;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
       background: var(--surface);
       color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
     }
 
     .form-input:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
     }
 
-    .action-button {
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      color: #ffffff;
-      background: rgba(0, 0, 0, 0.9);
-      border: 2px solid rgba(0, 0, 0, 0.8);
-      padding: 1rem 2rem;
-      text-decoration: none;
       cursor: pointer;
       transition: all 0.3s ease;
-      border-radius: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 0.75rem;
-      font-size: 1rem;
-      min-width: 160px;
-      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
     }
 
-    .action-button:hover {
+    .btn-primary {
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+    }
+
+    .btn-primary:hover {
       background: rgba(0, 0, 0, 0.95);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
     }
 
-    .action-button:disabled {
+    .btn-primary:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
     }
 
-    .action-button.primary {
-      background: rgba(34, 197, 94, 0.9);
-      border-color: rgba(34, 197, 94, 0.8);
+    .btn-secondary {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
     }
 
-    .action-button.primary:hover {
-      background: rgba(34, 197, 94, 0.95);
+    .btn-danger {
+      background: #dc2626;
+      color: white;
     }
 
-    .action-button.danger {
-      background: rgba(239, 68, 68, 0.9);
-      border-color: rgba(239, 68, 68, 0.8);
-    }
-
-    .action-button.secondary {
-      background: rgba(107, 114, 128, 0.9);
-      border-color: rgba(107, 114, 128, 0.8);
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
 
     .button-group {
@@ -254,16 +195,11 @@
     }
 
     .progress-section {
-      display: none;
-      margin-top: 2rem;
-      padding: 2rem;
       background: var(--surface-hover);
-      border-radius: 16px;
       border: 1px solid var(--border-light);
-    }
-
-    .progress-section.show {
-      display: block;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
     }
 
     .progress-bar {
@@ -283,109 +219,150 @@
       border-radius: 6px;
     }
 
-    .progress-text {
-      text-align: center;
-      font-family: 'Inter', sans-serif;
-      color: var(--text-primary);
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    .terminal-section {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 2rem;
-      margin-top: 2rem;
-      border: 1px solid #333;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .terminal-header {
+    .status-indicator {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #333;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
     }
 
-    .terminal-title {
-      color: #22c55e;
-      font-family: 'JetBrains Mono', monospace;
+    .status-icon {
       font-size: 1rem;
-      font-weight: 600;
+      color: #6b7280;
     }
 
-    .terminal-output {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: #e5e5e5;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .status-icon.ready { color: #3b82f6; }
+    .status-icon.running { color: #f59e0b; animation: pulse 2s infinite; }
+    .status-icon.success { color: #10b981; }
+    .status-icon.error { color: #ef4444; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
-    .terminal-line {
-      margin-bottom: 0.25rem;
-    }
-
-    .terminal-line.info { color: #3b82f6; }
-    .terminal-line.success { color: #22c55e; }
-    .terminal-line.warning { color: #f59e0b; }
-    .terminal-line.error { color: #ef4444; }
-
-    .usb-detection-section {
-      display: none;
-      margin-top: 2rem;
-    }
-
-    .usb-detection-section.show {
-      display: block;
-    }
-
-    .port-grid {
+    .steps-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
       gap: 1rem;
-      margin-top: 1rem;
+      padding: 0.75rem;
+      background: var(--surface);
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
 
-    .port-item {
-      padding: 1rem;
-      background: var(--surface-hover);
-      border-radius: 12px;
-      border: 2px solid var(--border-light);
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .step.active {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
-    .port-item:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .port-item.selected {
-      border-color: #22c55e;
+    .step.completed {
       background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
-    .help-text {
-      font-size: 0.9rem;
+    .step-icon {
+      font-size: 1rem;
       color: var(--text-secondary);
-      margin-top: 1rem;
-      font-family: 'Inter', sans-serif;
+      min-width: 1rem;
+    }
+
+    .step.active .step-icon {
+      color: #3b82f6;
+    }
+
+    .step.completed .step-icon {
+      color: #10b981;
+    }
+
+    .step-text {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .step-check {
+      font-size: 1rem;
+      color: #10b981;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .step.completed .step-check {
+      opacity: 1;
+    }
+
+    .log-container {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
       line-height: 1.5;
     }
 
-    @media (max-width: 768px) {
-      .pnp-hero h1 { font-size: 1.8rem; }
-      .pnp-hero .subtitle { font-size: 1.2rem; }
-      .installation-container { padding: 1rem; }
-      .installation-card { padding: 1.5rem; }
-      .input-group { flex-direction: column; }
-      .button-group { flex-direction: column; }
-      .system-status { grid-template-columns: 1fr; }
+    .log-message {
+      margin-bottom: 0.5rem;
+      color: #e5e7eb;
+    }
+
+    .log-message.welcome { color: #60a5fa; }
+    .log-message.info { color: #34d399; }
+    .log-message.warning { color: #fbbf24; }
+    .log-message.error { color: #f87171; }
+
+    .system-status {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .status-item i {
+      font-size: 1rem;
+    }
+
+    .status-item.ok { color: #10b981; }
+    .status-item.error { color: #ef4444; }
+    .status-item.checking { color: #f59e0b; }
+
+    .footer-section {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border-light);
+      margin-top: 3rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--text-primary);
     }
   </style>
 </head>
@@ -400,576 +377,519 @@
     </div>
   </nav>
 
-  <main class="pnp-hero">
-    <h1>Plug & Play</h1>
-    <p class="subtitle">Professional LeRobot Installation with USB Port Detection</p>
-    
-    <div class="mode-indicator" id="modeIndicator">
-      <i class="fas fa-circle-notch fa-spin"></i>
-      Detecting system capabilities...
+  <main class="main">
+    <div class="plug-container">
+      <!-- Header -->
+      <div class="header-section">
+        <h1><i class="fas fa-robot"></i> Plug & Play</h1>
+        <p class="subtitle">Automated LeRobot installation with USB port detection</p>
+        
+        <!-- Server Status Banner -->
+        <div id="statusBanner" class="status-banner disconnected">
+          <div>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="bannerText">Backend not running - Start with: python start-plug-and-play.py</span>
+          </div>
+          <div class="system-status" id="systemStatus">
+            <div class="status-item checking">
+              <i class="fas fa-code-branch" id="gitIcon"></i>
+              <span id="gitStatus">Checking...</span>
+            </div>
+            <div class="status-item checking">
+              <i class="fas fa-cube" id="condaIcon"></i>
+              <span id="condaStatus">Checking...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Cards -->
+      <div class="cards-grid">
+        <!-- Installation Configuration -->
+        <div class="plug-card">
+          <div class="card-header">
+            <i class="fas fa-cog"></i>
+            <h3>Installation Configuration</h3>
+          </div>
+          
+          <div class="form-group">
+            <label for="installationPath" class="form-label">Installation Directory</label>
+            <p class="form-help">Choose where LeRobot will be installed on your computer</p>
+            <div class="input-group">
+              <input 
+                type="text" 
+                id="installationPath" 
+                class="form-input"
+                placeholder="/Users/username/lerobot"
+                value=""
+              >
+              <button type="button" class="btn btn-secondary" id="browseBtn">
+                <i class="fas fa-folder-open"></i> Browse
+              </button>
+            </div>
+          </div>
+          
+          <div class="button-group">
+            <button type="button" class="btn btn-primary" id="startInstallBtn">
+              <i class="fas fa-play"></i> Start Installation
+            </button>
+            <button type="button" class="btn btn-danger" id="cancelInstallBtn" disabled>
+              <i class="fas fa-stop"></i> Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- USB Port Detection -->
+        <div class="plug-card">
+          <div class="card-header">
+            <i class="fas fa-usb"></i>
+            <h3>USB Port Detection</h3>
+          </div>
+          
+          <p class="form-help">Automatically detect and configure your robotic arms</p>
+          
+          <div class="button-group">
+            <button type="button" class="btn btn-primary" id="scanPortsBtn">
+              <i class="fas fa-search"></i> Scan Ports
+            </button>
+            <button type="button" class="btn btn-secondary" id="refreshPortsBtn">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+          
+          <div id="portsContainer" style="margin-top: 1rem;">
+            <!-- Detected ports will appear here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-section">
+        <div class="card-header">
+          <i class="fas fa-tasks"></i>
+          <h3>Installation Progress</h3>
+        </div>
+        
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <span id="progressPercent">0%</span>
+        </div>
+        
+        <div class="status-indicator" id="statusIndicator">
+          <i class="fas fa-circle status-icon" id="statusIcon"></i>
+          <span class="status-text" id="statusText">Ready to install LeRobot</span>
+        </div>
+        
+        <div class="steps-container" id="stepsContainer">
+          <div class="step" data-step="checking_prerequisites">
+            <i class="fas fa-search step-icon"></i>
+            <span class="step-text">Checking Prerequisites</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+          <div class="step" data-step="cloning_repository">
+            <i class="fas fa-download step-icon"></i>
+            <span class="step-text">Cloning Repository</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+          <div class="step" data-step="creating_environment">
+            <i class="fas fa-box step-icon"></i>
+            <span class="step-text">Creating Environment</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+          <div class="step" data-step="installing_ffmpeg">
+            <i class="fas fa-video step-icon"></i>
+            <span class="step-text">Installing FFmpeg</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+          <div class="step" data-step="installing_lerobot">
+            <i class="fas fa-robot step-icon"></i>
+            <span class="step-text">Installing LeRobot</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+          <div class="step" data-step="detecting_usb_ports">
+            <i class="fas fa-usb step-icon"></i>
+            <span class="step-text">USB Port Detection</span>
+            <i class="fas fa-check step-check"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation Log -->
+      <div class="plug-card">
+        <div class="card-header">
+          <i class="fas fa-terminal"></i>
+          <h3>Installation Log</h3>
+          <button type="button" class="btn btn-secondary btn-small" id="clearLogBtn" style="margin-left: auto;">
+            <i class="fas fa-trash"></i> Clear
+          </button>
+        </div>
+        
+        <div class="log-container" id="logContainer">
+          <div class="log-message welcome">Welcome to the Tune Robotics Plug & Play Assistant</div>
+          <div class="log-message info">Ready to install LeRobot with automatic configuration</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-section">
+        <p>After installation completes, activate the environment with: <code>conda activate lerobot</code></p>
+        <div class="footer-links">
+          <a href="https://github.com/huggingface/lerobot" target="_blank" class="footer-link">
+            <i class="fab fa-github"></i>
+            LeRobot Repository
+          </a>
+          <a href="https://docs.conda.io/en/latest/miniconda.html" target="_blank" class="footer-link">
+            <i class="fas fa-cube"></i>
+            Get Miniconda
+          </a>
+        </div>
+      </div>
     </div>
   </main>
 
-  <div class="installation-container">
-    <!-- System Status Card -->
-    <div class="installation-card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-desktop"></i>
-        </div>
-        <div>
-          <h3 class="card-title">System Status</h3>
-          <p class="card-subtitle">Checking your system for LeRobot installation</p>
-        </div>
-      </div>
-      
-      <div class="system-status">
-        <div class="status-item">
-          <i class="fas fa-code-branch status-icon checking" id="gitIcon"></i>
-          <span class="status-text" id="gitStatus">Checking Git...</span>
-        </div>
-        <div class="status-item">
-          <i class="fas fa-cube status-icon checking" id="condaIcon"></i>
-          <span class="status-text" id="condaStatus">Checking Conda...</span>
-        </div>
-        <div class="status-item">
-          <i class="fas fa-python status-icon checking" id="pythonIcon"></i>
-          <span class="status-text" id="pythonStatus">Checking Python...</span>
-        </div>
-        <div class="status-item">
-          <i class="fas fa-server status-icon checking" id="serverIcon"></i>
-          <span class="status-text" id="serverStatus">Connecting to backend...</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Installation Configuration Card -->
-    <div class="installation-card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-cogs"></i>
-        </div>
-        <div>
-          <h3 class="card-title">Installation Configuration</h3>
-          <p class="card-subtitle">Choose where LeRobot will be installed on your system</p>
-        </div>
-      </div>
-      
-      <div class="input-group">
-        <input 
-          type="text" 
-          id="installationPath" 
-          class="form-input" 
-          placeholder="e.g., /Users/yourname/lerobot or C:\Users\yourname\lerobot"
-        >
-        <button id="browseBtn" class="action-button secondary">
-          <i class="fas fa-folder-open"></i>
-          Browse
-        </button>
-      </div>
-      
-      <div class="button-group">
-        <button id="startInstallBtn" class="action-button primary">
-          <i class="fas fa-play"></i>
-          Start Installation
-        </button>
-        <button id="cancelInstallBtn" class="action-button danger" disabled>
-          <i class="fas fa-stop"></i>
-          Cancel Installation
-        </button>
-        <button id="portDetectionBtn" class="action-button">
-          <i class="fas fa-usb"></i>
-          USB Port Detection
-        </button>
-      </div>
-      
-      <p class="help-text">
-        💡 <strong>Full System:</strong> Run <code>python start-plug-and-play.py</code> for complete installation with real-time progress tracking and USB port detection.
-      </p>
-    </div>
-
-    <!-- Progress Tracking Card -->
-    <div class="installation-card">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-tasks"></i>
-        </div>
-        <div>
-          <h3 class="card-title">Installation Progress</h3>
-          <p class="card-subtitle">Real-time monitoring of the installation process</p>
-        </div>
-      </div>
-
-      <div class="progress-section" id="progressSection">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <p class="progress-text" id="progressText">Preparing installation...</p>
-        
-        <div class="button-group">
-          <button id="clearLogBtn" class="action-button secondary">
-            <i class="fas fa-trash"></i>
-            Clear Log
-          </button>
-        </div>
-      </div>
-
-      <div class="terminal-section">
-        <div class="terminal-header">
-          <span class="terminal-title">Installation Log</span>
-        </div>
-        <div class="terminal-output" id="terminalOutput">
-          <div class="terminal-line info">Plug & Play Installation Assistant ready.</div>
-          <div class="terminal-line">Choose your installation directory and click "Start Installation" to begin.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- USB Port Detection Card -->
-    <div class="installation-card usb-detection-section" id="usbDetectionSection">
-      <div class="card-header">
-        <div class="card-icon">
-          <i class="fas fa-usb"></i>
-        </div>
-        <div>
-          <h3 class="card-title">USB Port Detection</h3>
-          <p class="card-subtitle">Configure your robotic arm connections</p>
-        </div>
-      </div>
-      
-      <div id="portDetectionContent">
-        <p>Click "Scan USB Ports" to detect connected robotic arms.</p>
-        <button id="scanPortsBtn" class="action-button">
-          <i class="fas fa-search"></i>
-          Scan USB Ports
-        </button>
-        <div class="port-grid" id="portGrid"></div>
-      </div>
-      
-      <p class="help-text">
-        🔌 <strong>Connect your robotic arms via USB before scanning.</strong> The system will automatically detect and configure leader/follower arm connections.
-      </p>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <p>
-      Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a> | 
-      <a href="https://github.com/tunerobotics" target="_blank">
-        <i class="fab fa-github"></i> GitHub
-      </a>
-    </p>
+  <footer id="contact" class="footer">
+    <p>Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a></p>
   </footer>
 
+  <!-- Include Socket.IO for WebSocket communication -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
   <script>
-    class AdvancedPlugAndPlayApp {
+    class PlugAndPlayApp {
       constructor() {
-        this.isInstalling = false;
         this.socket = null;
-        this.apiBaseUrl = null;
-        this.systemReady = false;
+        this.isConnected = false;
+        this.installationRunning = false;
+        this.apiBaseUrl = 'http://localhost:5000';
         
         this.initializeElements();
-        this.detectBackend();
         this.bindEvents();
-        this.setDefaultPath();
+        this.connectToBackend();
+        this.checkSystemInfo();
       }
-
+      
       initializeElements() {
+        // Form elements
+        this.installationPath = document.getElementById('installationPath');
+        this.browseBtn = document.getElementById('browseBtn');
+        this.startInstallBtn = document.getElementById('startInstallBtn');
+        this.cancelInstallBtn = document.getElementById('cancelInstallBtn');
+        
+        // Progress elements
+        this.progressFill = document.getElementById('progressFill');
+        this.progressPercent = document.getElementById('progressPercent');
+        this.statusIndicator = document.getElementById('statusIndicator');
+        this.statusIcon = document.getElementById('statusIcon');
+        this.statusText = document.getElementById('statusText');
+        this.stepsContainer = document.getElementById('stepsContainer');
+        
         // System status elements
-        this.modeIndicator = document.getElementById('modeIndicator');
         this.gitIcon = document.getElementById('gitIcon');
         this.gitStatus = document.getElementById('gitStatus');
         this.condaIcon = document.getElementById('condaIcon');
         this.condaStatus = document.getElementById('condaStatus');
-        this.pythonIcon = document.getElementById('pythonIcon');
-        this.pythonStatus = document.getElementById('pythonStatus');
-        this.serverIcon = document.getElementById('serverIcon');
-        this.serverStatus = document.getElementById('serverStatus');
         
-        // Installation elements
-        this.pathInput = document.getElementById('installationPath');
-        this.browseBtn = document.getElementById('browseBtn');
-        this.startInstallBtn = document.getElementById('startInstallBtn');
-        this.cancelInstallBtn = document.getElementById('cancelInstallBtn');
-        this.portDetectionBtn = document.getElementById('portDetectionBtn');
+        // Log elements
+        this.logContainer = document.getElementById('logContainer');
         this.clearLogBtn = document.getElementById('clearLogBtn');
         
-        // Progress elements
-        this.progressSection = document.getElementById('progressSection');
-        this.progressFill = document.getElementById('progressFill');
-        this.progressText = document.getElementById('progressText');
-        this.terminalOutput = document.getElementById('terminalOutput');
-        
-        // USB detection elements
-        this.usbDetectionSection = document.getElementById('usbDetectionSection');
+        // USB elements
         this.scanPortsBtn = document.getElementById('scanPortsBtn');
-        this.portGrid = document.getElementById('portGrid');
-      }
-
-      async detectBackend() {
-        this.updateModeIndicator('detecting', 'Detecting system capabilities...');
+        this.refreshPortsBtn = document.getElementById('refreshPortsBtn');
+        this.portsContainer = document.getElementById('portsContainer');
         
-        // Try to connect to local Plug & Play backend
-        try {
-          const localResponse = await fetch('http://localhost:5000/api/status', { 
-            method: 'GET',
-            signal: AbortSignal.timeout(3000)
-          });
-          
-          if (localResponse.ok) {
-            const data = await localResponse.json();
-            this.apiBaseUrl = 'http://localhost:5000';
-            this.initializeWebSocket();
-            this.updateModeIndicator('local', 'Full System Mode - Real Installation Capability');
-            this.checkSystemRequirements();
-            return;
-          }
-        } catch (e) {
-          console.log('Local backend not available:', e);
-        }
+        // Status banner
+        this.statusBanner = document.getElementById('statusBanner');
+        this.bannerText = document.getElementById('bannerText');
         
-        // Fallback to demo mode
-        this.apiBaseUrl = null;
-        this.updateModeIndicator('demo', 'Demo Mode - Run start-plug-and-play.py for full functionality');
-        this.simulateSystemCheck();
+        // Set default installation path
+        this.setDefaultPath();
       }
-
-      updateModeIndicator(type, message) {
-        this.modeIndicator.className = `mode-indicator ${type}`;
-        
-        const icons = {
-          detecting: '<i class="fas fa-circle-notch fa-spin"></i>',
-          local: '<i class="fas fa-check-circle"></i>',
-          demo: '<i class="fas fa-info-circle"></i>'
-        };
-        
-        this.modeIndicator.innerHTML = icons[type] + ' ' + message;
-      }
-
-      initializeWebSocket() {
-        if (!this.apiBaseUrl) return;
-        
-        try {
-          this.socket = io(this.apiBaseUrl);
-          
-          this.socket.on('connect', () => {
-            this.addLogMessage('Connected to installation backend', 'success');
-            this.updateServerStatus('ready', 'Backend Connected');
-          });
-          
-          this.socket.on('installation_progress', (data) => {
-            this.updateProgress(data.progress, data.message);
-            this.addLogMessage(data.message, 'info');
-          });
-          
-          this.socket.on('installation_complete', (data) => {
-            this.addLogMessage('Installation completed successfully!', 'success');
-            this.updateProgress(100, 'Installation Complete');
-            this.isInstalling = false;
-            this.updateButtons();
-          });
-          
-          this.socket.on('installation_error', (data) => {
-            this.addLogMessage('Installation failed: ' + data.message, 'error');
-            this.isInstalling = false;
-            this.updateButtons();
-          });
-          
-          this.socket.on('disconnect', () => {
-            this.addLogMessage('Disconnected from backend', 'warning');
-            this.updateServerStatus('error', 'Backend Disconnected');
-          });
-          
-        } catch (error) {
-          console.error('WebSocket connection failed:', error);
-          this.updateServerStatus('error', 'WebSocket Failed');
-        }
-      }
-
-      async checkSystemRequirements() {
-        if (!this.apiBaseUrl) return;
-        
-        try {
-          const response = await fetch(`${this.apiBaseUrl}/api/check-requirements`);
-          const data = await response.json();
-          
-          this.updateSystemStatus('git', data.git);
-          this.updateSystemStatus('conda', data.conda);
-          this.updateSystemStatus('python', data.python);
-          
-          this.systemReady = data.git.available && data.python.available;
-          this.updateButtons();
-          
-        } catch (error) {
-          console.error('Failed to check requirements:', error);
-          this.simulateSystemCheck();
-        }
-      }
-
-      simulateSystemCheck() {
-        // Simulate system check for demo mode
-        setTimeout(() => {
-          this.updateSystemStatus('git', { available: true, version: 'Demo' });
-          this.updateSystemStatus('conda', { available: true, version: 'Demo' });
-          this.updateSystemStatus('python', { available: true, version: 'Demo' });
-          this.updateServerStatus('error', 'Demo Mode');
-          this.systemReady = true;
-          this.updateButtons();
-        }, 1000);
-      }
-
-      updateSystemStatus(system, status) {
-        const icon = document.getElementById(`${system}Icon`);
-        const text = document.getElementById(`${system}Status`);
-        
-        if (status.available) {
-          icon.className = 'fas fa-check-circle status-icon ready';
-          text.textContent = status.version ? `${system} ${status.version}` : `${system} Ready`;
-        } else {
-          icon.className = 'fas fa-times-circle status-icon error';
-          text.textContent = status.error || `${system} Not Found`;
-        }
-      }
-
-      updateServerStatus(type, message) {
-        this.serverIcon.className = `fas fa-server status-icon ${type}`;
-        this.serverStatus.textContent = message;
-      }
-
+      
       bindEvents() {
-        this.browseBtn.addEventListener('click', () => this.browseDirectory());
         this.startInstallBtn.addEventListener('click', () => this.startInstallation());
         this.cancelInstallBtn.addEventListener('click', () => this.cancelInstallation());
-        this.portDetectionBtn.addEventListener('click', () => this.toggleUSBDetection());
-        this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
+        this.browseBtn.addEventListener('click', () => this.browsePath());
         this.clearLogBtn.addEventListener('click', () => this.clearLog());
-        
-        this.pathInput.addEventListener('input', () => this.validatePath());
+        this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
+        this.refreshPortsBtn.addEventListener('click', () => this.refreshUSBPorts());
       }
-
-      setDefaultPath() {
-        const userAgent = navigator.userAgent;
-        let defaultPath;
-        
-        if (userAgent.includes('Mac')) {
-          defaultPath = '/Users/' + (process.env.USER || 'yourname') + '/lerobot';
-        } else if (userAgent.includes('Win')) {
-          defaultPath = 'C:\\Users\\' + (process.env.USERNAME || 'yourname') + '\\lerobot';
-        } else {
-          defaultPath = '/home/' + (process.env.USER || 'yourname') + '/lerobot';
-        }
-        
-        this.pathInput.value = defaultPath;
-      }
-
-      async browseDirectory() {
+      
+      async connectToBackend() {
         try {
-          if ('showDirectoryPicker' in window) {
-            const dirHandle = await window.showDirectoryPicker();
-            let path = dirHandle.name;
-            
-            if (!path.toLowerCase().includes('lerobot')) {
-              path += '/lerobot';
-            }
-            
-            this.pathInput.value = path;
-            this.addLogMessage('Directory selected: ' + path, 'success');
+          const response = await fetch(`${this.apiBaseUrl}/api/status`);
+          if (response.ok) {
+            this.isConnected = true;
+            this.updateConnectionStatus(true);
+            this.connectSocket();
           } else {
-            this.addLogMessage('Please type your installation path manually', 'info');
-            this.pathInput.focus();
-          }
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            this.addLogMessage('Please type your installation path manually', 'info');
-          }
-        }
-      }
-
-      validatePath() {
-        const path = this.pathInput.value.trim();
-        const isValid = path.length > 0;
-        this.updateButtons();
-        return isValid;
-      }
-
-      updateButtons() {
-        const hasPath = this.validatePath();
-        this.startInstallBtn.disabled = !hasPath || this.isInstalling || !this.systemReady;
-        this.cancelInstallBtn.disabled = !this.isInstalling;
-      }
-
-      async startInstallation() {
-        if (this.isInstalling || !this.validatePath()) return;
-        
-        const path = this.pathInput.value.trim();
-        this.isInstalling = true;
-        this.progressSection.classList.add('show');
-        this.updateButtons();
-        
-        this.addLogMessage('Starting LeRobot installation...', 'info');
-        this.addLogMessage(`Installation path: ${path}`, 'info');
-        
-        if (this.apiBaseUrl) {
-          // Real installation via API
-          try {
-            const response = await fetch(`${this.apiBaseUrl}/api/install`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ installation_path: path })
-            });
-            
-            if (!response.ok) {
-              throw new Error('Installation request failed');
-            }
-            
-            this.addLogMessage('Installation request sent to backend', 'success');
-            
-          } catch (error) {
-            this.addLogMessage(`Installation failed: ${error.message}`, 'error');
-            this.isInstalling = false;
-            this.updateButtons();
-          }
-        } else {
-          // Demo mode simulation
-          this.simulateInstallation(path);
-        }
-      }
-
-      async simulateInstallation(path) {
-        const steps = [
-          { name: 'Checking system requirements', progress: 10 },
-          { name: 'Downloading LeRobot repository', progress: 30 },
-          { name: 'Creating conda environment', progress: 50 },
-          { name: 'Installing dependencies', progress: 70 },
-          { name: 'Setting up configuration', progress: 90 },
-          { name: 'Installation complete', progress: 100 }
-        ];
-
-        for (const step of steps) {
-          if (!this.isInstalling) break;
-          
-          this.updateProgress(step.progress, step.name);
-          this.addLogMessage(step.name, 'info');
-          await this.delay(2000 + Math.random() * 2000);
-        }
-        
-        if (this.isInstalling) {
-          this.addLogMessage('✅ Demo installation completed!', 'success');
-          this.addLogMessage('Run "python start-plug-and-play.py" for real installation', 'info');
-          this.isInstalling = false;
-          this.updateButtons();
-        }
-      }
-
-      async cancelInstallation() {
-        if (!this.isInstalling) return;
-        
-        this.isInstalling = false;
-        this.updateButtons();
-        
-        if (this.apiBaseUrl) {
-          try {
-            await fetch(`${this.apiBaseUrl}/api/cancel-install`, { method: 'POST' });
-          } catch (error) {
-            console.error('Failed to cancel installation:', error);
-          }
-        }
-        
-        this.addLogMessage('Installation cancelled by user', 'warning');
-      }
-
-      toggleUSBDetection() {
-        this.usbDetectionSection.classList.toggle('show');
-        const isVisible = this.usbDetectionSection.classList.contains('show');
-        this.portDetectionBtn.innerHTML = isVisible 
-          ? '<i class="fas fa-usb"></i> Hide USB Detection'
-          : '<i class="fas fa-usb"></i> USB Port Detection';
-      }
-
-      async scanUSBPorts() {
-        this.scanPortsBtn.disabled = true;
-        this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
-        
-        this.addLogMessage('Scanning for USB ports...', 'info');
-        
-        try {
-          if (this.apiBaseUrl) {
-            const response = await fetch(`${this.apiBaseUrl}/api/scan-ports`);
-            const data = await response.json();
-            this.displayPorts(data.ports);
-          } else {
-            // Demo mode - simulate port detection
-            await this.delay(2000);
-            this.displayPorts([
-              { port: '/dev/tty.usbmodem14201', description: 'Arduino Mega (Demo)', type: 'demo' },
-              { port: '/dev/tty.usbmodem14301', description: 'Arduino Mega (Demo)', type: 'demo' }
-            ]);
+            throw new Error('Backend not responding');
           }
         } catch (error) {
-          this.addLogMessage(`Port scanning failed: ${error.message}`, 'error');
-        } finally {
-          this.scanPortsBtn.disabled = false;
-          this.scanPortsBtn.innerHTML = '<i class="fas fa-search"></i> Scan USB Ports';
+          this.isConnected = false;
+          this.updateConnectionStatus(false);
+          this.logMessage('Backend server not running. Start with: python start-plug-and-play.py', 'error');
         }
       }
-
-      displayPorts(ports) {
-        this.portGrid.innerHTML = '';
+      
+      connectSocket() {
+        if (!this.isConnected) return;
         
-        if (ports.length === 0) {
-          this.portGrid.innerHTML = '<p class="help-text">No USB ports detected. Make sure your robotic arms are connected.</p>';
+        this.socket = io(this.apiBaseUrl);
+        
+        this.socket.on('connect', () => {
+          this.logMessage('Connected to Plug & Play backend', 'info');
+        });
+        
+        this.socket.on('installation_progress', (data) => {
+          this.updateProgress(data.progress, data.status, data.step);
+        });
+        
+        this.socket.on('installation_log', (data) => {
+          this.logMessage(data.message, data.level || 'info');
+        });
+        
+        this.socket.on('installation_complete', (data) => {
+          this.onInstallationComplete(data);
+        });
+        
+        this.socket.on('installation_error', (data) => {
+          this.onInstallationError(data);
+        });
+      }
+      
+      updateConnectionStatus(connected) {
+        if (connected) {
+          this.statusBanner.className = 'status-banner connected';
+          this.bannerText.innerHTML = '<i class="fas fa-check-circle"></i> Connected to Plug & Play backend - Full functionality available';
+        } else {
+          this.statusBanner.className = 'status-banner disconnected';
+          this.bannerText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Backend not running - Start with: python start-plug-and-play.py';
+        }
+      }
+      
+      async checkSystemInfo() {
+        if (!this.isConnected) {
+          this.updateSystemStatus('error', 'Not Connected');
           return;
         }
         
-        ports.forEach((port, index) => {
-          const portElement = document.createElement('div');
-          portElement.className = 'port-item';
-          portElement.innerHTML = `
-            <strong>${port.port}</strong><br>
-            <small>${port.description}</small>
-          `;
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/system_info`);
+          const data = await response.json();
           
-          portElement.addEventListener('click', () => {
-            document.querySelectorAll('.port-item').forEach(p => p.classList.remove('selected'));
-            portElement.classList.add('selected');
-            this.addLogMessage(`Selected port: ${port.port}`, 'success');
+          if (data.git_available) {
+            this.gitIcon.className = 'fas fa-code-branch';
+            this.gitStatus.textContent = `Git ${data.git_version}`;
+            this.gitIcon.parentElement.className = 'status-item ok';
+          } else {
+            this.gitIcon.className = 'fas fa-times';
+            this.gitStatus.textContent = 'Not installed';
+            this.gitIcon.parentElement.className = 'status-item error';
+          }
+          
+          if (data.conda_available) {
+            this.condaIcon.className = 'fas fa-cube';
+            this.condaStatus.textContent = `Conda available`;
+            this.condaIcon.parentElement.className = 'status-item ok';
+          } else {
+            this.condaIcon.className = 'fas fa-times';
+            this.condaStatus.textContent = 'Not installed';
+            this.condaIcon.parentElement.className = 'status-item error';
+          }
+          
+        } catch (error) {
+          this.updateSystemStatus('error', 'Check failed');
+        }
+      }
+      
+      updateSystemStatus(status, message) {
+        const items = document.querySelectorAll('.status-item');
+        items.forEach(item => {
+          item.className = `status-item ${status}`;
+          if (status === 'error') {
+            item.querySelector('span').textContent = message;
+          }
+        });
+      }
+      
+      setDefaultPath() {
+        const platform = navigator.platform.toLowerCase();
+        let defaultPath;
+        
+        if (platform.includes('win')) {
+          defaultPath = 'C:\\Users\\' + (process.env.USERNAME || 'user') + '\\lerobot';
+        } else if (platform.includes('mac')) {
+          defaultPath = '/Users/' + (process.env.USER || 'user') + '/lerobot';
+        } else {
+          defaultPath = '/home/' + (process.env.USER || 'user') + '/lerobot';
+        }
+        
+        this.installationPath.value = defaultPath;
+      }
+      
+      async startInstallation() {
+        if (!this.isConnected) {
+          this.logMessage('Backend not connected. Please start the backend server first.', 'error');
+          return;
+        }
+        
+        const path = this.installationPath.value.trim();
+        if (!path) {
+          this.logMessage('Please specify an installation directory', 'error');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/start_installation`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ installation_path: path })
           });
           
-          this.portGrid.appendChild(portElement);
+          const data = await response.json();
+          
+          if (data.success) {
+            this.installationRunning = true;
+            this.startInstallBtn.disabled = true;
+            this.cancelInstallBtn.disabled = false;
+            this.logMessage('Installation started...', 'info');
+          } else {
+            this.logMessage(`Failed to start installation: ${data.error}`, 'error');
+          }
+          
+        } catch (error) {
+          this.logMessage(`Error starting installation: ${error.message}`, 'error');
+        }
+      }
+      
+      async cancelInstallation() {
+        if (!this.isConnected) return;
+        
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/cancel_installation`, {
+            method: 'POST'
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            this.installationRunning = false;
+            this.startInstallBtn.disabled = false;
+            this.cancelInstallBtn.disabled = true;
+            this.logMessage('Installation cancelled', 'warning');
+          }
+        } catch (error) {
+          this.logMessage(`Error cancelling installation: ${error.message}`, 'error');
+        }
+      }
+      
+      browsePath() {
+        // In a real implementation, this would open a directory picker
+        // For now, just focus the input
+        this.installationPath.focus();
+        this.logMessage('Please enter the installation path manually', 'info');
+      }
+      
+      updateProgress(progress, status, step) {
+        this.progressFill.style.width = `${progress}%`;
+        this.progressPercent.textContent = `${progress}%`;
+        
+        this.statusText.textContent = status;
+        this.statusIcon.className = `fas fa-circle status-icon ${progress === 100 ? 'success' : 'running'}`;
+        
+        // Update steps
+        const steps = this.stepsContainer.querySelectorAll('.step');
+        steps.forEach((stepEl, index) => {
+          const stepName = stepEl.dataset.step;
+          if (stepName === step) {
+            stepEl.className = 'step active';
+          } else if (progress > (index + 1) * (100 / steps.length)) {
+            stepEl.className = 'step completed';
+          } else {
+            stepEl.className = 'step';
+          }
         });
+      }
+      
+      async scanUSBPorts() {
+        if (!this.isConnected) {
+          this.logMessage('Backend not connected. Cannot scan USB ports.', 'error');
+          return;
+        }
         
-        this.addLogMessage(`Found ${ports.length} USB port(s)`, 'success');
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/scan_usb_ports`);
+          const data = await response.json();
+          
+          this.displayUSBPorts(data.ports || []);
+          this.logMessage(`Found ${data.ports?.length || 0} USB devices`, 'info');
+          
+        } catch (error) {
+          this.logMessage(`Error scanning USB ports: ${error.message}`, 'error');
+        }
       }
-
-      updateProgress(percent, text) {
-        this.progressFill.style.width = `${percent}%`;
-        this.progressText.textContent = `${percent}% - ${text}`;
+      
+      refreshUSBPorts() {
+        this.scanUSBPorts();
       }
-
-      addLogMessage(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        const line = document.createElement('div');
-        line.className = `terminal-line ${type}`;
-        line.textContent = `[${timestamp}] ${message}`;
+      
+      displayUSBPorts(ports) {
+        this.portsContainer.innerHTML = '';
         
-        this.terminalOutput.appendChild(line);
-        this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+        if (ports.length === 0) {
+          this.portsContainer.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">No USB devices detected</p>';
+          return;
+        }
+        
+        ports.forEach(port => {
+          const portElement = document.createElement('div');
+          portElement.style.cssText = 'padding: 0.75rem; background: var(--surface); border: 1px solid var(--border-light); border-radius: 8px; margin-bottom: 0.5rem;';
+          portElement.innerHTML = `
+            <div style="font-weight: 600;">${port.device}</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary);">
+              ${port.description || 'Unknown device'} - ${port.hwid || 'No HWID'}
+            </div>
+          `;
+          this.portsContainer.appendChild(portElement);
+        });
       }
-
+      
+      onInstallationComplete(data) {
+        this.installationRunning = false;
+        this.startInstallBtn.disabled = false;
+        this.cancelInstallBtn.disabled = true;
+        this.updateProgress(100, 'Installation complete!', 'detecting_usb_ports');
+        this.logMessage('🎉 LeRobot installation completed successfully!', 'info');
+      }
+      
+      onInstallationError(data) {
+        this.installationRunning = false;
+        this.startInstallBtn.disabled = false;
+        this.cancelInstallBtn.disabled = true;
+        this.statusIcon.className = 'fas fa-circle status-icon error';
+        this.statusText.textContent = 'Installation failed';
+        this.logMessage(`❌ Installation failed: ${data.error}`, 'error');
+      }
+      
+      logMessage(message, level = 'info') {
+        const logEntry = document.createElement('div');
+        logEntry.className = `log-message ${level}`;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        
+        this.logContainer.appendChild(logEntry);
+        this.logContainer.scrollTop = this.logContainer.scrollHeight;
+      }
+      
       clearLog() {
-        this.terminalOutput.innerHTML = '';
-        this.addLogMessage('Log cleared', 'info');
-      }
-
-      delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        this.logContainer.innerHTML = '';
+        this.logMessage('Log cleared', 'info');
       }
     }
-
-    // Initialize when page loads
+    
+    // Initialize the app when the page loads
     document.addEventListener('DOMContentLoaded', () => {
-      new AdvancedPlugAndPlayApp();
+      new PlugAndPlayApp();
     });
   </script>
 </body>
