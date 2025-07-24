@@ -1,0 +1,8 @@
+{
+  "dataset_name": "gribok201/150episodes6",
+  "version": "2025.07.08",
+  "notes": "Evaluated on 5 samples",
+  "visual_diversity": 0.11446248142080256,
+  "dataset_coverage": 0.27499999999999997,
+  "trajectory_quality": 0.9310875522380415
+}

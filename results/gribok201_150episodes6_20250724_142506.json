@@ -1,0 +1,6 @@
+{
+  "dataset_name": "gribok201/150episodes6",
+  "version": "2025.07.08",
+  "notes": "Evaluated on 5 samples",
+  "action_consistency": 0.6787581054587967
+}
