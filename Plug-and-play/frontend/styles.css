@@ -1,17 +1,17 @@
 :root {
   /* Colors */
-  --primary-color: #000000;
-  --primary-hover: #333333;
-  --success-color: #000000;
-  --error-color: #ff4444;
-  --warning-color: #ff9800;
-  --text-primary: #000000;
-  --text-secondary: #666666;
-  --text-muted: #888888;
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --surface: #ffffff;
-  --surface-hover: #f8f9fa;
-  --border: #e0e0e0;
-  --border-light: #f0f0f0;
+  --surface-hover: #f9fafb;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
   
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -36,10 +36,10 @@
   --radius-xl: 1rem;
   
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.15);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.25);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 /* Reset and base styles */
@@ -54,7 +54,7 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--text-primary);
-  background-color: #ffffff;
+  background-color: #f8fafc;
   min-height: 100vh;
 }
 
@@ -226,7 +226,7 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgb(0 87 183 / 0.1);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
 
 /* Buttons */
@@ -334,7 +334,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(0, 87, 183, 0.3),
+    rgba(255, 255, 255, 0.2),
     transparent
   );
   animation: shimmer 2s infinite;
@@ -370,17 +370,17 @@ body {
 
 .status-indicator.status-running {
   border-color: var(--primary-color);
-  background: rgb(0 87 183 / 0.1);
+  background: rgb(59 130 246 / 0.05);
 }
 
 .status-indicator.status-completed {
   border-color: var(--success-color);
-  background: rgb(0 87 183 / 0.1);
+  background: rgb(16 185 129 / 0.05);
 }
 
 .status-indicator.status-failed {
   border-color: var(--error-color);
-  background: rgb(255 68 68 / 0.1);
+  background: rgb(239 68 68 / 0.05);
 }
 
 .status-icon {
@@ -433,13 +433,13 @@ body {
 
 .step.active {
   border-color: var(--primary-color);
-  background: rgb(0 87 183 / 0.1);
+  background: rgb(59 130 246 / 0.05);
   transform: translateX(4px);
 }
 
 .step.completed {
   border-color: var(--success-color);
-  background: rgb(0 87 183 / 0.1);
+  background: rgb(16 185 129 / 0.05);
 }
 
 .step-icon {
@@ -482,8 +482,8 @@ body {
 
 /* Log container */
 .log-container {
-  background: #f8f9fa;
-  color: #000000;
+  background: #1a1b26;
+  color: #c0caf5;
   padding: var(--spacing-lg);
   border-radius: var(--radius-md);
   font-family: 'Monaco', 'Consolas', 'SF Mono', monospace;
@@ -491,7 +491,7 @@ body {
   line-height: 1.5;
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #2a2e42;
 }
 
 .log-message {
@@ -500,28 +500,28 @@ body {
 }
 
 .log-message.info {
-  color: #000000;
+  color: #7aa2f7;
 }
 
 .log-message.success {
-  color: #333333;
+  color: #9ece6a;
 }
 
 .log-message.error {
-  color: #ff4444;
+  color: #f7768e;
 }
 
 .log-message.warning {
-  color: #ff9800;
+  color: #e0af68;
 }
 
 .log-message.command {
-  color: #666666;
+  color: #bb9af7;
   font-style: italic;
 }
 
 .log-message.welcome {
-  color: #000000;
+  color: #7dcfff;
   font-weight: bold;
 }
 

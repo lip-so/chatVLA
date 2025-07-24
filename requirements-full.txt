@@ -33,4 +33,7 @@ evaluate>=0.4.0
 jsonlines>=4.0.0
 
 # Serial port detection
-pyserial>=3.5 
+pyserial>=3.5
+
+# System monitoring for Railway
+psutil>=5.9.0 

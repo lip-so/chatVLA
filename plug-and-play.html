@@ -540,6 +540,10 @@
       <div class="footer-section">
         <p>After installation completes, activate the environment with: <code>conda activate lerobot</code></p>
         <div class="footer-links">
+          <a href="port-detection.html" class="footer-link">
+            <i class="fas fa-usb"></i>
+            USB Port Detection
+          </a>
           <a href="https://github.com/huggingface/lerobot" target="_blank" class="footer-link">
             <i class="fab fa-github"></i>
             LeRobot Repository
@@ -565,7 +569,7 @@
         this.socket = null;
         this.isConnected = false;
         this.installationRunning = false;
-        this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';  // Cloud API
+        this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';  // Unified API with Plug & Play
         
         this.initializeElements();
         this.bindEvents();
@@ -622,18 +626,20 @@
       
       async connectToBackend() {
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/status`);
+          const response = await fetch(`${this.apiBaseUrl}/health`);
           if (response.ok) {
+            const data = await response.json();
             this.isConnected = true;
             this.updateConnectionStatus(true);
             this.connectSocket();
+            this.logMessage('✅ Connected to Tune Robotics Unified API', 'info');
           } else {
             throw new Error('Backend not responding');
           }
         } catch (error) {
           this.isConnected = false;
           this.updateConnectionStatus(false);
-          this.logMessage('Backend server not running. Start with: python start-plug-and-play.py', 'error');
+          this.logMessage('❌ Backend server not available. Using Railway production service.', 'error');
         }
       }
       
@@ -660,6 +666,21 @@
         
         this.socket.on('installation_error', (data) => {
           this.onInstallationError(data);
+        });
+        
+        // Handle generic log messages
+        this.socket.on('log_message', (data) => {
+          this.logMessage(data.message, 'info');
+        });
+        
+        // Handle progress updates
+        this.socket.on('progress_update', (data) => {
+          this.updateProgress(data.progress, data.description, data.step);
+        });
+        
+        // Handle error messages
+        this.socket.on('error_message', (data) => {
+          this.logMessage(data.message, 'error');
         });
       }
       

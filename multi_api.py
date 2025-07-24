@@ -54,15 +54,32 @@ print("✅ Flask app and SocketIO initialized")
 # Import real DataBench functionality
 try:
     # Ensure proper path setup for Railway deployment
-    os.environ['PYTHONPATH'] = str(databench_path)
+    current_pythonpath = os.environ.get('PYTHONPATH', '')
+    if str(databench_path) not in current_pythonpath:
+        if current_pythonpath:
+            os.environ['PYTHONPATH'] = f"{databench_path}:{current_pythonpath}"
+        else:
+            os.environ['PYTHONPATH'] = str(databench_path)
     
+    # Verify databench directory structure
+    if not databench_path.exists():
+        raise ImportError(f"DataBench directory not found: {databench_path}")
+    
+    scripts_path = databench_path / 'scripts'
+    if not scripts_path.exists():
+        raise ImportError(f"DataBench scripts directory not found: {scripts_path}")
+    
+    # Import with proper error handling
     from scripts.evaluate import RoboticsDatasetBenchmark, METRIC_MAPPING
     from scripts.config_loader import get_config_loader, get_config
     DATABENCH_AVAILABLE = True
     print("✅ DataBench evaluation system loaded")
+    logger.info(f"DataBench path: {databench_path}")
+    logger.info(f"Python path: {os.environ.get('PYTHONPATH')}")
 except ImportError as e:
     logger.error(f"Failed to import DataBench: {e}")
     logger.error(f"Current working directory: {os.getcwd()}")
+    logger.error(f"DataBench path exists: {databench_path.exists()}")
     logger.error(f"Python path: {sys.path}")
     DATABENCH_AVAILABLE = False
 
@@ -97,10 +114,21 @@ class DataBenchAPI:
         try:
             logger.info(f"Starting real DataBench evaluation: {dataset_name}")
             
-            # Initialize the real benchmark system
+            # Set HuggingFace token if provided
+            if token:
+                os.environ['HF_TOKEN'] = token
+                
+            # Initialize the real benchmark system with Railway-optimized settings
             config_overrides = {}
             if subset:
                 config_overrides['general'] = {'subset_size': subset}
+            
+            # Add Railway-specific optimizations
+            config_overrides['computation'] = {
+                'batch_size': 8,  # Smaller batch size for Railway memory limits
+                'num_workers': 2,  # Limit workers for Railway
+                'device': 'cpu'   # Force CPU for Railway compatibility
+            }
                 
             benchmark = RoboticsDatasetBenchmark(
                 data_path=dataset_name,
@@ -108,35 +136,46 @@ class DataBenchAPI:
                 config_overrides=config_overrides
             )
             
-            # Convert metric codes to full names
-            metric_names = []
-            for metric_code in metrics:
-                if metric_code in METRIC_MAPPING:
-                    metric_names.append(METRIC_MAPPING[metric_code])
-                else:
-                    logger.warning(f"Unknown metric code: {metric_code}")
-            
             # Perform the actual evaluation
             logger.info(f"Evaluating metrics: {metrics}")
-            results = benchmark.run_evaluation(metrics)
+            start_time = datetime.now()
+            
+            # Run evaluation with timeout protection
+            import signal
+            def timeout_handler(signum, frame):
+                raise TimeoutError("Evaluation timed out")
+            
+            # Set 15 minute timeout for Railway
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(900)  # 15 minutes
+            
+            try:
+                results = benchmark.run_evaluation(metrics)
+            finally:
+                signal.alarm(0)  # Disable timeout
+            
+            end_time = datetime.now()
+            evaluation_duration = (end_time - start_time).total_seconds()
             
             # Format results for API response
             formatted_results = {}
             overall_scores = []
             
-            for metric_code, metric_name in METRIC_MAPPING.items():
-                if metric_name in results:
-                    # Handle different result formats
-                    score = results[metric_name]
-                    if isinstance(score, dict):
-                        score = score.get('overall_score', score.get('score', 0.0))
-                    elif isinstance(score, (int, float)):
-                        score = float(score)
-                    else:
-                        score = 0.0
-                    
-                    formatted_results[metric_code] = round(score, 3)
-                    overall_scores.append(score)
+            for metric_code in metrics:
+                if metric_code in METRIC_MAPPING:
+                    metric_name = METRIC_MAPPING[metric_code]
+                    if metric_name in results:
+                        # Handle different result formats
+                        score = results[metric_name]
+                        if isinstance(score, dict):
+                            score = score.get('overall_score', score.get('score', 0.0))
+                        elif isinstance(score, (int, float)):
+                            score = float(score)
+                        else:
+                            score = 0.0
+                        
+                        formatted_results[metric_code] = round(score, 3)
+                        overall_scores.append(score)
             
             # Calculate overall score
             if overall_scores:
@@ -150,14 +189,23 @@ class DataBenchAPI:
                 "detailed_results": results,
                 "metadata": {
                     "subset_size": subset,
-                    "evaluation_time": datetime.now().isoformat(),
+                    "evaluation_time": start_time.isoformat(),
+                    "duration_seconds": round(evaluation_duration, 2),
                     "metrics_evaluated": len(formatted_results),
-                    "mode": "full_evaluation"
+                    "mode": "railway_optimized"
                 }
             }
             
+        except TimeoutError:
+            logger.error(f"DataBench evaluation timed out for dataset: {dataset_name}")
+            return {
+                "success": False,
+                "error": "Evaluation timed out after 15 minutes",
+                "dataset": dataset_name
+            }
         except Exception as e:
             logger.error(f"DataBench evaluation failed: {e}")
+            logger.exception("Full error traceback:")
             return {
                 "success": False,
                 "error": f"Evaluation failed: {str(e)}",
@@ -439,17 +487,60 @@ def index():
 
 @app.route('/health', methods=['GET'])
 def health():
-    """Health check endpoint"""
-    return jsonify({
-        "status": "healthy",
-        "services": ["DataBench", "Plug & Play"],
-        "capabilities": {
-            "databench_available": DATABENCH_AVAILABLE,
-            "serial_available": SERIAL_AVAILABLE
-        },
-        "version": "2.0.0-real",
-        "timestamp": datetime.now().isoformat()
-    }), 200
+    """Health check endpoint with detailed system status"""
+    try:
+        # Check DataBench availability
+        databench_status = "available" if DATABENCH_AVAILABLE else "unavailable"
+        databench_details = {}
+        
+        if DATABENCH_AVAILABLE:
+            databench_details = {
+                "path_exists": databench_path.exists(),
+                "scripts_exists": (databench_path / 'scripts').exists(),
+                "config_exists": (databench_path / 'config.yaml').exists(),
+                "pythonpath_set": str(databench_path) in os.environ.get('PYTHONPATH', '')
+            }
+        
+        # Check system resources
+        import psutil
+        memory_info = psutil.virtual_memory()
+        disk_info = psutil.disk_usage('/')
+        
+        return jsonify({
+            "status": "healthy",
+            "services": {
+                "databench": {
+                    "status": databench_status,
+                    "details": databench_details
+                },
+                "plugplay": {
+                    "status": "available",
+                    "serial_available": SERIAL_AVAILABLE
+                }
+            },
+            "system": {
+                "memory_usage_percent": memory_info.percent,
+                "memory_available_mb": memory_info.available // (1024 * 1024),
+                "disk_usage_percent": disk_info.percent,
+                "disk_free_gb": disk_info.free // (1024 * 1024 * 1024)
+            },
+            "environment": {
+                "python_version": sys.version,
+                "working_directory": os.getcwd(),
+                "port": int(os.environ.get('PORT', 5000)),
+                "railway_deployment": os.environ.get('RAILWAY_ENVIRONMENT_NAME') is not None
+            },
+            "version": "2.0.1-railway",
+            "timestamp": datetime.now().isoformat()
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            "status": "degraded",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 503
 
 # ============================================================================
 # DATABENCH ENDPOINTS - REAL IMPLEMENTATION
@@ -589,6 +680,65 @@ def cancel_installation():
     """Cancel running installation"""
     installation_manager.is_running = False
     return jsonify({'message': 'Installation cancelled'})
+
+@app.route('/api/status', methods=['GET'])
+def get_installation_status():
+    """Get current installation status for Plug & Play frontend"""
+    return jsonify({
+        'is_running': installation_manager.is_running,
+        'progress': installation_manager.progress,
+        'current_step': installation_manager.current_step,
+        'status': 'running' if installation_manager.is_running else 'ready'
+    })
+
+@app.route('/api/browse-directory', methods=['POST'])
+def browse_directory():
+    """Browse directory endpoint for frontend compatibility"""
+    try:
+        data = request.get_json()
+        current_path = data.get('path', str(Path.home()))
+        
+        path_obj = Path(current_path).resolve()
+        if not path_obj.exists() or not path_obj.is_dir():
+            path_obj = Path.home()
+        
+        items = []
+        if path_obj.parent != path_obj:
+            items.append({
+                'name': '..',
+                'path': str(path_obj.parent),
+                'type': 'parent',
+                'is_dir': True
+            })
+        
+        for item in sorted(path_obj.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
+            try:
+                if item.name.startswith('.'):
+                    continue
+                    
+                items.append({
+                    'name': item.name,
+                    'path': str(item),
+                    'type': 'directory' if item.is_dir() else 'file',
+                    'is_dir': item.is_dir(),
+                    'size': item.stat().st_size if item.is_file() else None
+                })
+            except (PermissionError, OSError):
+                continue
+                
+        return jsonify({
+            'current_path': str(path_obj),
+            'items': items,
+            'can_create': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Failed to browse directory: {str(e)}',
+            'current_path': str(Path.home()),
+            'items': [],
+            'can_create': False
+        }), 500
 
 # ============================================================================
 # WEBSOCKET EVENTS

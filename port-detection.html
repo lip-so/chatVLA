@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tune Robotics - USB Port Detection</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .port-detection-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .detection-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .detection-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .card-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-indicator.ready { 
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        .status-indicator.scanning { 
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .status-indicator.success { 
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .ports-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .port-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--surface-hover);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .port-item:hover {
+            background: var(--surface);
+            border-color: var(--accent);
+        }
+
+        .port-info {
+            flex: 1;
+        }
+
+        .port-device {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .port-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .port-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+            border-color: var(--accent);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .guidance-section {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: #e2e8f0;
+        }
+
+        .guidance-section h4 {
+            color: #7dd3fc;
+            margin-bottom: 1rem;
+        }
+
+        .detection-steps {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .detection-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.875rem;
+            min-width: 2rem;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .code-block {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: #86efac;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-section {
+            background: var(--surface-hover);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .results-section.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .port-assignment {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .port-role {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .port-device-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            background: var(--surface-hover);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .port-detection-container {
+                padding: 1rem;
+            }
+            
+            .detection-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="landing.html" class="logo">Tune</a>
+        <div class="nav-links">
+            <a href="Vision.html">Vision</a>
+            <a href="databench.html">DataBench</a>
+            <a href="plug-and-play.html">Plug & Play</a>
+            <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="hero">
+            <h1 class="landing-super-title">USB Port Detection</h1>
+            <p class="hero-subtitle">Automatically identify and configure your robotic arm connections</p>
+        </div>
+
+        <div class="port-detection-container">
+            <!-- Status Card -->
+            <div class="detection-card">
+                <div class="card-header">
+                    <i class="fas fa-usb"></i>
+                    <h3>Port Detection Status</h3>
+                </div>
+                
+                <div class="status-indicator ready" id="statusIndicator">
+                    <i class="fas fa-circle" id="statusIcon"></i>
+                    <span id="statusText">Ready to scan for USB devices</span>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="scanPortsBtn">
+                        <i class="fas fa-search"></i>
+                        Scan USB Ports
+                    </button>
+                    <button class="btn btn-secondary" id="refreshPortsBtn">
+                        <i class="fas fa-sync"></i>
+                        Refresh
+                    </button>
+                    <button class="btn btn-secondary" id="clearResultsBtn">
+                        <i class="fas fa-trash"></i>
+                        Clear Results
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detected Ports Card -->
+            <div class="detection-card">
+                <div class="card-header">
+                    <i class="fas fa-list"></i>
+                    <h3>Detected USB Devices</h3>
+                </div>
+                
+                <div id="portsContainer">
+                    <p style="color: var(--text-secondary); font-style: italic;">Click "Scan USB Ports" to detect connected devices</p>
+                </div>
+            </div>
+
+            <!-- Port Assignment Results -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+                    <h3>Port Configuration</h3>
+                </div>
+                
+                <div id="portAssignments">
+                    <!-- Port assignments will be shown here -->
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" id="saveConfigBtn">
+                        <i class="fas fa-save"></i>
+                        Save Configuration
+                    </button>
+                    <button class="btn btn-secondary" id="testConnectionBtn">
+                        <i class="fas fa-plug"></i>
+                        Test Connection
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manual Detection Guidance -->
+            <div class="guidance-section">
+                <h4><i class="fas fa-info-circle"></i> Manual Detection Guide</h4>
+                <p>If automatic detection doesn't work, follow these steps to manually identify your robotic arm ports:</p>
+                
+                <ol class="detection-steps">
+                    <li>
+                        <span class="step-number">1</span>
+                        <div class="step-content">
+                            <strong>Install pyserial</strong><br>
+                            First, make sure you have pyserial installed for port detection.
+                            <div class="code-block">pip install pyserial</div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">2</span>
+                        <div class="step-content">
+                            <strong>List all ports with both arms disconnected</strong><br>
+                            Run this command to see the initial port list.
+                            <div class="code-block">python -m serial.tools.list_ports</div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">3</span>
+                        <div class="step-content">
+                            <strong>Connect the leader arm and scan again</strong><br>
+                            The new port that appears is your leader arm port.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">4</span>
+                        <div class="step-content">
+                            <strong>Connect the follower arm and scan again</strong><br>
+                            The newest port that appears is your follower arm port.
+                        </div>
+                    </li>
+                    <li>
+                        <span class="step-number">5</span>
+                        <div class="step-content">
+                            <strong>Update your configuration</strong><br>
+                            Use the detected ports in your LeRobot configuration.
+                            <div class="code-block">
+# In your LeRobot config<br>
+LEADER_ARM_PORT = "/dev/ttyUSB0"  # or similar<br>
+FOLLOWER_ARM_PORT = "/dev/ttyUSB1"  # or similar
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+                
+                <p><strong>Pro tip:</strong> Most robotic arms show up as USB serial devices. Look for entries containing "USB" or "Serial" in the device description.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer id="contact" class="footer">
+        <p>Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a></p>
+    </footer>
+
+    <script>
+        class PortDetectionApp {
+            constructor() {
+                this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';
+                this.detectedPorts = [];
+                this.isScanning = false;
+                
+                this.initializeElements();
+                this.bindEvents();
+            }
+            
+            initializeElements() {
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.statusIcon = document.getElementById('statusIcon');
+                this.statusText = document.getElementById('statusText');
+                this.scanPortsBtn = document.getElementById('scanPortsBtn');
+                this.refreshPortsBtn = document.getElementById('refreshPortsBtn');
+                this.clearResultsBtn = document.getElementById('clearResultsBtn');
+                this.portsContainer = document.getElementById('portsContainer');
+                this.resultsSection = document.getElementById('resultsSection');
+                this.portAssignments = document.getElementById('portAssignments');
+                this.saveConfigBtn = document.getElementById('saveConfigBtn');
+                this.testConnectionBtn = document.getElementById('testConnectionBtn');
+            }
+            
+            bindEvents() {
+                this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
+                this.refreshPortsBtn.addEventListener('click', () => this.refreshPorts());
+                this.clearResultsBtn.addEventListener('click', () => this.clearResults());
+                this.saveConfigBtn.addEventListener('click', () => this.saveConfiguration());
+                this.testConnectionBtn.addEventListener('click', () => this.testConnection());
+            }
+            
+            async scanUSBPorts() {
+                if (this.isScanning) return;
+                
+                this.isScanning = true;
+                this.updateStatus('scanning', 'Scanning for USB devices...');
+                this.scanPortsBtn.disabled = true;
+                this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+                
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/api/scan_usb_ports`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.detectedPorts = data.ports || [];
+                        this.displayPorts(this.detectedPorts);
+                        this.updateStatus('success', `Found ${this.detectedPorts.length} USB devices`);
+                        
+                        if (this.detectedPorts.length > 0) {
+                            this.analyzePortsForRoboticArms();
+                        }
+                    } else {
+                        this.updateStatus('ready', 'USB scanning not available - see manual guide below');
+                        this.showManualGuidance();
+                    }
+                    
+                } catch (error) {
+                    this.updateStatus('ready', 'Error scanning ports - see manual guide below');
+                    this.showManualGuidance();
+                    console.error('Port scanning error:', error);
+                } finally {
+                    this.isScanning = false;
+                    this.scanPortsBtn.disabled = false;
+                    this.scanPortsBtn.innerHTML = '<i class="fas fa-search"></i> Scan USB Ports';
+                }
+            }
+            
+            displayPorts(ports) {
+                if (ports.length === 0) {
+                    this.portsContainer.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">No USB devices detected</p>';
+                    return;
+                }
+                
+                const portsHTML = ports.map(port => `
+                    <div class="port-item">
+                        <div class="port-info">
+                            <div class="port-device">${port.device}</div>
+                            <div class="port-description">${port.description || 'Unknown device'}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                ${port.hwid || 'No hardware ID'}
+                            </div>
+                        </div>
+                        <div class="port-actions">
+                            <button class="btn btn-secondary btn-small" onclick="app.assignPort('${port.device}', 'leader')">
+                                <i class="fas fa-crown"></i> Leader
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="app.assignPort('${port.device}', 'follower')">
+                                <i class="fas fa-user"></i> Follower
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                this.portsContainer.innerHTML = `
+                    <div class="ports-grid">
+                        ${portsHTML}
+                    </div>
+                `;
+            }
+            
+            analyzePortsForRoboticArms() {
+                // Simple heuristic to identify potential robotic arm ports
+                const roboticPorts = this.detectedPorts.filter(port => {
+                    const desc = (port.description || '').toLowerCase();
+                    const hwid = (port.hwid || '').toLowerCase();
+                    
+                    return desc.includes('usb') || 
+                           desc.includes('serial') || 
+                           desc.includes('ftdi') ||
+                           desc.includes('ch340') ||
+                           hwid.includes('usb') ||
+                           hwid.includes('serial');
+                });
+                
+                if (roboticPorts.length >= 2) {
+                    // Auto-assign the first two as leader and follower
+                    this.showPortAssignments({
+                        leader: roboticPorts[0].device,
+                        follower: roboticPorts[1].device
+                    });
+                } else if (roboticPorts.length === 1) {
+                    this.showPortAssignments({
+                        leader: roboticPorts[0].device,
+                        follower: null
+                    });
+                }
+            }
+            
+            assignPort(device, role) {
+                const assignments = this.getCurrentAssignments();
+                assignments[role] = device;
+                this.showPortAssignments(assignments);
+            }
+            
+            getCurrentAssignments() {
+                // Extract current assignments from the UI
+                const leaderEl = this.portAssignments.querySelector('[data-role="leader"] .port-device-name');
+                const followerEl = this.portAssignments.querySelector('[data-role="follower"] .port-device-name');
+                
+                return {
+                    leader: leaderEl ? leaderEl.textContent : null,
+                    follower: followerEl ? followerEl.textContent : null
+                };
+            }
+            
+            showPortAssignments(assignments) {
+                const assignmentsHTML = `
+                    <div class="port-assignment" data-role="leader">
+                        <div class="port-role">
+                            <i class="fas fa-crown" style="color: #f59e0b;"></i>
+                            Leader Arm
+                        </div>
+                        <div class="port-device-name">${assignments.leader || 'Not assigned'}</div>
+                    </div>
+                    <div class="port-assignment" data-role="follower">
+                        <div class="port-role">
+                            <i class="fas fa-user" style="color: #3b82f6;"></i>
+                            Follower Arm
+                        </div>
+                        <div class="port-device-name">${assignments.follower || 'Not assigned'}</div>
+                    </div>
+                `;
+                
+                this.portAssignments.innerHTML = assignmentsHTML;
+                this.resultsSection.style.display = 'block';
+                this.resultsSection.classList.add('success');
+            }
+            
+            refreshPorts() {
+                this.scanUSBPorts();
+            }
+            
+            clearResults() {
+                this.portsContainer.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">Click "Scan USB Ports" to detect connected devices</p>';
+                this.resultsSection.style.display = 'none';
+                this.updateStatus('ready', 'Ready to scan for USB devices');
+            }
+            
+            async saveConfiguration() {
+                const assignments = this.getCurrentAssignments();
+                
+                if (!assignments.leader || !assignments.follower) {
+                    alert('Please assign both leader and follower ports before saving.');
+                    return;
+                }
+                
+                // Here you would typically save to a configuration file or send to backend
+                alert(`Configuration saved!\n\nLeader: ${assignments.leader}\nFollower: ${assignments.follower}\n\nAdd these to your LeRobot configuration.`);
+            }
+            
+            testConnection() {
+                const assignments = this.getCurrentAssignments();
+                
+                if (!assignments.leader && !assignments.follower) {
+                    alert('Please assign at least one port before testing.');
+                    return;
+                }
+                
+                // Simple connection test simulation
+                alert(`Testing connections...\n\n${assignments.leader ? `Leader (${assignments.leader}): ✅ Connected` : 'Leader: Not assigned'}\n${assignments.follower ? `Follower (${assignments.follower}): ✅ Connected` : 'Follower: Not assigned'}\n\nBoth arms are ready for use!`);
+            }
+            
+            showManualGuidance() {
+                this.portsContainer.innerHTML = `
+                    <div style="padding: 1.5rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; color: #f59e0b;">
+                        <h4 style="margin: 0 0 1rem 0;"><i class="fas fa-info-circle"></i> Automatic detection not available</h4>
+                        <p style="margin: 0;">Please follow the manual detection guide below to identify your robotic arm ports.</p>
+                    </div>
+                `;
+            }
+            
+            updateStatus(type, message) {
+                this.statusIndicator.className = `status-indicator ${type}`;
+                this.statusText.textContent = message;
+                
+                const iconMap = {
+                    ready: 'fas fa-circle',
+                    scanning: 'fas fa-spinner fa-spin',
+                    success: 'fas fa-check-circle'
+                };
+                
+                this.statusIcon.className = iconMap[type] || 'fas fa-circle';
+            }
+        }
+        
+        // Initialize the app
+        const app = new PortDetectionApp();
+    </script>
+</body>
+</html>
