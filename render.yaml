@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: databench-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python databench_api.py
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src/databench
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "10000" 
