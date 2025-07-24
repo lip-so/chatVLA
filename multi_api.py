@@ -116,8 +116,8 @@ class DataBenchAPI:
                     logger.warning(f"Unknown metric code: {metric_code}")
             
             # Perform the actual evaluation
-            logger.info(f"Evaluating metrics: {metric_names}")
-            results = benchmark.evaluate_metrics(metric_names)
+            logger.info(f"Evaluating metrics: {metrics}")
+            results = benchmark.run_evaluation(metrics)
             
             # Format results for API response
             formatted_results = {}
