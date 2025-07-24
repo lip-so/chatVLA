@@ -1,7 +1,7 @@
 # Railway Configuration for DataBench with ML Dependencies - v2.1
 [build]
 builder = "nixpacks"
-buildCommand = "pip install -r requirements-full.txt && python -c 'import torch; import transformers; print(\"Dependencies verified\")'>"
+buildCommand = "pip install -r requirements-full.txt && python -c 'import torch; import transformers; print(\"Dependencies verified\")'"
 
 [deploy]
 startCommand = "python3 start_railway.py"
