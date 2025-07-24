@@ -1086,10 +1086,39 @@
           }
           
           const progressText = document.getElementById('progressText');
-          progressText.textContent = 'Sending request to server...';
+          progressText.textContent = 'Detecting DataBench server...';
           
+          // Smart API endpoint detection - try localhost first
+          let apiUrl = 'https://web-production-fdfaa.up.railway.app'; // Default fallback
+          
+          try {
+              const localResponse = await fetch('http://localhost:5002/health', { 
+                  method: 'GET',
+                  signal: AbortSignal.timeout(2000) // 2 second timeout
+              });
+              if (localResponse.ok) {
+                  const data = await localResponse.json();
+                  if (data.status === 'healthy' && data.databench_exists) {
+                      console.log('✅ Using local DataBench server (full functionality)');
+                      apiUrl = 'http://localhost:5002';
+                  }
+              }
+          } catch (e) {
+              console.log('ℹ️ Local DataBench server not available, using demo server');
+          }
+          
+          // Update status based on server type
+          const statusElement = document.getElementById('status');
+          if (apiUrl.includes('localhost')) {
+              statusElement.innerHTML = '🔬 <strong>Full DataBench Mode:</strong> Running real evaluation with all metrics...';
+              progressText.textContent = 'Connected to local DataBench server. Starting evaluation...';
+          } else {
+              statusElement.innerHTML = '🌐 <strong>Demo Mode:</strong> Limited functionality. <strong><a href="javascript:void(0)" onclick="alert(\'To get full DataBench functionality:\\n\\n1. Run: python start_databench.py\\n2. Refresh this page\\n3. DataBench will auto-detect your local server\')">Click here for setup instructions</a></strong>';
+              progressText.textContent = 'Using demo server. Real evaluation requires local setup...';
+          }
+
           // Call the actual Flask API
-                          const response = await fetch('https://web-production-fdfaa.up.railway.app/api/evaluate', {
+          const response = await fetch(`${apiUrl}/api/evaluate`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
