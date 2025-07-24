@@ -245,11 +245,39 @@
       box-shadow: var(--shadow-lg);
     }
 
-    .run-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
+          .run-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .status-display {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--surface-hover);
+        border: 1px solid var(--border-light);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        display: none;
+      }
+
+      .status-display.show {
+        display: block;
+      }
+
+      .status-display.local {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #16a34a;
+      }
+
+      .status-display.demo {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #2563eb;
+      }
 
     .results-section {
       background: var(--surface);
@@ -754,6 +782,9 @@
         Start Evaluation
       </button>
 
+      <!-- Status Display -->
+      <div id="status" class="status-display"></div>
+
       <!-- Progress -->
       <div class="progress-container" id="progressContainer">
         <div class="progress-bar">
@@ -1109,12 +1140,17 @@
           
           // Update status based on server type
           const statusElement = document.getElementById('status');
-          if (apiUrl.includes('localhost')) {
-              statusElement.innerHTML = '🔬 <strong>Full DataBench Mode:</strong> Running real evaluation with all metrics...';
-              progressText.textContent = 'Connected to local DataBench server. Starting evaluation...';
-          } else {
-              statusElement.innerHTML = '🌐 <strong>Demo Mode:</strong> Limited functionality. <strong><a href="javascript:void(0)" onclick="alert(\'To get full DataBench functionality:\\n\\n1. Run: python start_databench.py\\n2. Refresh this page\\n3. DataBench will auto-detect your local server\')">Click here for setup instructions</a></strong>';
-              progressText.textContent = 'Using demo server. Real evaluation requires local setup...';
+          if (statusElement) {
+            statusElement.classList.add('show');
+            if (apiUrl.includes('localhost')) {
+                statusElement.className = 'status-display show local';
+                statusElement.innerHTML = '🔬 <strong>Full DataBench Mode:</strong> Running real evaluation with all metrics...';
+                progressText.textContent = 'Connected to local DataBench server. Starting evaluation...';
+            } else {
+                statusElement.className = 'status-display show demo';
+                statusElement.innerHTML = '🌐 <strong>Demo Mode:</strong> Limited functionality. <strong><a href="javascript:void(0)" onclick="alert(\'To get full DataBench functionality:\\n\\n1. Run: python databench_api.py\\n2. Refresh this page\\n3. DataBench will auto-detect your local server\')">Click here for setup instructions</a></strong>';
+                progressText.textContent = 'Using demo server. Real evaluation requires local setup...';
+            }
           }
 
           // Call the actual Flask API
