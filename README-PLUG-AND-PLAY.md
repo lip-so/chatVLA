@@ -1,155 +1,260 @@
-# 🤖 Tune Robotics - Plug & Play Installation
+# 🤖 Plug & Play Integration Guide
 
-The **Plug & Play Installation Assistant** is now integrated into the Tune Robotics website! This powerful tool makes it incredibly easy to install LeRobot with automatic USB port detection for your robotic arms.
+**Plug & Play** is now fully integrated into the Tune Robotics website, providing automated LeRobot installation with real-time USB port detection and configuration.
 
 ## 🚀 Quick Start
 
-### Option 1: Easy Launcher (Recommended)
+### 1. Start Plug & Play Backend
 ```bash
+# In your project root
 python start-plug-and-play.py
 ```
 
-This will automatically:
-- ✅ Check your system requirements
-- 📦 Install necessary dependencies  
-- 🚀 Start the backend server
-- 🌐 Open the web interface in your browser
+The backend will start on `http://localhost:5000` with full installation capabilities.
 
-### Option 2: Manual Setup
-If you prefer to run things manually:
+### 2. Open Plug & Play Web Interface
+Visit `tunerobotics.xyz/plug-and-play.html` or open `plug-and-play.html` locally.
 
-1. **Install backend dependencies:**
-   ```bash
-   pip install -r Plug-and-play/backend/requirements.txt
-   ```
+The interface automatically connects to your local backend for real installation functionality.
 
-2. **Start the backend server:**
-   ```bash
-   cd Plug-and-play/backend
-   python app.py
-   ```
+### 3. Install LeRobot
+1. **Choose Installation Directory**: Default paths provided for your OS
+2. **Check System Status**: Automatic Git and Conda detection  
+3. **Click "Start Installation"**: Automated LeRobot setup with real-time progress
+4. **USB Detection**: Automatic detection and configuration of robotic arms
+5. **Ready to Use**: Complete environment setup with `conda activate lerobot`
 
-3. **Open the web interface:**
-   - Open `plug-and-play.html` in your browser, or
-   - Visit the main website and click "Plug & Play"
+## 🔧 Full Functionality (Local Setup)
 
-## 🌟 Features
+When you run `python start-plug-and-play.py`, you get:
 
-- **🎯 Zero Configuration**: Just click start and everything is handled automatically
-- **🔌 Smart USB Detection**: Automatically finds and configures your robotic arms
-- **📊 Real-time Progress**: Watch the installation happen with live updates
-- **🛡️ Error Recovery**: Smart error handling with helpful guidance
-- **🌐 Modern Interface**: Beautiful web UI that matches the Tune Robotics design
+✅ **Real Installation**: Complete LeRobot setup with all dependencies  
+✅ **USB Port Detection**: Automatic robotic arm detection and configuration  
+✅ **System Checks**: Git, Conda, Python compatibility verification  
+✅ **Real-time Progress**: WebSocket-powered live installation tracking  
+✅ **Error Handling**: Robust error detection and recovery  
+✅ **Cross-platform**: Windows, macOS, and Linux support  
 
-## 📋 What Gets Installed
+## 🛠️ What Plug & Play Does
 
-The assistant automatically handles:
+### Installation Pipeline
 
-1. **✅ Prerequisites Check** - Verifies Git and Conda are available
-2. **📥 Repository Cloning** - Downloads LeRobot from HuggingFace  
-3. **🏗️ Environment Setup** - Creates `conda create -n lerobot python=3.10`
-4. **🎬 FFmpeg Installation** - Adds video processing capabilities
-5. **🤖 LeRobot Installation** - Installs with `pip install -e .`
-6. **🔌 USB Port Detection** - Automatically finds and configures robotic arms
-7. **⚙️ Configuration** - Creates ready-to-use configuration files
+1. **System Prerequisites Check**
+   - Git installation and version
+   - Conda/Miniconda availability  
+   - Python version compatibility
+   - Disk space verification
 
-## 🔧 System Requirements
+2. **Repository Setup**
+   - Clone LeRobot from HuggingFace
+   - Create dedicated conda environment
+   - Install FFmpeg for video processing
 
-**Required (checked automatically):**
-- Python 3.7+
-- Git
-- Conda/Miniconda
+3. **Dependency Installation** 
+   - Install LeRobot framework
+   - Configure PyTorch and ML dependencies
+   - Set up robotic arm drivers
 
-**Don't have them?** The installer provides helpful links and guidance!
+4. **Hardware Configuration**
+   - Scan for connected USB devices
+   - Detect robotic arms (Arduino, etc.)
+   - Configure leader/follower arm pairs
+   - Test communication protocols
 
-## 🔌 USB Port Detection
+5. **Environment Activation**
+   - Verify installation integrity  
+   - Generate usage instructions
+   - Ready for immediate use
 
-The system automatically:
-- 🔍 Scans for USB serial ports
-- 🤖 Identifies robotic arm connections  
-- ⚙️ Creates configuration files
-- 📝 Provides ready-to-use code
+### USB Port Detection Features
 
-### Generated Configuration
-After installation, you'll have a `lerobot_ports.py` file:
-```python
-LEADER_ARM_PORT = "/dev/cu.usbmodem14201"  
-FOLLOWER_ARM_PORT = "/dev/cu.usbmodem14301"
+| Feature | Description |
+|---------|-------------|
+| **Auto-Discovery** | Scans all USB ports for robotic hardware |
+| **Device Identification** | Recognizes Arduino, servo controllers, sensors |
+| **Smart Configuration** | Automatically configures leader/follower pairs |
+| **Real-time Updates** | Live port scanning with connect/disconnect detection |
+| **Cross-platform** | Works on Windows, macOS, and Linux |
 
-# Ready to use in your code:
-from lerobot_ports import LEADER_ARM_PORT, FOLLOWER_ARM_PORT
-import serial
+## 📋 Setup Instructions
 
-leader = serial.Serial(LEADER_ARM_PORT, baudrate=9600)
-follower = serial.Serial(FOLLOWER_ARM_PORT, baudrate=9600)
-```
-
-## 🎯 After Installation  
-
-### Activate Environment
+### Prerequisites
 ```bash
-conda activate lerobot
+# Install backend dependencies
+cd Plug-and-play/backend
+pip install -r requirements.txt
+
+# Required packages: flask, flask-socketio, flask-cors, pyserial
 ```
 
-### Start Using Your Robots
-```python
-from lerobot_ports import LEADER_ARM_PORT, FOLLOWER_ARM_PORT
-import serial
+### Backend Configuration
+The backend (`Plug-and-play/backend/app.py`) provides:
+- **Flask API**: RESTful endpoints for installation control
+- **WebSocket Support**: Real-time progress updates via Socket.IO
+- **USB Detection**: Serial port scanning with device identification
+- **Installation Management**: Threaded installation with progress tracking
 
-# Connect to arms (auto-configured!)
-leader = serial.Serial(LEADER_ARM_PORT, baudrate=9600) 
-follower = serial.Serial(FOLLOWER_ARM_PORT, baudrate=9600)
+### Environment Setup
+```bash
+# The backend automatically sets up paths and environment
+# No manual configuration needed
 
-print("🤖 Robotic arms ready to use with Tune!")
+# Optional: Set custom installation directory
+export LEROBOT_INSTALL_PATH="/custom/path/lerobot"
 ```
 
-## 🌐 Integration with Main Website
+## 🔧 API Endpoints
 
-The Plug & Play system is fully integrated into the Tune Robotics website:
+### System Information
+```bash
+curl http://localhost:5000/api/system_info
+```
 
-- **Navigation**: Access via "Plug & Play" button on the landing page
-- **Design**: Matches the main website's dark theme and typography
-- **Mobile-Friendly**: Responsive design that works on all devices
-- **Seamless Experience**: Feels like a natural part of the website
+### Start Installation  
+```bash
+curl -X POST http://localhost:5000/api/start_installation \
+  -H "Content-Type: application/json" \
+  -d '{"installation_path": "/Users/username/lerobot"}'
+```
 
-## 🔧 Troubleshooting
+### USB Port Scanning
+```bash
+curl http://localhost:5000/api/scan_usb_ports
+```
 
-### Common Issues
+### Cancel Installation
+```bash
+curl -X POST http://localhost:5000/api/cancel_installation
+```
 
-**❌ "Backend server not responding"**
-- Make sure you ran `python start-plug-and-play.py`
-- Check that port 5000 is available
-- Try restarting the launcher script
+## 🎯 Integration Details
 
-**❌ "Conda not found"**
-- Install Miniconda: https://docs.conda.io/en/latest/miniconda.html
-- Restart your terminal after installation
+### Frontend Features
+- **Smart Backend Detection**: Automatically detects local backend availability
+- **Real-time Progress**: WebSocket-powered live installation tracking  
+- **USB Management**: Live port detection with device information
+- **Error Recovery**: Helpful error messages and recovery suggestions
+- **Cross-platform UI**: Responsive design for all operating systems
 
-**❌ "No USB ports detected"**
-- Connect your robotic arms via USB
-- Try different USB cables
-- Ensure drivers are installed for your robotic arms
+### Backend Capabilities
+- **Threaded Installation**: Non-blocking installation with progress callbacks
+- **System Validation**: Comprehensive prerequisite checking
+- **Hardware Detection**: Advanced USB device discovery and classification
+- **Installation Recovery**: Automatic cleanup and retry mechanisms  
+- **Logging System**: Detailed installation logs with error tracking
 
-## 🏗️ Architecture
+## 🐛 Troubleshooting
 
-The system consists of:
+### Backend Connection Issues
+```bash
+# Check if backend is running
+curl http://localhost:5000/api/status
 
-1. **Frontend**: `plug-and-play.html` - Integrated web interface
-2. **Backend**: `Plug-and-play/backend/app.py` - Flask server with WebSocket
-3. **Installer**: `Plug-and-play/installers/` - Core installation logic
-4. **Utils**: `Plug-and-play/utils/` - USB detection and configuration tools
+# Start backend manually
+cd Plug-and-play/backend
+python app.py
 
-## 📞 Support
+# Or use the launcher
+python start-plug-and-play.py
+```
 
-- 📖 **Full Documentation**: Check `Plug-and-play/README.md`
-- 🔌 **Port Detection Guide**: See `Plug-and-play/docs/USAGE_PORT_DETECTION.md`
-- 🤖 **LeRobot Issues**: https://github.com/huggingface/lerobot
-- 💌 **Contact**: yo@tunerobotics.xyz
+### Installation Failures
+- **Git Issues**: Ensure Git is installed and accessible
+- **Conda Issues**: Install Miniconda/Anaconda
+- **Permission Issues**: Run with appropriate user permissions  
+- **Network Issues**: Check internet connection for downloads
+- **Disk Space**: Ensure sufficient space (>5GB recommended)
+
+### USB Detection Issues
+```bash
+# Install serial port dependencies
+pip install pyserial
+
+# Check port permissions (Linux/macOS)
+sudo usermod -a -G dialout $USER  # Linux
+sudo dscl . append /Groups/_developer GroupMembership $USER  # macOS
+
+# Windows: Install USB driver for your robotic arm
+```
+
+## 📈 Performance Tips
+
+1. **Fast Installation**: Use SSD for installation directory
+2. **Network Speed**: Use stable, fast internet for downloads
+3. **USB Reliability**: Use high-quality USB cables for robotic arms
+4. **System Resources**: Close unnecessary applications during installation
+5. **Conda Channels**: Pre-configure conda channels for faster package resolution
+
+## 🤝 Usage Examples
+
+### Basic Installation
+```bash
+# Start backend
+python start-plug-and-play.py
+
+# Open browser to localhost:5000 or tunerobotics.xyz/plug-and-play.html
+# Click "Start Installation" with default path
+# Wait for completion and USB detection
+```
+
+### Custom Installation
+```bash
+# Set custom path in web interface
+# Monitor real-time progress in log section
+# Configure detected robotic arms
+# Activate environment: conda activate lerobot
+```
+
+### USB Port Management
+```bash
+# Connect robotic arms via USB
+# Click "Scan Ports" in web interface  
+# Review detected devices
+# Automatic configuration applied
+```
+
+## 🔄 Architecture
+
+```
+Website (plug-and-play.html)
+    ↓ WebSocket + REST API
+Backend (Plug-and-play/backend/app.py)
+    ↓ System Commands
+LeRobot Installation Pipeline
+    ↓ USB Communication  
+Robotic Hardware (Arduino, Servos, etc.)
+```
+
+## 📁 File Structure
+
+```
+Plug-and-play/
+├── backend/
+│   ├── app.py              # Main Flask backend
+│   └── requirements.txt    # Backend dependencies
+├── frontend/
+│   ├── index.html          # Original frontend (reference)
+│   ├── script.js           # Frontend JavaScript
+│   └── styles.css          # Frontend styling
+├── installers/             # Installation logic
+├── utils/                  # Utility functions
+└── RUN_ME.py              # Quick start script
+
+# Website Integration
+plug-and-play.html          # Integrated web interface
+start-plug-and-play.py      # Backend launcher
+```
+
+## 🚀 Next Steps After Installation
+
+1. **Activate Environment**: `conda activate lerobot`
+2. **Test Installation**: `python -c "import lerobot; print('✅ LeRobot ready!')"`
+3. **Connect Hardware**: Follow detected USB port configuration
+4. **Run Examples**: Try LeRobot tutorials with your robotic arms
+5. **Develop**: Start building your robotic applications
 
 ---
 
-## 🎉 Success!
-
-Once installation completes, your robotic arms are ready to use with Tune Robotics! The installer creates everything you need to start building amazing robotic applications.
-
-**Now you can chat with your robot and make it do your dishes! 🤖✨** 
+**Need Help?** Contact: yo@tunerobotics.xyz  
+**Full Documentation**: See `Plug-and-play/README.md`  
+**LeRobot Docs**: https://github.com/huggingface/lerobot 
