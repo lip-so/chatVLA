@@ -1092,8 +1092,8 @@
           const progressText = document.getElementById('progressText');
           progressText.textContent = 'Connecting to DataBench server...';
           
-          // Use the deployed DataBench API directly
-          const apiUrl = 'https://web-production-fdfaa.up.railway.app';
+          // Use localhost for now - cloud deployment coming soon
+          const apiUrl = 'http://localhost:5002';
           progressText.textContent = 'Starting DataBench evaluation...';
 
           // Call the actual Flask API
