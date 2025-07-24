@@ -125,8 +125,16 @@ class DataBenchAPI:
             
             for metric_code, metric_name in METRIC_MAPPING.items():
                 if metric_name in results:
-                    score = results[metric_name].get('overall_score', 0.0)
-                    formatted_results[metric_code] = round(float(score), 3)
+                    # Handle different result formats
+                    score = results[metric_name]
+                    if isinstance(score, dict):
+                        score = score.get('overall_score', score.get('score', 0.0))
+                    elif isinstance(score, (int, float)):
+                        score = float(score)
+                    else:
+                        score = 0.0
+                    
+                    formatted_results[metric_code] = round(score, 3)
                     overall_scores.append(score)
             
             # Calculate overall score
