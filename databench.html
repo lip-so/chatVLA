@@ -557,13 +557,40 @@
       font-family: 'Inter', sans-serif;
     }
 
+    /* Enhanced tablet responsiveness */
+    @media (max-width: 1024px) {
+      .databench-hero {
+        padding: 6rem 2rem 3rem 2rem;
+      }
+      
+      .databench-hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+      
+      .databench-content {
+        padding: 2rem 1.5rem;
+      }
+    }
+
     @media (max-width: 768px) {
+      .databench-hero {
+        padding: 5rem 1.5rem 2rem 1.5rem;
+        min-height: 85vh;
+      }
+      
       .databench-hero h1 {
         font-size: 1.8rem;
+        margin-bottom: 0.75rem;
       }
       
       .databench-hero .subtitle {
         font-size: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .info-button {
@@ -573,11 +600,38 @@
       
       .metrics-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
       }
       
       .databench-content {
         padding: 2rem 1rem;
       }
+    }
+
+    @media (max-width: 480px) {
+      .databench-hero {
+        padding: 4rem 1rem 1.5rem 1rem;
+        min-height: 80vh;
+      }
+      
+      .databench-hero h1 {
+        font-size: 1.5rem;
+        letter-spacing: 0.02em;
+      }
+      
+      .databench-hero .subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .databench-content {
+        padding: 1.5rem 0.75rem;
+      }
+      
+      .info-button {
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+      }
+    }
 
       .modal-overlay {
         padding: 1rem;
@@ -624,13 +678,15 @@
     </div>
   </nav>
 
-  <main class="databench-hero">
-    <h1>DataBench</h1>
-    <p class="subtitle">Robotics Dataset Quality Evaluation</p>
-    <button class="info-button" id="infoButton" title="Learn about evaluation metrics">
-      <i class="fas fa-info-circle"></i>
-      What do these metrics mean?
-    </button>
+  <main class="main">
+    <div class="databench-hero">
+      <h1>DataBench</h1>
+      <p class="subtitle">Robotics Dataset Quality Evaluation</p>
+      <button class="info-button" id="infoButton" title="Learn about evaluation metrics">
+        <i class="fas fa-info-circle"></i>
+        What do these metrics mean?
+      </button>
+    </div>
   </main>
 
   <div class="databench-content">

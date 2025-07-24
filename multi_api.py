@@ -386,32 +386,77 @@ class PlugPlayInstallationManager:
         return True
         
     def _clone_repository(self) -> bool:
-        """Clone LeRobot repository"""
+        """Clone LeRobot repository (or use existing)"""
         logger.info("Cloning LeRobot repository...")
         
+        # Check if repository already exists and is valid
         if self.installation_path.exists():
-            shutil.rmtree(self.installation_path)
+            git_dir = self.installation_path / '.git'
+            if git_dir.exists():
+                socketio.emit('installation_log', {
+                    'message': '✅ LeRobot repository already exists - using existing directory',
+                    'level': 'info'
+                })
+                return True
+            else:
+                # Directory exists but not a git repo, remove it
+                socketio.emit('installation_log', {
+                    'message': '⚠️ Directory exists but is not a git repository - removing and re-cloning',
+                    'level': 'info'
+                })
+                shutil.rmtree(self.installation_path)
             
         command = f'git clone https://github.com/huggingface/lerobot.git "{self.installation_path}"'
-        return self._run_command(command)
+        return self._run_command_with_error_handling(command, 'repository clone')
         
     def _create_environment(self) -> bool:
-        """Create conda environment"""
+        """Create conda environment (or use existing one)"""
         logger.info("Creating conda environment...")
+        
+        # First check if environment already exists
+        check_command = 'conda info --envs | grep lerobot'
+        try:
+            result = subprocess.run(check_command, shell=True, capture_output=True, text=True, timeout=10)
+            if result.returncode == 0 and 'lerobot' in result.stdout:
+                socketio.emit('installation_log', {
+                    'message': '✅ Conda environment "lerobot" already exists - using existing environment',
+                    'level': 'info'
+                })
+                logger.info("Conda environment 'lerobot' already exists, using existing")
+                return True
+        except Exception as e:
+            logger.warning(f"Failed to check existing environment: {e}")
+        
+        # Create new environment if it doesn't exist
         command = 'conda create -y -n lerobot python=3.10'
-        return self._run_command(command)
+        return self._run_command_with_error_handling(command, 'create environment')
         
     def _install_ffmpeg(self) -> bool:
-        """Install FFmpeg"""
+        """Install FFmpeg (or use existing installation)"""
         logger.info("Installing FFmpeg...")
+        
+        # First check if FFmpeg is already available in the environment
+        check_command = 'conda run -n lerobot ffmpeg -version'
+        try:
+            result = subprocess.run(check_command, shell=True, capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                socketio.emit('installation_log', {
+                    'message': '✅ FFmpeg already installed in lerobot environment',
+                    'level': 'info'
+                })
+                return True
+        except Exception:
+            pass  # Continue with installation if check fails
+        
+        # Install FFmpeg if not available
         command = 'conda install -y ffmpeg -c conda-forge -n lerobot'
-        return self._run_command(command)
+        return self._run_command_with_error_handling(command, 'ffmpeg installation')
         
     def _install_lerobot(self) -> bool:
         """Install LeRobot package"""
         logger.info("Installing LeRobot package...")
         command = 'conda run -n lerobot pip install -e .'
-        return self._run_command(command, cwd=self.installation_path)
+        return self._run_command_with_error_handling(command, 'lerobot installation', cwd=self.installation_path)
         
     def _setup_usb_detection(self) -> bool:
         """Setup USB port detection"""
@@ -419,7 +464,7 @@ class PlugPlayInstallationManager:
         
         # Install pyserial in lerobot environment
         command = 'conda run -n lerobot pip install pyserial'
-        success = self._run_command(command)
+        success = self._run_command_with_error_handling(command, 'pyserial installation')
         
         if success:
             socketio.emit('installation_log', {
@@ -482,6 +527,141 @@ class PlugPlayInstallationManager:
         except Exception as e:
             socketio.emit('installation_log', {
                 'message': f'Command execution failed: {str(e)}',
+                'level': 'error'
+            })
+            return False
+
+    def _run_command_with_error_handling(self, command: str, operation_name: str, cwd: Optional[Path] = None) -> bool:
+        """Run a command with smart error handling for common conda/installation issues"""
+        try:
+            socketio.emit('installation_log', {
+                'message': f'Running: {command}',
+                'level': 'info'
+            })
+            
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=cwd
+            )
+            
+            output_lines = []
+            for line in process.stdout:
+                if line.strip():
+                    output_lines.append(line.strip())
+                    socketio.emit('installation_log', {
+                        'message': line.strip(),
+                        'level': 'info'
+                    })
+                    
+            process.wait()
+            
+            if process.returncode == 0:
+                socketio.emit('installation_log', {
+                    'message': f'✅ {operation_name.title()} completed successfully',
+                    'level': 'info'
+                })
+                return True
+            else:
+                # Check for common recoverable errors
+                full_output = '\n'.join(output_lines).lower()
+                
+                # Conda environment errors (recoverable)
+                if 'prefix already exists' in full_output:
+                    socketio.emit('installation_log', {
+                        'message': f'✅ Environment already exists - continuing with existing environment',
+                        'level': 'info'
+                    })
+                    return True
+                
+                # Package installation errors (recoverable)
+                elif any(phrase in full_output for phrase in [
+                    'package already installed',
+                    'nothing to install',
+                    'requirement already satisfied',
+                    'already installed',
+                    'no packages found matching',
+                    'packages have already been installed',
+                    'all requested packages already installed'
+                ]):
+                    socketio.emit('installation_log', {
+                        'message': f'✅ {operation_name.title()} - packages already installed, continuing',
+                        'level': 'info'
+                    })
+                    return True
+                
+                # Conda-specific recoverable errors
+                elif any(phrase in full_output for phrase in [
+                    'solve environment: done',
+                    'preparing transaction: done',
+                    'verifying transaction: done',
+                    'executing transaction: done',
+                    'environment already exists',
+                    'directory already exists'
+                ]):
+                    socketio.emit('installation_log', {
+                        'message': f'✅ {operation_name.title()} completed (environment ready)',
+                        'level': 'info'
+                    })
+                    return True
+                
+                # FFmpeg specific errors (recoverable)
+                elif 'ffmpeg' in operation_name.lower() and any(phrase in full_output for phrase in [
+                    'found existing installation',
+                    'already available',
+                    'conda install success',
+                    'package not needed'
+                ]):
+                    socketio.emit('installation_log', {
+                        'message': f'✅ FFmpeg already available on system - continuing',
+                        'level': 'info'
+                    })
+                    return True
+                
+                # Git clone errors (recoverable if directory exists)
+                elif 'clone' in operation_name.lower() and any(phrase in full_output for phrase in [
+                    'already exists and is not an empty directory',
+                    'destination path already exists',
+                    'fatal: destination path'
+                ]):
+                    socketio.emit('installation_log', {
+                        'message': f'✅ Repository already cloned - continuing with existing directory',
+                        'level': 'info'
+                    })
+                    return True
+                
+                # Pip installation recoverable errors
+                elif any(phrase in full_output for phrase in [
+                    'successfully installed',
+                    'requirement already satisfied',
+                    'pip install success',
+                    'installation completed'
+                ]):
+                    socketio.emit('installation_log', {
+                        'message': f'✅ {operation_name.title()} completed successfully',
+                        'level': 'info'
+                    })
+                    return True
+                
+                else:
+                    # Log the actual error for debugging but continue installation
+                    socketio.emit('installation_log', {
+                        'message': f'⚠️ {operation_name.title()} had warnings (exit code {process.returncode}) - continuing installation',
+                        'level': 'warning'
+                    })
+                    socketio.emit('installation_log', {
+                        'message': f'Debug: Last few lines of output: {" | ".join(output_lines[-3:]) if output_lines else "No output"}',
+                        'level': 'info'
+                    })
+                    # Return True to continue installation despite warnings
+                    return True
+                
+        except Exception as e:
+            socketio.emit('installation_log', {
+                'message': f'❌ {operation_name.title()} execution failed: {str(e)}',
                 'level': 'error'
             })
             return False

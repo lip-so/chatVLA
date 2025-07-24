@@ -9,33 +9,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
+    /* Ensure vision-title styling is applied correctly */
+    .hero .vision-title {
+      font-size: 3rem !important;
+      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.05em !important;
+      text-transform: uppercase !important;
+      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      background-clip: text !important;
+      text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 0px rgba(0, 0, 0, 0.8),
+        2px 2px 0px rgba(0, 0, 0, 0.6) !important;
+    }
+    
     .plug-container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 2rem;
     }
 
-    .header-section {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .header-section h1 {
-      font-size: 3rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .header-section .subtitle {
-      font-size: 1.2rem;
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
-    }
 
     .status-banner {
       background: var(--surface-hover);
@@ -67,9 +63,89 @@
       margin-bottom: 3rem;
     }
 
+    /* Enhanced mobile responsiveness for Plug & Play */
+    @media (max-width: 1024px) {
+      .plug-container {
+        padding: 1.5rem;
+      }
+      
+      .cards-grid {
+        gap: 1.5rem;
+      }
+    }
+
     @media (max-width: 768px) {
+      .plug-container {
+        padding: 1rem;
+      }
+      
       .cards-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      .plug-card {
+        padding: 1.5rem;
+      }
+      
+      
+      .progress-section {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .plug-container {
+        padding: 0.75rem;
+      }
+      
+      .plug-card {
+        padding: 1rem;
+        border-radius: 12px;
+      }
+      
+      
+      .button-group {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .form-input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      
+      .status-banner {
+        padding: 0.75rem 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .system-status {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
+      
+      .progress-section {
+        padding: 1rem;
+      }
+      
+      .log-container {
+        max-height: 200px;
+        font-size: 0.8rem;
       }
     }
 
@@ -409,29 +485,26 @@
 
   <!-- Page Title Section -->
   <main class="main">
-    <div class="hero">
-      <h1 class="landing-super-title">Plug & Play</h1>
+    <header class="hero">
+      <h1 class="vision-title">Plug & Play</h1>
       <p class="hero-subtitle">Automated LeRobot installation with USB port detection</p>
-    </div>
+    </header>
 
     <div class="plug-container">
-      <!-- Header -->
-      <div class="header-section">        
-        <!-- Server Status Banner -->
-        <div id="statusBanner" class="status-banner connected">
-          <div>
-            <i class="fas fa-check-circle"></i>
-            <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
+      <!-- Server Status Banner -->
+      <div id="statusBanner" class="status-banner connected" style="margin-bottom: 2rem;">
+        <div>
+          <i class="fas fa-check-circle"></i>
+          <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
+        </div>
+        <div class="system-status" id="systemStatus">
+          <div class="status-item ok">
+            <i class="fas fa-code-branch" id="gitIcon"></i>
+            <span id="gitStatus">Git Ready</span>
           </div>
-          <div class="system-status" id="systemStatus">
-            <div class="status-item ok">
-              <i class="fas fa-code-branch" id="gitIcon"></i>
-              <span id="gitStatus">Git Ready</span>
-            </div>
-            <div class="status-item ok">
-              <i class="fas fa-cube" id="condaIcon"></i>
-              <span id="condaStatus">Conda Ready</span>
-            </div>
+          <div class="status-item ok">
+            <i class="fas fa-cube" id="condaIcon"></i>
+            <span id="condaStatus">Conda Ready</span>
           </div>
         </div>
       </div>
@@ -566,23 +639,56 @@
   <script>
     class PlugAndPlayApp {
       constructor() {
-        this.socket = null;
-        this.isConnected = false;
-        this.installationRunning = false;
-        this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';  // Unified API with Plug & Play
+        console.log('🚀 PlugAndPlayApp constructor starting...');
         
-        this.initializeElements();
-        this.bindEvents();
-        this.connectToBackend();
-        this.checkSystemInfo();
+        try {
+          this.socket = null;
+          this.isConnected = false;
+          this.installationRunning = false;
+          this.apiBaseUrl = 'http://localhost:5001';  // Local unified API with Plug & Play
+          
+          console.log('✅ Basic properties initialized');
+          
+          this.initializeElements();
+          console.log('✅ Elements initialized');
+          
+          this.bindEvents();
+          console.log('✅ Events bound');
+          
+          this.connectToBackend();
+          console.log('✅ Backend connection initiated');
+          
+          this.checkSystemInfo();
+          console.log('✅ System info check initiated');
+          
+          console.log('🎉 PlugAndPlayApp constructor completed successfully!');
+          
+        } catch (error) {
+          console.error('❌ PlugAndPlayApp constructor failed:', error);
+          alert('Failed to initialize Plug & Play app: ' + error.message);
+          throw error;
+        }
       }
       
       initializeElements() {
+        console.log('🔧 Initializing elements...');
+        
         // Form elements
         this.installationPath = document.getElementById('installationPath');
         this.browseBtn = document.getElementById('browseBtn');
         this.startInstallBtn = document.getElementById('startInstallBtn');
         this.cancelInstallBtn = document.getElementById('cancelInstallBtn');
+        
+        // Check if critical elements exist
+        if (!this.startInstallBtn) {
+          console.error('❌ startInstallBtn not found!');
+          throw new Error('Critical button elements not found');
+        }
+        if (!this.scanPortsBtn) {
+          this.scanPortsBtn = document.getElementById('scanPortsBtn');
+        }
+        
+        console.log('✅ Form elements initialized');
         
         // Progress elements
         this.progressFill = document.getElementById('progressFill');
@@ -616,12 +722,45 @@
       }
       
       bindEvents() {
-        this.startInstallBtn.addEventListener('click', () => this.startInstallation());
-        this.cancelInstallBtn.addEventListener('click', () => this.cancelInstallation());
-        this.browseBtn.addEventListener('click', () => this.browsePath());
-        this.clearLogBtn.addEventListener('click', () => this.clearLog());
-        this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
-        this.refreshPortsBtn.addEventListener('click', () => this.refreshUSBPorts());
+        console.log('🔗 Binding events...');
+        
+        try {
+          if (this.startInstallBtn) {
+            this.startInstallBtn.addEventListener('click', () => this.startInstallation());
+            console.log('✅ Start install button bound');
+          }
+          
+          if (this.cancelInstallBtn) {
+            this.cancelInstallBtn.addEventListener('click', () => this.cancelInstallation());
+            console.log('✅ Cancel install button bound');
+          }
+          
+          if (this.browseBtn) {
+            this.browseBtn.addEventListener('click', () => this.browsePath());
+            console.log('✅ Browse button bound');
+          }
+          
+          if (this.clearLogBtn) {
+            this.clearLogBtn.addEventListener('click', () => this.clearLog());
+            console.log('✅ Clear log button bound');
+          }
+          
+          if (this.scanPortsBtn) {
+            this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
+            console.log('✅ Scan ports button bound');
+          }
+          
+          if (this.refreshPortsBtn) {
+            this.refreshPortsBtn.addEventListener('click', () => this.refreshUSBPorts());
+            console.log('✅ Refresh ports button bound');
+          }
+          
+          console.log('🎉 All events bound successfully');
+          
+        } catch (error) {
+          console.error('❌ Error binding events:', error);
+          throw error;
+        }
       }
       
       async connectToBackend() {
@@ -644,16 +783,26 @@
       }
       
       connectSocket() {
-        if (!this.isConnected) return;
-        
-        this.socket = io(this.apiBaseUrl);
+        // Try to connect Socket.IO for real-time updates (optional)
+        try {
+          if (typeof io === 'undefined') {
+            this.logMessage('⚠️ Socket.IO not available - buttons will work without real-time updates', 'warning');
+            return;
+          }
+          
+          this.socket = io(this.apiBaseUrl);
         
         this.socket.on('connect', () => {
           this.logMessage('Connected to Plug & Play backend', 'info');
         });
         
         this.socket.on('installation_progress', (data) => {
-          this.updateProgress(data.progress, data.status, data.step);
+          this.updateProgress(data.progress, data.status || data.message, data.step);
+          
+          // Initialize steps if not already done
+          if (this.stepsContainer.children.length === 0) {
+            this.initializeSteps();
+          }
         });
         
         this.socket.on('installation_log', (data) => {
@@ -682,6 +831,10 @@
         this.socket.on('error_message', (data) => {
           this.logMessage(data.message, 'error');
         });
+        
+        } catch (error) {
+          this.logMessage(`⚠️ Socket.IO connection failed: ${error.message} - buttons will work without real-time updates`, 'warning');
+        }
       }
       
       updateConnectionStatus(connected) {
@@ -695,10 +848,8 @@
       }
       
       async checkSystemInfo() {
-        if (!this.isConnected) {
-          this.updateSystemStatus('error', 'Not Connected');
-          return;
-        }
+        // Try to get system info regardless of connection status
+        this.logMessage('🔍 Checking system info...', 'info');
         
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/system_info`);
@@ -743,22 +894,22 @@
         const platform = navigator.platform.toLowerCase();
         let defaultPath;
         
+        // Use browser-compatible default paths without process.env
         if (platform.includes('win')) {
-          defaultPath = 'C:\\Users\\' + (process.env.USERNAME || 'user') + '\\lerobot';
+          defaultPath = 'C:\\Users\\user\\lerobot';
         } else if (platform.includes('mac')) {
-          defaultPath = '/Users/' + (process.env.USER || 'user') + '/lerobot';
+          defaultPath = '/Users/user/lerobot';
         } else {
-          defaultPath = '/home/' + (process.env.USER || 'user') + '/lerobot';
+          defaultPath = '/home/user/lerobot';
         }
         
         this.installationPath.value = defaultPath;
+        console.log('✅ Default path set:', defaultPath);
       }
       
       async startInstallation() {
-        if (!this.isConnected) {
-          this.logMessage('Backend not connected. Please start the backend server first.', 'error');
-          return;
-        }
+        // Try the installation regardless of connection status
+        this.logMessage('🔄 Attempting to start installation...', 'info');
         
         const path = this.installationPath.value.trim();
         if (!path) {
@@ -775,17 +926,15 @@
           
           const data = await response.json();
           
-                     if (data.success) {
-             this.installationRunning = true;
-             this.startInstallBtn.disabled = true;
-             this.cancelInstallBtn.disabled = false;
-             this.logMessage('🚀 Installation started...', 'info');
-             
-             // Start progressive installation simulation
-             this.simulateInstallation(path);
-           } else {
-             this.logMessage(`❌ Failed to start installation: ${data.error}`, 'error');
-           }
+          if (data.success) {
+            this.installationRunning = true;
+            this.startInstallBtn.disabled = true;
+            this.cancelInstallBtn.disabled = false;
+            this.logMessage('🚀 Real installation started...', 'info');
+            this.logMessage(`📍 Installing to: ${path}`, 'info');
+          } else {
+            this.logMessage(`❌ Failed to start installation: ${data.error}`, 'error');
+          }
           
         } catch (error) {
           this.logMessage(`Error starting installation: ${error.message}`, 'error');
@@ -793,19 +942,23 @@
       }
       
       async cancelInstallation() {
-        if (!this.isConnected) return;
+        this.logMessage('🛑 Attempting to cancel installation...', 'info');
         
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/cancel_installation`, {
             method: 'POST'
           });
           
-          const data = await response.json();
-          if (data.success) {
+          if (response.ok) {
             this.installationRunning = false;
             this.startInstallBtn.disabled = false;
             this.cancelInstallBtn.disabled = true;
-            this.logMessage('Installation cancelled', 'warning');
+            this.updateProgress(0, 'Installation cancelled', '');
+            this.statusIcon.className = 'fas fa-circle status-icon';
+            this.logMessage('🛑 Installation cancelled by user', 'warning');
+            
+            // Clear steps
+            this.stepsContainer.innerHTML = '';
           }
         } catch (error) {
           this.logMessage(`Error cancelling installation: ${error.message}`, 'error');
@@ -908,37 +1061,24 @@
           this.stepsContainer.appendChild(stepElement);
         }
         
-        // Simulate progressive installation for cloud demo
-        async simulateInstallation(installationPath) {
-          // Clear any existing steps
+        // Initialize the installation steps display
+        initializeSteps() {
           this.stepsContainer.innerHTML = '';
           
           const steps = [
-            { step: 'checking_prerequisites', text: 'Checking Prerequisites', icon: 'search', progress: 15, status: 'Checking system requirements...', delay: 2000 },
-            { step: 'cloning_repository', text: 'Cloning Repository', icon: 'download', progress: 35, status: 'Cloning LeRobot repository...', delay: 3000 },
-            { step: 'creating_environment', text: 'Creating Environment', icon: 'box', progress: 55, status: 'Creating conda environment...', delay: 2500 },
-            { step: 'installing_ffmpeg', text: 'Installing FFmpeg', icon: 'video', progress: 70, status: 'Installing FFmpeg...', delay: 2000 },
-            { step: 'installing_lerobot', text: 'Installing LeRobot', icon: 'robot', progress: 90, status: 'Installing LeRobot dependencies...', delay: 3000 },
-            { step: 'detecting_usb_ports', text: 'USB Port Detection', icon: 'plug', progress: 100, status: 'Installation complete!', delay: 1500 }
+            { step: 'checking_prerequisites', text: 'Checking Prerequisites', icon: 'search' },
+            { step: 'cloning_repository', text: 'Cloning Repository', icon: 'download' },
+            { step: 'creating_environment', text: 'Creating Environment', icon: 'box' },
+            { step: 'installing_ffmpeg', text: 'Installing FFmpeg', icon: 'video' },
+            { step: 'installing_lerobot', text: 'Installing LeRobot', icon: 'robot' },
+            { step: 'detecting_usb_ports', text: 'USB Port Detection', icon: 'plug' }
           ];
           
-          for (const stepData of steps) {
-            if (!this.installationRunning) break;
-            
-            // Add the step to display
+          steps.forEach(stepData => {
             this.addStep(stepData.step, stepData.text, stepData.icon);
-            
-            this.updateProgress(stepData.progress, stepData.status, stepData.step);
-            this.logMessage(`📋 ${stepData.status}`, 'info');
-            
-            await new Promise(resolve => setTimeout(resolve, stepData.delay));
-          }
-          
-          if (this.installationRunning) {
-            this.onInstallationComplete({ installation_path: installationPath });
-          }
+          });
         }
-      
+        
       async scanUSBPorts() {
         this.scanPortsBtn.disabled = true;
         this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';

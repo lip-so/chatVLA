@@ -252,6 +252,17 @@
             border-radius: 4px;
         }
 
+        /* Enhanced mobile responsiveness for Port Detection */
+        @media (max-width: 1024px) {
+            .port-detection-container {
+                padding: 1.5rem;
+            }
+            
+            .detection-card {
+                padding: 1.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .port-detection-container {
                 padding: 1rem;
@@ -259,6 +270,101 @@
             
             .detection-card {
                 padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .card-header h3 {
+                font-size: 1.3rem;
+            }
+            
+            .status-indicator {
+                padding: 0.75rem;
+            }
+            
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .detection-steps li {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+            
+            .step-number {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .port-detection-container {
+                padding: 0.75rem;
+            }
+            
+            .detection-card {
+                padding: 0.75rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .card-header h3 {
+                font-size: 1.1rem;
+                margin: 0;
+            }
+            
+            .hero {
+                padding: 4rem 1rem 2rem 1rem;
+            }
+            
+            .landing-super-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .guidance-section {
+                padding: 1rem;
+            }
+            
+            .code-block {
+                font-size: 0.75rem;
+                padding: 0.75rem;
+            }
+            
+            .port-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .port-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .results-section {
+                padding: 1rem;
+            }
+            
+            .port-assignment {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
             }
         }
     </style>
