@@ -1092,7 +1092,7 @@
           const progressText = document.getElementById('progressText');
           progressText.textContent = 'Connecting to DataBench server...';
           
-          // Use the cloud API automatically - no local setup required
+          // Use the Railway cloud API with full DataBench functionality
           const apiUrl = 'https://web-production-fdfaa.up.railway.app';
           progressText.textContent = 'Connecting to DataBench cloud service...';
 
@@ -1148,7 +1148,9 @@
           
           // Provide more helpful error messages
           if (error.message.includes('Failed to fetch')) {
-                            throw new Error('Cannot connect to DataBench server. Please check https://web-production-fdfaa.up.railway.app/health');
+                        throw new Error('Cannot connect to DataBench cloud service. The service may be starting up or experiencing issues.');
+          } else if (error.message.includes('DataBench system not available')) {
+            throw new Error('DataBench dependencies are being installed on the cloud service. Please try again in a few minutes.');
           }
           
           throw error;

@@ -52,12 +52,17 @@ print("✅ Flask app and SocketIO initialized")
 
 # Import real DataBench functionality
 try:
+    # Ensure proper path setup for Railway deployment
+    os.environ['PYTHONPATH'] = str(databench_path)
+    
     from scripts.evaluate import RoboticsDatasetBenchmark, METRIC_MAPPING
     from scripts.config_loader import get_config_loader, get_config
     DATABENCH_AVAILABLE = True
     print("✅ DataBench evaluation system loaded")
 except ImportError as e:
     logger.error(f"Failed to import DataBench: {e}")
+    logger.error(f"Current working directory: {os.getcwd()}")
+    logger.error(f"Python path: {sys.path}")
     DATABENCH_AVAILABLE = False
 
 # Import real Plug & Play functionality  

@@ -1,6 +1,7 @@
 # Flask API Requirements
 Flask>=2.3.0
 Flask-CORS>=4.0.0
+Flask-SocketIO>=5.3.6
 requests>=2.31.0
 
 # DataBench Core Requirements (optimized for Railway)
@@ -9,24 +10,27 @@ transformers>=4.53.0,<4.54.0
 sentence-transformers>=3.0.0,<3.1.0
 numpy>=1.24.0,<2.0.0
 scipy>=1.11.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-opencv-python-headless>=4.8.0  # Headless version for servers
 scikit-learn>=1.3.0
 pandas>=2.0.0
 pyarrow>=13.0.0
 datasets>=2.15.0
 huggingface_hub>=0.17.0
 PyYAML>=6.0.1
-imageio-ffmpeg>=0.4.9
 Pillow>=10.0.0
 tqdm>=4.66.0
 pydantic>=2.5.0
 accelerate>=0.25.0
 safetensors>=0.4.0
 tokenizers>=0.15.0
+opencv-python-headless>=4.8.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+imageio-ffmpeg>=0.4.9
+ultralytics>=8.0.0
 
-# Optional lightweight alternatives
-# ultralytics>=8.0.0  # Commented out - very large
-# av>=11.0.0  # Commented out - can cause build issues
-# spacy>=3.7.0  # Commented out - large download 
+# Optional for enhanced functionality
+evaluate>=0.4.0
+jsonlines>=4.0.0
+
+# Serial port detection
+pyserial>=3.5 
