@@ -15,14 +15,30 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging with more detail
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+# Print startup info immediately
+print("🔧 Initializing Tune Robotics Unified API...")
+print(f"🐍 Python path: {os.getcwd()}")
+print(f"🌍 Environment variables:")
+for key in ['PORT', 'PYTHONPATH', 'PYTHONUNBUFFERED']:
+    print(f"   {key}: {os.environ.get(key, 'Not set')}")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tune-robotics-unified-api'
-CORS(app, origins=["*"])
+
+# Configure CORS for all origins
+CORS(app, origins="*")
+
+# Configure SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+print("✅ Flask app and SocketIO initialized")
 
 # Configuration
 DATABENCH_PATH = Path(__file__).parent / "databench"
@@ -487,9 +503,19 @@ if __name__ == '__main__':
     # Get port from environment for cloud deployment
     port = int(os.environ.get('PORT', 5000))
     
+    print(f"🚀 Starting Tune Robotics Unified API")
+    print(f"📋 Services: DataBench, Plug & Play")
+    print(f"🌐 Port: {port}")
+    print(f"❤️ Health endpoint: /health")
+    
     logger.info("Starting Tune Robotics Unified API")
     logger.info(f"Services: DataBench, Plug & Play")
     logger.info(f"Port: {port}")
     
     # Run with external access for cloud deployment
-    socketio.run(app, host='0.0.0.0', port=port, debug=False) 
+    try:
+        socketio.run(app, host='0.0.0.0', port=port, debug=False, allow_unsafe_werkzeug=True)
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        logger.error(f"Failed to start server: {e}")
+        raise 
