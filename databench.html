@@ -1089,7 +1089,7 @@
           progressText.textContent = 'Sending request to server...';
           
           // Call the actual Flask API
-          const response = await fetch('http://localhost:5002/api/evaluate', {
+                          const response = await fetch('https://web-production-fdfaa.up.railway.app/api/evaluate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1140,7 +1140,7 @@
           
           // Provide more helpful error messages
           if (error.message.includes('Failed to fetch')) {
-            throw new Error('Cannot connect to DataBench server. Please ensure the server is running on http://localhost:5002');
+                            throw new Error('Cannot connect to DataBench server. Please check https://web-production-fdfaa.up.railway.app/health');
           }
           
           throw error;
