@@ -1,1 +1,1 @@
-web: python databench_api.py 
+web: python3 databench_api.py 
