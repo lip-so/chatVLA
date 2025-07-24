@@ -407,13 +407,16 @@
     </div>
   </nav>
 
+  <!-- Page Title Section -->
   <main class="main">
+    <div class="hero">
+      <h1 class="landing-super-title">Plug & Play</h1>
+      <p class="hero-subtitle">Automated LeRobot installation with USB port detection</p>
+    </div>
+
     <div class="plug-container">
       <!-- Header -->
-      <div class="header-section">
-        <h1 class="landing-super-title"><i class="fas fa-robot"></i> Plug & Play</h1>
-        <p class="hero-subtitle">Automated LeRobot installation with USB port detection</p>
-        
+      <div class="header-section">        
         <!-- Server Status Banner -->
         <div id="statusBanner" class="status-banner connected">
           <div>
@@ -513,36 +516,7 @@
         </div>
         
                  <div class="steps-container" id="stepsContainer">
-           <div class="step" data-step="checking_prerequisites">
-             <i class="fas fa-search step-icon"></i>
-             <span class="step-text">Checking Prerequisites</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
-           <div class="step" data-step="cloning_repository">
-             <i class="fas fa-download step-icon"></i>
-             <span class="step-text">Cloning Repository</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
-           <div class="step" data-step="creating_environment">
-             <i class="fas fa-box step-icon"></i>
-             <span class="step-text">Creating Environment</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
-           <div class="step" data-step="installing_ffmpeg">
-             <i class="fas fa-video step-icon"></i>
-             <span class="step-text">Installing FFmpeg</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
-           <div class="step" data-step="installing_lerobot">
-             <i class="fas fa-robot step-icon"></i>
-             <span class="step-text">Installing LeRobot</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
-           <div class="step" data-step="detecting_usb_ports">
-             <i class="fas fa-plug step-icon"></i>
-             <span class="step-text">USB Port Detection</span>
-             <i class="fas fa-check step-check"></i>
-           </div>
+           <!-- Steps will appear here dynamically during installation -->
          </div>
       </div>
 
@@ -817,35 +791,60 @@
         }
       }
       
-             async browsePath() {
-         try {
-           // Try to use the modern File System Access API
-           if ('showDirectoryPicker' in window) {
-             const dirHandle = await window.showDirectoryPicker();
-             
-             // Construct path from the directory handle
-             let path = dirHandle.name;
-             
-             // Add lerobot subdirectory if not already included
-             if (!path.toLowerCase().includes('lerobot')) {
-               path = `${path}/lerobot`;
-             }
-             
-             this.installationPath.value = path;
-             this.logMessage(`📁 Directory selected: ${path}`, 'info');
-           } else {
-             // Fallback for browsers that don't support the API
-             this.installationPath.focus();
-             this.installationPath.select();
-             this.logMessage('💡 Please enter your installation path manually (browser doesn\'t support directory picker)', 'warning');
-           }
-         } catch (error) {
-           if (error.name !== 'AbortError') {
-             this.logMessage('💡 Please enter your installation path manually', 'info');
-           }
-           this.installationPath.focus();
-         }
-       }
+                           async browsePath() {
+          try {
+            // Check if the browser supports the File System Access API
+            if ('showDirectoryPicker' in window) {
+              this.browseBtn.disabled = true;
+              this.browseBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
+              
+              const dirHandle = await window.showDirectoryPicker({
+                mode: 'readwrite',
+                startIn: 'documents'
+              });
+              
+              // Get the full path if possible, otherwise use the directory name
+              let path = dirHandle.name;
+              
+              // Try to construct a more complete path
+              if (navigator.storage && navigator.storage.getDirectory) {
+                try {
+                  const root = await navigator.storage.getDirectory();
+                  path = `~/Documents/${dirHandle.name}`;
+                } catch (e) {
+                  // Fallback to home directory assumption
+                  path = `~/${dirHandle.name}`;
+                }
+              }
+              
+              // Add lerobot subdirectory if not already included
+              if (!path.toLowerCase().includes('lerobot')) {
+                path = `${path}/lerobot`;
+              }
+              
+              this.installationPath.value = path;
+              this.logMessage(`📁 Directory selected: ${path}`, 'info');
+              
+            } else {
+              // Fallback for browsers that don't support the API
+              this.logMessage('💡 Directory picker not supported in this browser', 'warning');
+              this.logMessage('🔧 Please enter your installation path manually in the field above', 'info');
+              this.installationPath.focus();
+              this.installationPath.select();
+            }
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              this.logMessage('📁 Directory selection cancelled', 'info');
+            } else {
+              this.logMessage(`❌ Error accessing directory: ${error.message}`, 'error');
+              this.logMessage('💡 Please enter your installation path manually', 'info');
+              this.installationPath.focus();
+            }
+          } finally {
+            this.browseBtn.disabled = false;
+            this.browseBtn.innerHTML = '<i class="fas fa-folder-open"></i> Browse';
+          }
+        }
       
              updateProgress(progress, status, step) {
          this.progressFill.style.width = `${progress}%`;
@@ -875,47 +874,93 @@
          });
        }
        
-       // Simulate progressive installation for cloud demo
-       async simulateInstallation(installationPath) {
-         const steps = [
-           { step: 'checking_prerequisites', progress: 15, status: 'Checking system requirements...', delay: 2000 },
-           { step: 'cloning_repository', progress: 35, status: 'Cloning LeRobot repository...', delay: 3000 },
-           { step: 'creating_environment', progress: 55, status: 'Creating conda environment...', delay: 2500 },
-           { step: 'installing_ffmpeg', progress: 70, status: 'Installing FFmpeg...', delay: 2000 },
-           { step: 'installing_lerobot', progress: 90, status: 'Installing LeRobot dependencies...', delay: 3000 },
-           { step: 'detecting_usb_ports', progress: 100, status: 'Installation complete!', delay: 1500 }
-         ];
-         
-         for (const stepData of steps) {
-           if (!this.installationRunning) break;
-           
-           this.updateProgress(stepData.progress, stepData.status, stepData.step);
-           this.logMessage(`📋 ${stepData.status}`, 'info');
-           
-           await new Promise(resolve => setTimeout(resolve, stepData.delay));
-         }
-         
-         if (this.installationRunning) {
-           this.onInstallationComplete({ installation_path: installationPath });
-         }
-       }
+               // Add step to the progress display
+        addStep(stepName, stepText, icon) {
+          const stepElement = document.createElement('div');
+          stepElement.className = 'step active';
+          stepElement.setAttribute('data-step', stepName);
+          stepElement.innerHTML = `
+            <i class="fas fa-${icon} step-icon"></i>
+            <span class="step-text">${stepText}</span>
+            <i class="fas fa-check step-check"></i>
+          `;
+          this.stepsContainer.appendChild(stepElement);
+        }
+        
+        // Simulate progressive installation for cloud demo
+        async simulateInstallation(installationPath) {
+          // Clear any existing steps
+          this.stepsContainer.innerHTML = '';
+          
+          const steps = [
+            { step: 'checking_prerequisites', text: 'Checking Prerequisites', icon: 'search', progress: 15, status: 'Checking system requirements...', delay: 2000 },
+            { step: 'cloning_repository', text: 'Cloning Repository', icon: 'download', progress: 35, status: 'Cloning LeRobot repository...', delay: 3000 },
+            { step: 'creating_environment', text: 'Creating Environment', icon: 'box', progress: 55, status: 'Creating conda environment...', delay: 2500 },
+            { step: 'installing_ffmpeg', text: 'Installing FFmpeg', icon: 'video', progress: 70, status: 'Installing FFmpeg...', delay: 2000 },
+            { step: 'installing_lerobot', text: 'Installing LeRobot', icon: 'robot', progress: 90, status: 'Installing LeRobot dependencies...', delay: 3000 },
+            { step: 'detecting_usb_ports', text: 'USB Port Detection', icon: 'plug', progress: 100, status: 'Installation complete!', delay: 1500 }
+          ];
+          
+          for (const stepData of steps) {
+            if (!this.installationRunning) break;
+            
+            // Add the step to display
+            this.addStep(stepData.step, stepData.text, stepData.icon);
+            
+            this.updateProgress(stepData.progress, stepData.status, stepData.step);
+            this.logMessage(`📋 ${stepData.status}`, 'info');
+            
+            await new Promise(resolve => setTimeout(resolve, stepData.delay));
+          }
+          
+          if (this.installationRunning) {
+            this.onInstallationComplete({ installation_path: installationPath });
+          }
+        }
       
       async scanUSBPorts() {
-        if (!this.isConnected) {
-          this.logMessage('Backend not connected. Cannot scan USB ports.', 'error');
-          return;
-        }
+        this.scanPortsBtn.disabled = true;
+        this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/scan_usb_ports`);
           const data = await response.json();
           
-          this.displayUSBPorts(data.ports || []);
-          this.logMessage(`Found ${data.ports?.length || 0} USB devices`, 'info');
+          if (data.success) {
+            this.displayUSBPorts(data.ports || []);
+            this.logMessage(`🔌 Found ${data.ports?.length || 0} USB devices`, 'info');
+          } else {
+            // Show guidance for manual USB detection
+            this.displayUSBGuidance(data.guidance || 'USB scanning guidance not available');
+            this.logMessage('💡 USB scanning guidance provided', 'info');
+          }
           
         } catch (error) {
-          this.logMessage(`Error scanning USB ports: ${error.message}`, 'error');
+          this.logMessage(`❌ Error scanning USB ports: ${error.message}`, 'error');
+          this.displayUSBGuidance('To manually detect USB ports, use: python -m serial.tools.list_ports');
+        } finally {
+          this.scanPortsBtn.disabled = false;
+          this.scanPortsBtn.innerHTML = '<i class="fas fa-search"></i> Scan Ports';
         }
+      }
+      
+      displayUSBGuidance(guidance) {
+        this.portsContainer.innerHTML = `
+          <div style="padding: 1rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            <h4 style="margin: 0 0 0.5rem 0; color: #7dd3fc;">💡 USB Detection Guidance</h4>
+            <p style="margin: 0 0 1rem 0; color: #e2e8f0; line-height: 1.5;">${guidance}</p>
+            <div style="background: #0f172a; padding: 0.75rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #86efac;">
+              # Install pyserial for USB detection<br>
+              pip install pyserial<br><br>
+              # List all USB ports<br>
+              python -m serial.tools.list_ports<br><br>
+              # Or in Python:<br>
+              import serial.tools.list_ports<br>
+              ports = serial.tools.list_ports.comports()<br>
+              for port in ports: print(port)
+            </div>
+          </div>
+        `;
       }
       
       refreshUSBPorts() {

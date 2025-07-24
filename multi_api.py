@@ -362,45 +362,72 @@ echo "🚀 Activate: conda activate lerobot"
 
 @app.route('/api/scan_usb_ports', methods=['GET'])
 def scan_usb_ports():
-    """Provide USB port detection guidance and code"""
-    return jsonify({
-        "message": "USB Port Detection Guide",
-        "instructions": [
-            "Connect robotic arms via USB",
-            "Run the detection code below",
-            "Note the port names for configuration"
-        ],
-        "detection_code": """import serial.tools.list_ports
-
-def detect_robotic_arms():
-    print("🔍 Scanning for USB devices...")
-    ports = []
-    
-    for port in serial.tools.list_ports.comports():
-        ports.append({
-            'device': port.device,
-            'description': port.description,
-            'hwid': port.hwid
-        })
-        print(f"Found: {port.device} - {port.description}")
-    
-    return ports
-
-# Run detection
-detected_ports = detect_robotic_arms()
-print(f"\\n✅ Found {len(detected_ports)} USB devices")""",
-        "common_patterns": {
-            "macOS": ["/dev/cu.usbmodem*", "/dev/tty.usbserial*"],
-            "Linux": ["/dev/ttyACM*", "/dev/ttyUSB*"], 
-            "Windows": ["COM1", "COM2", "COM3", "COM4", "..."]
-        },
-        "tips": [
-            "Ensure USB drivers are installed",
-            "Try different high-quality USB cables",
-            "Check device manager for recognized devices",
-            "Verify robotic arms are powered on"
+    """Scan for USB ports - Cloud version provides guidance and mock results"""
+    try:
+        # Since this is running in cloud, we can't scan actual local USB ports
+        # Instead, provide guidance and realistic example data
+        
+        mock_ports = [
+            {
+                "device": "/dev/ttyUSB0",
+                "description": "USB-Serial Controller",
+                "hwid": "USB VID:PID=10C4:EA60 SER=0001 LOCATION=1-1.2",
+                "manufacturer": "Silicon Labs",
+                "product": "CP210x UART Bridge",
+                "interface": None
+            },
+            {
+                "device": "/dev/ttyACM0", 
+                "description": "USB2.0-Serial",
+                "hwid": "USB VID:PID=2341:0043 SER=85736323330351E03170",
+                "manufacturer": "Arduino LLC",
+                "product": "Arduino Uno Rev3",
+                "interface": None
+            }
         ]
-    })
+        
+        guidance_text = """
+        For real-time USB port detection on your local machine:
+        
+        1. Install pyserial: pip install pyserial
+        2. Run the detection script locally
+        3. Connect your robotic arms via USB
+        4. Check device permissions (Linux/Mac may need sudo)
+        
+        Common robotic arm USB identifiers:
+        • ViperX, PincherX: Dynamixel controllers
+        • Franka Panda: Ethernet connection
+        • UR Series: Ethernet + USB for setup
+        • Kinova: USB or Ethernet depending on model
+        """
+        
+        return jsonify({
+            "success": True,
+            "ports": mock_ports,
+            "guidance": guidance_text,
+            "local_command": "python -m serial.tools.list_ports",
+            "note": "These are example USB devices. For real detection, run locally.",
+            "instructions": [
+                "Install pyserial package",
+                "Connect robotic hardware", 
+                "Run USB detection locally",
+                "Configure device permissions if needed"
+            ]
+        })
+        
+    except Exception as e:
+        logger.error(f"USB scan error: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "guidance": "For local USB detection, install pyserial and run: python -m serial.tools.list_ports",
+            "troubleshooting": [
+                "Ensure USB devices are connected",
+                "Check device permissions (may need sudo)",
+                "Install pyserial: pip install pyserial",
+                "Try different USB ports"
+            ]
+        }), 500
 
 @app.route('/api/cancel_installation', methods=['POST'])
 def cancel_installation():
