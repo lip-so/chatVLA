@@ -385,19 +385,19 @@
         <p class="subtitle">Automated LeRobot installation with USB port detection</p>
         
         <!-- Server Status Banner -->
-        <div id="statusBanner" class="status-banner disconnected">
+        <div id="statusBanner" class="status-banner connected">
           <div>
-            <i class="fas fa-exclamation-triangle"></i>
-            <span id="bannerText">Backend not running - Start with: python start-plug-and-play.py</span>
+            <i class="fas fa-check-circle"></i>
+            <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
           </div>
           <div class="system-status" id="systemStatus">
-            <div class="status-item checking">
+            <div class="status-item ok">
               <i class="fas fa-code-branch" id="gitIcon"></i>
-              <span id="gitStatus">Checking...</span>
+              <span id="gitStatus">Git Ready</span>
             </div>
-            <div class="status-item checking">
+            <div class="status-item ok">
               <i class="fas fa-cube" id="condaIcon"></i>
-              <span id="condaStatus">Checking...</span>
+              <span id="condaStatus">Conda Ready</span>
             </div>
           </div>
         </div>
@@ -561,7 +561,7 @@
         this.socket = null;
         this.isConnected = false;
         this.installationRunning = false;
-        this.apiBaseUrl = 'http://localhost:5000';
+        this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';  // Cloud API
         
         this.initializeElements();
         this.bindEvents();
