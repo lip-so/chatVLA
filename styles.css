@@ -140,6 +140,18 @@ body {
   color: var(--text-primary);
 }
 
+.hero-subtitle {
+  font-size: 1.2rem;
+  font-family: 'Playfair Display', serif;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  font-style: italic;
+  font-weight: 400;
+}
+
 .landing-main {
   min-height: 100vh;
   display: flex;
