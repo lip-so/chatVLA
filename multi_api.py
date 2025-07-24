@@ -45,25 +45,25 @@ DATABENCH_PATH = Path(__file__).parent / "databench"
 RESULTS_DIR = Path(__file__).parent / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
-    """Serve the main API page"""
-    return """
-    <h1>Tune Robotics - Unified API</h1>
-    <p>Cloud backend providing DataBench evaluation and Plug & Play installation guidance.</p>
-    <h2>Services:</h2>
-    <ul>
-        <li><strong>DataBench</strong>: Dataset quality evaluation</li>
-        <li><strong>Plug & Play</strong>: LeRobot installation guidance</li>
-    </ul>
-    <h2>Endpoints:</h2>
-    <ul>
-        <li><a href="/health">Health Check</a></li>
-        <li><a href="/api/metrics">DataBench Metrics</a></li>
-        <li><a href="/api/system_info">System Info</a></li>
-        <li><a href="/api/installation_guide">Installation Guide</a></li>
-    </ul>
-    """
+    """Root endpoint - API info page"""
+    return jsonify({
+        "name": "Tune Robotics Unified API",
+        "description": "Combined API for DataBench evaluation and Plug & Play installation",
+        "services": ["DataBench", "Plug & Play"],
+        "endpoints": {
+            "health": "/health",
+            "databench_metrics": "/api/metrics", 
+            "databench_evaluate": "/api/evaluate",
+            "plugplay_system": "/api/system_info",
+            "plugplay_install": "/api/start_installation",
+            "plugplay_usb": "/api/scan_usb_ports"
+        },
+        "status": "running",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat()
+    })
 
 @app.route('/health', methods=['GET'])
 def health():
