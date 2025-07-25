@@ -181,7 +181,7 @@
     }
 
     .metric-card.selected .metric-checkbox::after {
-      content: '✓';
+      content: 'X';
       color: white;
       font-size: 12px;
       position: absolute;
@@ -664,6 +664,16 @@
       .score-range {
         font-size: 0.8rem;
       }
+    }
+    /* Checkbox styling */
+    .param-checkbox input[type="checkbox"]:checked + label::after {
+      content: 'X';
+      position: absolute;
+      left: 4px;
+      top: 0px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #007bff;
     }
   </style>
 </head>

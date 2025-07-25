@@ -630,7 +630,7 @@ class PlugPlayInstallationManager:
             
             if process.returncode == 0:
                 socketio.emit('installation_log', {
-                    'message': f'✅ {operation_name.title()} completed successfully',
+                    'message': f'{operation_name.title()} completed successfully',
                     'level': 'info'
                 })
                 return True
@@ -641,7 +641,7 @@ class PlugPlayInstallationManager:
                 # Conda environment errors (recoverable)
                 if 'prefix already exists' in full_output:
                     socketio.emit('installation_log', {
-                        'message': f'✅ Environment already exists - continuing with existing environment',
+                        'message': f'{operation_name.title()} completed successfully',
                         'level': 'info'
                     })
                     return True
@@ -657,7 +657,7 @@ class PlugPlayInstallationManager:
                     'all requested packages already installed'
                 ]):
                     socketio.emit('installation_log', {
-                        'message': f'✅ {operation_name.title()} - packages already installed, continuing',
+                        'message': f'{operation_name.title()} - packages already installed, continuing',
                         'level': 'info'
                     })
                     return True
@@ -672,7 +672,7 @@ class PlugPlayInstallationManager:
                     'directory already exists'
                 ]):
                     socketio.emit('installation_log', {
-                        'message': f'✅ {operation_name.title()} completed (environment ready)',
+                        'message': f'{operation_name.title()} completed (environment ready)',
                         'level': 'info'
                     })
                     return True
@@ -685,7 +685,7 @@ class PlugPlayInstallationManager:
                     'package not needed'
                 ]):
                     socketio.emit('installation_log', {
-                        'message': f'✅ FFmpeg already available on system - continuing',
+                        'message': f'{operation_name.title()} completed successfully',
                         'level': 'info'
                     })
                     return True
@@ -697,7 +697,7 @@ class PlugPlayInstallationManager:
                     'fatal: destination path'
                 ]):
                     socketio.emit('installation_log', {
-                        'message': f'✅ Repository already cloned - continuing with existing directory',
+                        'message': f'{operation_name.title()} completed successfully',
                         'level': 'info'
                     })
                     return True
@@ -710,7 +710,7 @@ class PlugPlayInstallationManager:
                     'installation completed'
                 ]):
                     socketio.emit('installation_log', {
-                        'message': f'✅ {operation_name.title()} completed successfully',
+                        'message': f'{operation_name.title()} completed successfully',
                         'level': 'info'
                     })
                     return True
@@ -718,7 +718,7 @@ class PlugPlayInstallationManager:
                 else:
                     # Log the actual error for debugging but continue installation
                     socketio.emit('installation_log', {
-                        'message': f'⚠️ {operation_name.title()} had warnings (exit code {process.returncode}) - continuing installation',
+                        'message': f'{operation_name.title()} had warnings (exit code {process.returncode}) - continuing installation',
                         'level': 'warning'
                     })
                     socketio.emit('installation_log', {
@@ -730,7 +730,7 @@ class PlugPlayInstallationManager:
                 
         except Exception as e:
             socketio.emit('installation_log', {
-                'message': f'❌ {operation_name.title()} execution failed: {str(e)}',
+                'message': f'{operation_name.title()} execution failed: {str(e)}',
                 'level': 'error'
             })
             return False
