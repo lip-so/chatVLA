@@ -3,44 +3,830 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 Not Found</title>
+  <title>404 - Lost Robot | Tune Robotics</title>
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    body {
+    /* Page Layout */
+    .error-container {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: var(--background, #000b2a);
-      color: var(--text-primary, #fff);
-      font-family: 'Roboto Mono', monospace;
+      justify-content: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #000b2a 0%, #001a4d 50%, #002366 100%);
+      position: relative;
+      overflow: hidden;
     }
-    h1 {
-      font-size: 5rem;
-      margin: 0;
-    }
-    .oops {
-      font-size: 1.5rem;
-      margin-top: 1.5rem;
-      color: var(--text-secondary, #8c9bb3);
-    }
-    header {
-      width: 100vw;
+
+    /* Animated Background */
+    .stars {
       position: absolute;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    /* Error Message Styling */
+    .error-content {
+      text-align: center;
+      z-index: 10;
+      margin-bottom: 3rem;
+    }
+
+    .error-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8rem;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)); }
+      to { filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8)); }
+    }
+
+    .error-message {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 1rem 0 2rem;
+      font-style: italic;
+    }
+
+    .error-description {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    /* Game Container */
+    .game-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      margin: 2rem 0;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .game-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #3b82f6;
+      margin: 0 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .game-instructions {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.4;
+    }
+
+    /* Game Canvas */
+    #gameCanvas {
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+      background: #0a0a0a;
+      border: 3px solid #3b82f6;
+      border-radius: 10px;
+      margin: 0 auto 1.5rem;
+      display: block;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 
+        inset 0 0 20px rgba(59, 130, 246, 0.2),
+        0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Game Controls */
+    .game-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .control-btn {
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid #3b82f6;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .control-btn:hover {
+      background: rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .control-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Score Display */
+    .game-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      color: #3b82f6;
+      font-weight: 700;
+    }
+
+    /* Navigation Buttons */
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .nav-btn.primary {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    .nav-btn.primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .error-code {
+        font-size: 5rem;
+      }
+
+      .error-message {
+        font-size: 1.4rem;
+      }
+
+      .error-description {
+        font-size: 1rem;
+      }
+
+      #gameCanvas {
+        height: 250px;
+      }
+
+      .game-container {
+        padding: 1.5rem;
+      }
+
+      .control-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Touch Controls for Mobile */
+    .touch-controls {
+      display: none;
+      grid-template-areas: 
+        ". up ."
+        "left . right"
+        ". down .";
+      gap: 10px;
+      max-width: 200px;
+      margin: 1rem auto;
+    }
+
+    .touch-btn {
+      width: 60px;
+      height: 60px;
+      background: rgba(59, 130, 246, 0.3);
+      border: 2px solid #3b82f6;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .touch-btn:active {
+      background: rgba(59, 130, 246, 0.6);
+      transform: scale(0.95);
+    }
+
+    .touch-btn.up { grid-area: up; }
+    .touch-btn.down { grid-area: down; }
+    .touch-btn.left { grid-area: left; }
+    .touch-btn.right { grid-area: right; }
+
+    @media (max-width: 768px) and (hover: none) {
+      .touch-controls {
+        display: grid;
+      }
+    }
+
+    /* High Score Badge */
+    .high-score-badge {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1f2937;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo-fixed">
-      <a href="index.html">Tune</a>
+  <nav class="navbar">
+    <a href="landing.html" class="logo">Tune</a>
+    <div class="nav-links">
+      <a href="Vision.html">Vision</a>
+      <a href="databench.html">DataBench</a>
+      <a href="plug-and-play.html">Plug & Play</a>
+      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
     </div>
-  </header>
-  <h1>404</h1>
-  <div class="oops">Oops.. can't find that</div>
+  </nav>
+
+  <div class="error-container">
+    <!-- Animated Stars Background -->
+    <div class="stars" id="starsContainer"></div>
+
+    <!-- Error Content -->
+    <div class="error-content">
+      <h1 class="error-code">404</h1>
+      <p class="error-message">Lost in the Digital Cosmos</p>
+      <p class="error-description">
+        Our robot explorer got lost in cyberspace! Help guide it back home by collecting energy orbs while avoiding space debris.
+      </p>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+      <div class="high-score-badge" id="highScoreBadge" style="display: none;">
+        NEW HIGH SCORE!
+      </div>
+      
+      <div class="game-header">
+        <h2 class="game-title">Lost Robot Navigator</h2>
+        <p class="game-instructions">
+          Use arrow keys or WASD to move. Collect blue energy orbs (+10 points) and avoid red obstacles (-5 points)!
+        </p>
+      </div>
+
+      <div class="game-stats">
+        <div class="stat-item">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="score">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">High Score</div>
+          <div class="stat-value" id="highScore">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Time</div>
+          <div class="stat-value" id="timer">30</div>
+        </div>
+      </div>
+
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Touch Controls for Mobile -->
+      <div class="touch-controls">
+        <button class="touch-btn up" data-direction="up">↑</button>
+        <button class="touch-btn down" data-direction="down">↓</button>
+        <button class="touch-btn left" data-direction="left">←</button>
+        <button class="touch-btn right" data-direction="right">→</button>
+      </div>
+
+      <div class="game-controls">
+        <button class="control-btn" id="startBtn">Start Game</button>
+        <button class="control-btn" id="pauseBtn" style="display: none;">Pause</button>
+        <button class="control-btn" id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <a href="landing.html" class="nav-btn primary">
+        <i class="fas fa-home"></i>
+        Go Home
+      </a>
+      <a href="javascript:history.back()" class="nav-btn">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </a>
+      <a href="mailto:yo@tunerobotics.xyz" class="nav-btn">
+        <i class="fas fa-envelope"></i>
+        Contact Us
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Create animated stars background
+    function createStars() {
+      const starsContainer = document.getElementById('starsContainer');
+      const numStars = 100;
+      
+      for (let i = 0; i < numStars; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        starsContainer.appendChild(star);
+      }
+    }
+
+    createStars();
+
+    // Game Logic
+    class LostRobotGame {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.score = 0;
+        this.highScore = parseInt(localStorage.getItem('lostRobotHighScore') || '0');
+        this.time = 30;
+        this.isPlaying = false;
+        this.isPaused = false;
+        
+        // Set canvas size
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+        
+        // Game objects
+        this.robot = {
+          x: 50,
+          y: this.canvas.height / 2,
+          size: 20,
+          speed: 5,
+          color: '#3b82f6'
+        };
+        
+        this.orbs = [];
+        this.obstacles = [];
+        this.particles = [];
+        
+        // Controls
+        this.keys = {};
+        this.setupControls();
+        
+        // Update high score display
+        document.getElementById('highScore').textContent = this.highScore;
+      }
+      
+      resizeCanvas() {
+        const container = this.canvas.parentElement;
+        const maxWidth = Math.min(500, container.offsetWidth - 40);
+        this.canvas.width = maxWidth;
+        this.canvas.height = 300;
+      }
+      
+      setupControls() {
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            this.keys[e.key.toLowerCase()] = true;
+          }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+          this.keys[e.key.toLowerCase()] = false;
+        });
+        
+        // Touch controls
+        const touchButtons = document.querySelectorAll('.touch-btn');
+        touchButtons.forEach(btn => {
+          btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const direction = btn.dataset.direction;
+            this.handleTouchControl(direction, true);
+          });
+          
+          btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const direction = btn.dataset.direction;
+            this.handleTouchControl(direction, false);
+          });
+        });
+        
+        // Game control buttons
+        document.getElementById('startBtn').addEventListener('click', () => this.start());
+        document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
+        document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+      }
+      
+      handleTouchControl(direction, isPressed) {
+        switch(direction) {
+          case 'up': this.keys['arrowup'] = isPressed; break;
+          case 'down': this.keys['arrowdown'] = isPressed; break;
+          case 'left': this.keys['arrowleft'] = isPressed; break;
+          case 'right': this.keys['arrowright'] = isPressed; break;
+        }
+      }
+      
+      start() {
+        if (this.isPlaying) return;
+        
+        this.isPlaying = true;
+        this.isPaused = false;
+        this.score = 0;
+        this.time = 30;
+        this.orbs = [];
+        this.obstacles = [];
+        this.particles = [];
+        this.robot.x = 50;
+        this.robot.y = this.canvas.height / 2;
+        
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('pauseBtn').style.display = 'inline-block';
+        document.getElementById('highScoreBadge').style.display = 'none';
+        
+        this.gameLoop();
+        this.timer = setInterval(() => {
+          if (!this.isPaused) {
+            this.time--;
+            document.getElementById('timer').textContent = this.time;
+            if (this.time <= 0) {
+              this.gameOver();
+            }
+          }
+        }, 1000);
+        
+        // Spawn objects
+        this.spawnInterval = setInterval(() => {
+          if (!this.isPaused && this.isPlaying) {
+            this.spawnOrb();
+            if (Math.random() < 0.5) this.spawnObstacle();
+          }
+        }, 1500);
+      }
+      
+      togglePause() {
+        this.isPaused = !this.isPaused;
+        document.getElementById('pauseBtn').textContent = this.isPaused ? 'Resume' : 'Pause';
+      }
+      
+      reset() {
+        this.isPlaying = false;
+        this.isPaused = false;
+        this.score = 0;
+        this.time = 30;
+        this.orbs = [];
+        this.obstacles = [];
+        this.particles = [];
+        this.robot.x = 50;
+        this.robot.y = this.canvas.height / 2;
+        
+        clearInterval(this.timer);
+        clearInterval(this.spawnInterval);
+        
+        document.getElementById('score').textContent = '0';
+        document.getElementById('timer').textContent = '30';
+        document.getElementById('startBtn').style.display = 'inline-block';
+        document.getElementById('pauseBtn').style.display = 'none';
+        document.getElementById('highScoreBadge').style.display = 'none';
+        
+        this.draw();
+      }
+      
+      gameOver() {
+        this.isPlaying = false;
+        clearInterval(this.timer);
+        clearInterval(this.spawnInterval);
+        
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('lostRobotHighScore', this.highScore);
+          document.getElementById('highScore').textContent = this.highScore;
+          document.getElementById('highScoreBadge').style.display = 'block';
+        }
+        
+        document.getElementById('startBtn').style.display = 'inline-block';
+        document.getElementById('pauseBtn').style.display = 'none';
+        
+        // Draw game over screen
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 36px JetBrains Mono';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 20);
+        
+        this.ctx.font = '20px Inter';
+        this.ctx.fillText(`Final Score: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 20);
+      }
+      
+      spawnOrb() {
+        this.orbs.push({
+          x: this.canvas.width,
+          y: Math.random() * (this.canvas.height - 40) + 20,
+          size: 15,
+          speed: 3 + Math.random() * 2
+        });
+      }
+      
+      spawnObstacle() {
+        this.obstacles.push({
+          x: this.canvas.width,
+          y: Math.random() * (this.canvas.height - 40) + 20,
+          size: 20,
+          speed: 4 + Math.random() * 2,
+          rotation: 0
+        });
+      }
+      
+      createParticles(x, y, color, count = 10) {
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            size: Math.random() * 4 + 2,
+            color: color,
+            life: 1
+          });
+        }
+      }
+      
+      update() {
+        if (!this.isPlaying || this.isPaused) return;
+        
+        // Update robot position
+        if (this.keys['arrowup'] || this.keys['w']) {
+          this.robot.y = Math.max(this.robot.size, this.robot.y - this.robot.speed);
+        }
+        if (this.keys['arrowdown'] || this.keys['s']) {
+          this.robot.y = Math.min(this.canvas.height - this.robot.size, this.robot.y + this.robot.speed);
+        }
+        if (this.keys['arrowleft'] || this.keys['a']) {
+          this.robot.x = Math.max(this.robot.size, this.robot.x - this.robot.speed);
+        }
+        if (this.keys['arrowright'] || this.keys['d']) {
+          this.robot.x = Math.min(this.canvas.width - this.robot.size, this.robot.x + this.robot.speed);
+        }
+        
+        // Update orbs
+        this.orbs = this.orbs.filter(orb => {
+          orb.x -= orb.speed;
+          
+          // Check collision with robot
+          const dx = orb.x - this.robot.x;
+          const dy = orb.y - this.robot.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < this.robot.size + orb.size) {
+            this.score += 10;
+            document.getElementById('score').textContent = this.score;
+            this.createParticles(orb.x, orb.y, '#3b82f6');
+            return false;
+          }
+          
+          return orb.x > -orb.size;
+        });
+        
+        // Update obstacles
+        this.obstacles = this.obstacles.filter(obstacle => {
+          obstacle.x -= obstacle.speed;
+          obstacle.rotation += 0.05;
+          
+          // Check collision with robot
+          const dx = obstacle.x - this.robot.x;
+          const dy = obstacle.y - this.robot.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < this.robot.size + obstacle.size) {
+            this.score = Math.max(0, this.score - 5);
+            document.getElementById('score').textContent = this.score;
+            this.createParticles(obstacle.x, obstacle.y, '#ef4444');
+            return false;
+          }
+          
+          return obstacle.x > -obstacle.size;
+        });
+        
+        // Update particles
+        this.particles = this.particles.filter(particle => {
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.life -= 0.02;
+          particle.vx *= 0.98;
+          particle.vy *= 0.98;
+          return particle.life > 0;
+        });
+      }
+      
+      draw() {
+        // Clear canvas
+        this.ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Draw grid background
+        this.ctx.strokeStyle = 'rgba(59, 130, 246, 0.1)';
+        this.ctx.lineWidth = 1;
+        for (let x = 0; x < this.canvas.width; x += 30) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, this.canvas.height);
+          this.ctx.stroke();
+        }
+        for (let y = 0; y < this.canvas.height; y += 30) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(this.canvas.width, y);
+          this.ctx.stroke();
+        }
+        
+        // Draw particles
+        this.particles.forEach(particle => {
+          this.ctx.globalAlpha = particle.life;
+          this.ctx.fillStyle = particle.color;
+          this.ctx.fillRect(particle.x - particle.size/2, particle.y - particle.size/2, particle.size, particle.size);
+        });
+        this.ctx.globalAlpha = 1;
+        
+        // Draw orbs
+        this.orbs.forEach(orb => {
+          // Orb glow
+          const gradient = this.ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.size * 2);
+          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+          gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+          this.ctx.fillStyle = gradient;
+          this.ctx.fillRect(orb.x - orb.size * 2, orb.y - orb.size * 2, orb.size * 4, orb.size * 4);
+          
+          // Orb body
+          this.ctx.fillStyle = '#3b82f6';
+          this.ctx.beginPath();
+          this.ctx.arc(orb.x, orb.y, orb.size, 0, Math.PI * 2);
+          this.ctx.fill();
+          
+          // Orb highlight
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          this.ctx.beginPath();
+          this.ctx.arc(orb.x - orb.size/3, orb.y - orb.size/3, orb.size/3, 0, Math.PI * 2);
+          this.ctx.fill();
+        });
+        
+        // Draw obstacles
+        this.obstacles.forEach(obstacle => {
+          this.ctx.save();
+          this.ctx.translate(obstacle.x, obstacle.y);
+          this.ctx.rotate(obstacle.rotation);
+          
+          // Obstacle body
+          this.ctx.fillStyle = '#ef4444';
+          this.ctx.fillRect(-obstacle.size, -obstacle.size, obstacle.size * 2, obstacle.size * 2);
+          
+          // Danger stripes
+          this.ctx.fillStyle = '#991b1b';
+          for (let i = -obstacle.size; i < obstacle.size; i += 8) {
+            this.ctx.fillRect(i, -obstacle.size, 4, obstacle.size * 2);
+          }
+          
+          this.ctx.restore();
+        });
+        
+        // Draw robot
+        this.ctx.save();
+        this.ctx.translate(this.robot.x, this.robot.y);
+        
+        // Robot body
+        this.ctx.fillStyle = this.robot.color;
+        this.ctx.fillRect(-this.robot.size, -this.robot.size, this.robot.size * 2, this.robot.size * 2);
+        
+        // Robot eye
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(-this.robot.size/2, -this.robot.size/2, this.robot.size/2, this.robot.size/3);
+        
+        // Robot antenna
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -this.robot.size);
+        this.ctx.lineTo(0, -this.robot.size - 10);
+        this.ctx.stroke();
+        
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(0, -this.robot.size - 10, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.restore();
+      }
+      
+      gameLoop() {
+        if (!this.isPlaying) return;
+        
+        this.update();
+        this.draw();
+        
+        requestAnimationFrame(() => this.gameLoop());
+      }
+    }
+
+    // Initialize game
+    const canvas = document.getElementById('gameCanvas');
+    const game = new LostRobotGame(canvas);
+    game.draw();
+  </script>
 </body>
 </html> 
