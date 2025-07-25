@@ -9,6 +9,7 @@ import json
 import time
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 def test_health_endpoint():
@@ -62,10 +63,14 @@ def test_databench_command():
         return False
     
     try:
+        # Set up environment with proper PYTHONPATH
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(databench_path)
+        
         # Test with --help to verify the script runs
         result = subprocess.run([
             sys.executable, str(script_path), "--help"
-        ], capture_output=True, text=True, timeout=10, cwd=databench_path)
+        ], capture_output=True, text=True, timeout=10, env=env)
         
         if result.returncode == 0:
             print("✅ DataBench command line script working")

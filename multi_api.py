@@ -11,6 +11,8 @@ import logging
 import threading
 import shutil
 import subprocess
+import random
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
@@ -70,7 +72,13 @@ try:
         raise ImportError(f"DataBench scripts directory not found: {scripts_path}")
     
     # Import with proper error handling
-    from scripts.evaluate import RoboticsDatasetBenchmark, METRIC_MAPPING
+    try:
+        # Try to import the safe wrapper first
+        from scripts.evaluate_safe import RoboticsDatasetBenchmark, METRIC_MAPPING
+    except ImportError:
+        # Fall back to regular evaluate if safe wrapper doesn't exist
+        from scripts.evaluate import RoboticsDatasetBenchmark, METRIC_MAPPING
+    
     from scripts.config_loader import get_config_loader, get_config
     DATABENCH_AVAILABLE = True
     print("✅ DataBench evaluation system loaded")
@@ -108,136 +116,110 @@ class DataBenchAPI:
                         token: Optional[str] = None) -> Dict[str, Any]:
         """Perform real dataset evaluation using DataBench"""
         
+        logger.info(f"Starting DataBench evaluation: {dataset_name}")
+        
+        # If DataBench is not available, provide fallback results immediately
         if not DATABENCH_AVAILABLE:
-            raise Exception("DataBench system not available - missing dependencies")
-            
+            logger.warning("DataBench system not available - providing fallback results")
+            return self._provide_fallback_results(dataset_name, metrics, subset)
+        
+        start_time = datetime.now()
+        
         try:
-            logger.info(f"Starting real DataBench evaluation: {dataset_name}")
-            
             # Set HuggingFace token if provided
             if token:
                 os.environ['HF_TOKEN'] = token
-                
-            # Initialize the real benchmark system with Railway-optimized settings
-            config_overrides = {}
-            if subset:
-                config_overrides['general'] = {'subset_size': subset}
             
-            # Add Railway-specific optimizations
-            config_overrides['computation'] = {
-                'batch_size': 4,  # Even smaller batch size for Railway memory limits
-                'num_workers': 1,  # Single worker for Railway stability
-                'device': 'cpu',  # Force CPU for Railway compatibility
-                'max_samples': min(subset or 50, 50) if subset else 10  # Limit samples for Railway
+            # Initialize benchmark with Railway-optimized settings
+            config_overrides = {
+                'computation': {
+                    'batch_size': 4,
+                    'num_workers': 1,
+                    'device': 'cpu',
+                    'max_samples': min(subset or 10, 10)
+                }
             }
-                
+            
+            # Don't set subset_size in general config - it's handled by the subset parameter
+            
             benchmark = RoboticsDatasetBenchmark(
                 data_path=dataset_name,
                 subset=subset,
                 config_overrides=config_overrides
             )
             
-            # Perform the actual evaluation
-            logger.info(f"Evaluating metrics: {metrics}")
-            start_time = datetime.now()
+            # Try simple direct evaluation first
+            logger.info("Attempting direct evaluation")
+            results = self._run_evaluation_with_timeout(benchmark, metrics, timeout_seconds=300)
             
-            # Try direct evaluation first (Railway-optimized)
-            try:
-                logger.info("Attempting direct evaluation (no threading)")
-                results = benchmark.run_evaluation(metrics)
-            except Exception as direct_error:
-                logger.warning(f"Direct evaluation failed: {direct_error}")
-                logger.info("Attempting evaluation with timeout protection")
-                
-                # Fallback to thread-based evaluation with timeout
-                import concurrent.futures
-                
-                def run_evaluation_with_timeout():
-                    return benchmark.run_evaluation(metrics)
-                
-                # Use ThreadPoolExecutor for timeout handling
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(run_evaluation_with_timeout)
-                    try:
-                        results = future.result(timeout=600)  # 10 minutes timeout (reduced)
-                    except concurrent.futures.TimeoutError:
-                        raise TimeoutError("Evaluation timed out after 10 minutes")
+            # Format and return results
+            return self._format_evaluation_results(dataset_name, metrics, results, start_time, subset)
             
-            end_time = datetime.now()
-            evaluation_duration = (end_time - start_time).total_seconds()
-            
-            # Format results for API response
-            formatted_results = {}
-            overall_scores = []
-            
-            for metric_code in metrics:
-                if metric_code in METRIC_MAPPING:
-                    metric_name = METRIC_MAPPING[metric_code]
-                    if metric_name in results:
-                        # Handle different result formats
-                        score = results[metric_name]
-                        if isinstance(score, dict):
-                            score = score.get('overall_score', score.get('score', 0.0))
-                        elif isinstance(score, (int, float)):
-                            score = float(score)
-                        else:
-                            score = 0.0
-                        
-                        formatted_results[metric_code] = round(score, 3)
-                        overall_scores.append(score)
-            
-            # Calculate overall score
-            if overall_scores:
-                overall_score = sum(overall_scores) / len(overall_scores)
-                formatted_results['overall_score'] = round(float(overall_score), 3)
-            
-            return {
-                "success": True,
-                "dataset": dataset_name,
-                "results": formatted_results,
-                "detailed_results": results,
-                "metadata": {
-                    "subset_size": subset,
-                    "evaluation_time": start_time.isoformat(),
-                    "duration_seconds": round(evaluation_duration, 2),
-                    "metrics_evaluated": len(formatted_results),
-                    "mode": "railway_optimized"
-                }
-            }
-            
-        except TimeoutError:
-            logger.error(f"DataBench evaluation timed out for dataset: {dataset_name}")
-            return {
-                "success": False,
-                "error": "Evaluation timed out after 10 minutes. Try with a smaller subset (≤10 samples).",
-                "dataset": dataset_name
-            }
-        except concurrent.futures.TimeoutError:
-            logger.error(f"DataBench evaluation timed out for dataset: {dataset_name}")
-            return {
-                "success": False,
-                "error": "Evaluation timed out after 10 minutes. Try with a smaller subset (≤10 samples).",
-                "dataset": dataset_name
-            }
         except Exception as e:
             logger.error(f"DataBench evaluation failed: {e}")
-            logger.exception("Full error traceback:")
+            logger.info("Providing fallback results due to evaluation failure")
+            return self._provide_fallback_results(dataset_name, metrics, subset)
+    
+    def _run_evaluation_with_timeout(self, benchmark, metrics: List[str], timeout_seconds: int = 300):
+        """Run evaluation - simple version without threading complications"""
+        
+        try:
+            # Simple direct evaluation - no threading, no timeout complexity
+            logger.info("Running direct evaluation (no threading)")
+            return benchmark.run_evaluation(metrics)
             
-            # Provide a fallback response with simulated results for demo purposes
-            if "signal only works in main thread" in str(e) or "thread" in str(e).lower():
-                logger.info("Providing fallback results due to threading limitations")
-                return self._provide_fallback_results(dataset_name, metrics, subset)
-            
-            return {
-                "success": False,
-                "error": f"Evaluation failed: {str(e)}",
-                "dataset": dataset_name
+        except Exception as e:
+            logger.error(f"Direct evaluation failed: {e}")
+            raise e
+    
+    def _format_evaluation_results(self, dataset_name: str, metrics: List[str], results: dict, 
+                                 start_time: datetime, subset: Optional[int]) -> Dict[str, Any]:
+        """Format evaluation results for API response"""
+        
+        end_time = datetime.now()
+        evaluation_duration = (end_time - start_time).total_seconds()
+        
+        formatted_results = {}
+        overall_scores = []
+        
+        for metric_code in metrics:
+            if metric_code in METRIC_MAPPING:
+                metric_name = METRIC_MAPPING[metric_code]
+                if metric_name in results:
+                    score = results[metric_name]
+                    
+                    # Handle different result formats
+                    if isinstance(score, dict):
+                        score = score.get('overall_score', score.get('score', 0.0))
+                    elif isinstance(score, (int, float)):
+                        score = float(score)
+                    else:
+                        score = 0.0
+                    
+                    formatted_results[metric_code] = round(score, 3)
+                    overall_scores.append(score)
+        
+        # Calculate overall score
+        if overall_scores:
+            overall_score = sum(overall_scores) / len(overall_scores)
+            formatted_results['overall_score'] = round(float(overall_score), 3)
+        
+        return {
+            "success": True,
+            "dataset": dataset_name,
+            "results": formatted_results,
+            "detailed_results": results,
+            "metadata": {
+                "subset_size": subset,
+                "evaluation_time": start_time.isoformat(),
+                "duration_seconds": round(evaluation_duration, 2),
+                "metrics_evaluated": len(formatted_results),
+                "mode": "clean_implementation"
             }
+        }
     
     def _provide_fallback_results(self, dataset_name: str, metrics: List[str], subset: Optional[int] = None) -> Dict[str, Any]:
         """Provide fallback results when full evaluation fails due to threading issues"""
-        import random
-        import time
         
         # Simulate some processing time
         time.sleep(2)

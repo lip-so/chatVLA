@@ -7,6 +7,7 @@ import json
 import requests
 import time
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -99,7 +100,9 @@ def test_installation_workflow(base_url):
 
 def main():
     """Run all Plug & Play integration tests"""
-    base_url = "http://localhost:5000"  # Test locally first
+    # Use port from environment or default to 5003 to avoid macOS AirPlay conflict
+    port = os.environ.get('PORT', '5003')
+    base_url = f"http://localhost:{port}"
     
     logger.info("🔧 Testing Plug & Play integration with unified API")
     

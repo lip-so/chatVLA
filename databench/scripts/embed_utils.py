@@ -19,6 +19,10 @@ from sentence_transformers import SentenceTransformer
 from transformers import AutoProcessor, AutoModel, BlipProcessor, BlipForConditionalGeneration
 from transformers import CLIPProcessor, CLIPModel  # Using transformers' CLIP instead of clip-by-openai
 import warnings
+import subprocess
+import imageio
+import av
+from sklearn.metrics.pairwise import cosine_similarity
 warnings.filterwarnings('ignore')
 
 logger = logging.getLogger(__name__)
@@ -230,7 +234,16 @@ class VideoLoader:
                 
                 # Get duration and frame rate
                 duration = float(video_info.get('duration', 0))
-                fps = eval(video_info.get('avg_frame_rate', '30/1'))  # Handle fraction format
+                # Safely parse frame rate (handle fraction format like "30/1")
+                fps_str = video_info.get('avg_frame_rate', '30/1')
+                try:
+                    if '/' in fps_str:
+                        num, den = fps_str.split('/')
+                        fps = float(num) / float(den)
+                    else:
+                        fps = float(fps_str)
+                except:
+                    fps = 30.0  # Default fallback
                 total_frames = int(duration * fps) if duration > 0 else num_frames * 2
                 
             except Exception as e:

@@ -7,6 +7,7 @@ import json
 import requests
 import time
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,7 +81,9 @@ def test_evaluation_endpoint(base_url, test_dataset="lerobot/aloha_sim_insertion
 def main():
     """Run integration tests"""
     # Test locally first
-    base_url = "http://localhost:5000"
+    # Use port from environment or default to 5003 to avoid macOS AirPlay conflict
+    port = os.environ.get('PORT', '5003')
+    base_url = f"http://localhost:{port}"
     
     logger.info("🧪 Running DataBench integration tests")
     

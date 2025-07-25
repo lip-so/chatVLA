@@ -595,8 +595,8 @@ class HighFidelityVisionMetric:
             from scripts.embed_utils import VideoLoader
             video_info = VideoLoader.get_video_info(str(full_path))
             
-            if video_info['exists'] and video_info['framerate'] != 'unknown':
-                return float(video_info['framerate'])
+            if video_info['exists'] and video_info['fps'] != 'unknown':
+                return float(video_info['fps'])
             
             # Fallback: try OpenCV directly
             import cv2
