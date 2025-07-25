@@ -857,7 +857,7 @@
       
       async connectToBackend() {
         try {
-                      const response = await fetch(`${this.apiBaseUrl}/api/status`);
+          const response = await fetch(`${this.apiBaseUrl}/api/status`);
           if (response.ok) {
             const data = await response.json();
             this.isConnected = true;
@@ -870,7 +870,8 @@
         } catch (error) {
           this.isConnected = false;
           this.updateConnectionStatus(false);
-          this.logMessage('❌ Backend server not available. Using Railway production service.', 'error');
+          this.logMessage('📖 Running in offline mode - showing static installation guide', 'info');
+          this.showStaticInstallationGuide();
         }
       }
       
@@ -937,8 +938,59 @@
           this.bannerText.innerHTML = '<i class="fas fa-check-circle"></i> Connected to Plug & Play backend - Full functionality available';
         } else {
           this.statusBanner.className = 'status-banner disconnected';
-          this.bannerText.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Backend not running - Start with: python start-plug-and-play.py';
+          this.bannerText.innerHTML = '<i class="fas fa-info-circle"></i> Offline Mode - Follow the manual installation guide below';
         }
+      }
+      
+      showStaticInstallationGuide() {
+        // Show static installation steps when backend is unavailable
+        this.initializeSteps();
+        
+        // Update the installation button to show manual instructions
+        this.startInstallBtn.addEventListener('click', () => this.showManualInstructions());
+        this.startInstallBtn.innerHTML = '<i class="fas fa-book"></i> Show Installation Guide';
+        this.startInstallBtn.disabled = false;
+        
+        // Hide cancel button in offline mode
+        this.cancelInstallBtn.style.display = 'none';
+        
+        // Add helpful instructions to the log
+        this.logMessage('💡 The automated installer is currently offline', 'warning');
+        this.logMessage('📚 Click "Show Installation Guide" for manual installation steps', 'info');
+        this.logMessage('🔧 Or run locally with: python start-plug-and-play.py', 'info');
+      }
+      
+      showManualInstructions() {
+        // Clear log and show manual installation steps
+        this.logContainer.innerHTML = '';
+        this.logMessage('🚀 LeRobot Manual Installation Guide', 'welcome');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 1: Install Prerequisites', 'info');
+        this.logMessage('  • Install Git: https://git-scm.com/downloads', 'info');
+        this.logMessage('  • Install Miniconda: https://docs.conda.io/en/latest/miniconda.html', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 2: Clone the Repository', 'info');
+        this.logMessage('  git clone https://github.com/huggingface/lerobot.git', 'info');
+        this.logMessage('  cd lerobot', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 3: Create Conda Environment', 'info');
+        this.logMessage('  conda create -y -n lerobot python=3.10', 'info');
+        this.logMessage('  conda activate lerobot', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 4: Install FFmpeg', 'info');
+        this.logMessage('  conda install -y ffmpeg -c conda-forge', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 5: Install LeRobot', 'info');
+        this.logMessage('  pip install -e .', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('📋 Step 6: Detect USB Ports (Optional)', 'info');
+        this.logMessage('  pip install pyserial', 'info');
+        this.logMessage('  python -m serial.tools.list_ports', 'info');
+        this.logMessage('', 'info');
+        this.logMessage('✅ Installation complete! Activate with: conda activate lerobot', 'info');
+        
+        // Update progress to show completion
+        this.updateProgress(100, 'Manual installation guide displayed', 'completed');
       }
       
       async checkSystemInfo() {
@@ -1178,7 +1230,7 @@
         this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-                      const response = await fetch(`${this.apiBaseUrl}/api/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/list-ports`);
           const data = await response.json();
           
           if (data.success) {
@@ -1191,8 +1243,8 @@
           }
           
         } catch (error) {
-          this.logMessage(`❌ Error scanning USB ports: ${error.message}`, 'error');
-          this.displayUSBGuidance('To manually detect USB ports, use: python -m serial.tools.list_ports');
+          this.logMessage(`📖 Showing USB port detection guide (offline mode)`, 'info');
+          this.displayUSBGuidance('Follow the steps below to manually detect your robotic arm USB ports');
         } finally {
           this.scanPortsBtn.disabled = false;
           this.scanPortsBtn.innerHTML = '<i class="fas fa-search"></i> Scan Ports';
@@ -1202,7 +1254,7 @@
       displayUSBGuidance(guidance) {
         this.portsContainer.innerHTML = `
           <div style="padding: 1rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-            <h4 style="margin: 0 0 0.5rem 0; color: #7dd3fc;">💡 USB Detection Guidance</h4>
+            <h4 style="margin: 0 0 0.5rem 0; color: #7dd3fc;">💡 USB Port Detection Guide</h4>
             <p style="margin: 0 0 1rem 0; color: #e2e8f0; line-height: 1.5;">${guidance}</p>
             <div style="background: #0f172a; padding: 0.75rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #86efac;">
               # Install pyserial for USB detection<br>
@@ -1212,7 +1264,16 @@
               # Or in Python:<br>
               import serial.tools.list_ports<br>
               ports = serial.tools.list_ports.comports()<br>
-              for port in ports: print(port)
+              for port in ports: print(port.device, port.description)
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3);">
+              <p style="margin: 0 0 0.5rem 0; color: #93c5fd; font-weight: 600;">🔧 Interactive Port Detection:</p>
+              <ol style="margin: 0; padding-left: 1.5rem; color: #dbeafe;">
+                <li>Run the command above with no arms connected</li>
+                <li>Connect your Leader arm and run again</li>
+                <li>The new port that appears is your Leader arm</li>
+                <li>Repeat for the Follower arm</li>
+              </ol>
             </div>
           </div>
         `;
