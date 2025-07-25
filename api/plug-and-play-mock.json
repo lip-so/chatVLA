@@ -1,0 +1,54 @@
+{
+  "system-info": {
+    "conda_available": true,
+    "git_available": true,
+    "serial_available": true,
+    "default_path": "~/lerobot",
+    "platform": "darwin"
+  },
+  "status": {
+    "is_running": false,
+    "progress": 0,
+    "current_step": null,
+    "installation_path": null,
+    "status": "ready"
+  },
+  "installation_steps": [
+    {
+      "step": "checking_prerequisites",
+      "name": "Checking Prerequisites",
+      "description": "Verifying Git and Conda are installed",
+      "commands": ["git --version", "conda --version"]
+    },
+    {
+      "step": "cloning_repository",
+      "name": "Cloning Repository",
+      "description": "Downloading LeRobot from GitHub",
+      "commands": ["git clone https://github.com/huggingface/lerobot.git"]
+    },
+    {
+      "step": "creating_environment",
+      "name": "Creating Environment",
+      "description": "Setting up Conda environment",
+      "commands": ["conda create -y -n lerobot python=3.10"]
+    },
+    {
+      "step": "installing_ffmpeg",
+      "name": "Installing FFmpeg",
+      "description": "Installing video processing tools",
+      "commands": ["conda install -y ffmpeg -c conda-forge"]
+    },
+    {
+      "step": "installing_lerobot",
+      "name": "Installing LeRobot",
+      "description": "Installing LeRobot package",
+      "commands": ["pip install -e ."]
+    },
+    {
+      "step": "detecting_ports",
+      "name": "USB Port Detection",
+      "description": "Configuring robotic arm connections",
+      "commands": ["pip install pyserial", "python -m serial.tools.list_ports"]
+    }
+  ]
+} 
