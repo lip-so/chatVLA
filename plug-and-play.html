@@ -9,27 +9,106 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Ensure vision-title styling is applied correctly */
-    .hero .vision-title {
-      font-size: 3rem !important;
-      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.05em !important;
-      text-transform: uppercase !important;
-      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%) !important;
-      -webkit-background-clip: text !important;
-      -webkit-text-fill-color: transparent !important;
-      background-clip: text !important;
+    /* Hero section styling matching databench page */
+    .plug-play-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 3rem 2rem;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
+      color: #000000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plug-play-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .plug-play-hero h1 {
+      font-size: 2.5rem;
+      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      color: #000000;
       text-shadow: 
         0 2px 4px rgba(0, 0, 0, 0.1),
         1px 1px 0px rgba(0, 0, 0, 0.8),
-        2px 2px 0px rgba(0, 0, 0, 0.6) !important;
+        2px 2px 0px rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      line-height: 1.1;
+      position: relative;
+      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+    }
+
+    .plug-play-hero .subtitle {
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.8);
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      line-height: 1.7;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      font-style: italic;
+      letter-spacing: 0.02em;
     }
     
     .plug-container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 2rem;
+    }
+
+    /* Responsive styles matching databench page */
+    @media (max-width: 1024px) {
+      .plug-play-hero {
+        padding: 6rem 2rem 3rem 2rem;
+      }
+      
+      .plug-play-hero h1 {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .plug-play-hero {
+        padding: 5rem 1.5rem 2rem 1.5rem;
+      }
+      
+      .plug-play-hero h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .plug-play-hero .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .plug-play-hero {
+        padding: 4rem 1rem 1.5rem 1rem;
+      }
+      
+      .plug-play-hero h1 {
+        font-size: 1.5rem;
+        letter-spacing: 0.02em;
+      }
+      
+      .plug-play-hero .subtitle {
+        font-size: 0.9rem;
+      }
     }
 
 
@@ -485,14 +564,12 @@
 
   <!-- Page Title Section -->
   <main class="main">
-    <header class="hero">
-      <h1 class="vision-title">Plug & Play</h1>
-      <p class="hero-subtitle">Automated LeRobot installation with USB port detection</p>
-    </header>
-
-    <div class="plug-container">
+    <div class="plug-play-hero">
+      <h1>Plug & Play</h1>
+      <p class="subtitle">Automated LeRobot installation with USB port detection</p>
+      
       <!-- Server Status Banner -->
-      <div id="statusBanner" class="status-banner connected" style="margin-bottom: 2rem;">
+      <div id="statusBanner" class="status-banner connected" style="margin-top: 2rem;">
         <div>
           <i class="fas fa-check-circle"></i>
           <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
@@ -508,7 +585,10 @@
           </div>
         </div>
       </div>
+    </div>
 
+    <!-- Main Content Container -->
+    <div class="plug-container">
       <!-- Main Cards -->
       <div class="cards-grid">
         <!-- Installation Configuration -->
