@@ -17,7 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
@@ -708,8 +708,8 @@ def index():
         "endpoints": {
             "health": "/health",
             "databench_evaluate": "/api/evaluate",
-            "plugplay_install": "/api/start_installation",
-            "plugplay_usb": "/api/scan_usb_ports"
+                    "plugplay_install": "/api/start-installation",
+        "plugplay_usb": "/api/list-ports"
         },
         "status": "running",
         "version": "2.0.0-real",
@@ -843,7 +843,7 @@ def evaluate_dataset():
 # PLUG & PLAY ENDPOINTS - REAL IMPLEMENTATION
 # ============================================================================
 
-@app.route('/api/system_info', methods=['GET'])
+@app.route('/api/system-info', methods=['GET'])
 def get_system_info():
     """Get real system information"""
     return jsonify({
@@ -854,7 +854,7 @@ def get_system_info():
         "platform": sys.platform
     })
 
-@app.route('/api/start_installation', methods=['POST'])
+@app.route('/api/start-installation', methods=['POST'])
 def start_installation():
     """Start real LeRobot installation"""
     try:
@@ -884,8 +884,8 @@ def start_installation():
             'error': str(e)
         }), 500
 
-@app.route('/api/scan_usb_ports', methods=['GET'])
-def scan_usb_ports():
+@app.route('/api/list-ports', methods=['GET'])
+def list_ports():
     """Real USB port scanning"""
     try:
         ports = usb_detector.scan_ports()
@@ -906,7 +906,7 @@ def scan_usb_ports():
             "ports": []
         }), 500
 
-@app.route('/api/cancel_installation', methods=['POST'])
+@app.route('/api/cancel-installation', methods=['POST'])
 def cancel_installation():
     """Cancel running installation"""
     installation_manager.is_running = False
@@ -919,6 +919,7 @@ def get_installation_status():
         'is_running': installation_manager.is_running,
         'progress': installation_manager.progress,
         'current_step': installation_manager.current_step,
+        'installation_path': str(installation_manager.installation_path) if installation_manager.installation_path else None,
         'status': 'running' if installation_manager.is_running else 'ready'
     })
 
@@ -970,6 +971,146 @@ def browse_directory():
             'items': [],
             'can_create': False
         }), 500
+
+@app.route('/api/create-directory', methods=['POST'])
+def create_directory():
+    """Create a new directory"""
+    try:
+        data = request.get_json()
+        parent_path = data.get('parent_path')
+        directory_name = data.get('directory_name')
+        
+        if not parent_path or not directory_name:
+            return jsonify({'error': 'Parent path and directory name are required'}), 400
+        
+        # Validate directory name
+        if not directory_name.strip() or '/' in directory_name or '\\' in directory_name:
+            return jsonify({'error': 'Invalid directory name'}), 400
+        
+        parent_dir = Path(parent_path).resolve()
+        new_dir = parent_dir / directory_name.strip()
+        
+        # Check if directory already exists
+        if new_dir.exists():
+            return jsonify({'error': 'Directory already exists'}), 400
+        
+        # Create directory
+        new_dir.mkdir(parents=True, exist_ok=False)
+        
+        return jsonify({
+            'message': 'Directory created successfully',
+            'path': str(new_dir)
+        })
+        
+    except PermissionError:
+        return jsonify({'error': 'Permission denied - cannot create directory here'}), 403
+    except Exception as e:
+        return jsonify({'error': f'Failed to create directory: {str(e)}'}), 500
+
+@app.route('/api/get-home-directory', methods=['GET'])
+def get_home_directory():
+    """Get the user's home directory"""
+    try:
+        home_path = str(Path.home())
+        return jsonify({
+            'home_path': home_path,
+            'suggested_paths': [
+                str(Path.home()),
+                str(Path.home() / 'Documents'),
+                str(Path.home() / 'Desktop'),
+                str(Path.home() / 'lerobot')
+            ]
+        })
+    except Exception as e:
+        return jsonify({'error': f'Failed to get home directory: {str(e)}'}), 500
+
+@app.route('/api/save-port-config', methods=['POST'])
+def save_port_config():
+    """Save detected port configuration"""
+    try:
+        data = request.get_json()
+        leader_port = data.get('leader_port')
+        follower_port = data.get('follower_port')
+        
+        if not leader_port or not follower_port:
+            return jsonify({'error': 'Both leader and follower ports are required'}), 400
+        
+        if leader_port == follower_port:
+            return jsonify({'error': 'Leader and follower ports cannot be the same'}), 400
+        
+        # Save configuration to file
+        config_content = f'''# LeRobot Port Configuration
+# Generated by USB Port Detection Tool
+
+LEADER_ARM_PORT = "{leader_port}"
+FOLLOWER_ARM_PORT = "{follower_port}"
+
+# Port Details:
+# Leader Arm: {leader_port}
+# Follower Arm: {follower_port}
+'''
+        config_file = Path('lerobot_ports.py')
+        
+        with open(config_file, 'w') as f:
+            f.write(config_content)
+        
+        # Emit port configuration update to all clients
+        socketio.emit('port_config_saved', {
+            'leader_port': leader_port,
+            'follower_port': follower_port
+        })
+        
+        return jsonify({
+            'message': 'Port configuration saved successfully',
+            'leader_port': leader_port,
+            'follower_port': follower_port
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to save configuration: {str(e)}'}), 500
+
+# ============================================================================
+# FRONTEND SERVING ROUTES FOR RAILWAY
+# ============================================================================
+
+@app.route('/plug-and-play')
+@app.route('/plug-and-play.html')
+def serve_plug_and_play():
+    """Serve the Plug & Play frontend interface"""
+    try:
+        # Modify the HTML to use the current server's URL
+        with open('plug-and-play.html', 'r') as f:
+            html_content = f.read()
+        
+        # Replace localhost:5002 with the current server URL
+        # In Railway, the app runs on the PORT environment variable
+        port = os.environ.get('PORT', '10000')
+        if os.environ.get('RAILWAY_ENVIRONMENT'):
+            # On Railway, use relative URLs
+            html_content = html_content.replace('http://localhost:5002', '')
+        else:
+            # For local development
+            html_content = html_content.replace('http://localhost:5002', f'http://localhost:{port}')
+        
+        return html_content, 200, {'Content-Type': 'text/html'}
+    except FileNotFoundError:
+        return jsonify({'error': 'plug-and-play.html not found'}), 404
+
+@app.route('/')
+def serve_landing():
+    """Serve the landing page"""
+    try:
+        return send_from_directory('.', 'landing.html')
+    except:
+        return jsonify({'message': 'Tune Robotics API Server', 'endpoints': ENDPOINTS}), 200
+
+@app.route('/<path:filename>')
+def serve_static_files(filename):
+    """Serve static files (CSS, JS, images)"""
+    try:
+        return send_from_directory('.', filename)
+    except:
+        return jsonify({'error': 'File not found'}), 404
 
 # ============================================================================
 # WEBSOCKET EVENTS

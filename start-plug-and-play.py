@@ -70,7 +70,7 @@ def start_backend():
         ], cwd=backend_dir)
         
         print("✅ Backend server starting...")
-        print("   Server will be available at: http://localhost:5000")
+        print("   Server will be available at: http://localhost:5002")
         return process
     except Exception as e:
         print(f"❌ Error starting backend: {e}")
@@ -92,10 +92,10 @@ def open_web_interface():
             print("✅ Web interface opened in your default browser")
         else:
             print("❌ Error: plug-and-play.html not found")
-            print("   You can manually navigate to: http://localhost:5000")
+            print("   You can manually navigate to: http://localhost:5002")
     except Exception as e:
         print(f"⚠️  Could not open browser automatically: {e}")
-        print("   Please manually open: http://localhost:5000")
+        print("   Please manually open: http://localhost:5002")
 
 def main():
     """Main launcher function."""

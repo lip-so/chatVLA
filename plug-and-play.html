@@ -728,9 +728,18 @@
           this.socket = null;
           this.isConnected = false;
           this.installationRunning = false;
-          this.apiBaseUrl = 'http://localhost:5001';  // Local unified API with Plug & Play
+          
+          // Detect if we're on Railway or localhost
+          const isRailway = window.location.hostname !== 'localhost' && 
+                           window.location.hostname !== '127.0.0.1' &&
+                           !window.location.hostname.includes('192.168.');
+          
+          // Use relative URLs on Railway, absolute URLs locally
+          this.apiBaseUrl = isRailway ? '' : 'http://localhost:5002';  // Local Flask backend for Plug & Play
           
           console.log('✅ Basic properties initialized');
+          console.log(`📍 Running on ${isRailway ? 'Railway' : 'localhost'}`);
+          console.log(`🔗 API Base URL: ${this.apiBaseUrl || 'relative'}`);
           
           this.initializeElements();
           console.log('✅ Elements initialized');
@@ -848,7 +857,7 @@
       
       async connectToBackend() {
         try {
-          const response = await fetch(`${this.apiBaseUrl}/health`);
+                      const response = await fetch(`${this.apiBaseUrl}/api/status`);
           if (response.ok) {
             const data = await response.json();
             this.isConnected = true;
@@ -873,7 +882,9 @@
             return;
           }
           
-          this.socket = io(this.apiBaseUrl);
+          // For Railway/production, use current origin; for local, use apiBaseUrl
+          const socketUrl = this.apiBaseUrl || window.location.origin;
+          this.socket = io(socketUrl);
         
         this.socket.on('connect', () => {
           this.logMessage('Connected to Plug & Play backend', 'info');
@@ -935,7 +946,7 @@
         this.logMessage('🔍 Checking system info...', 'info');
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/system_info`);
+          const response = await fetch(`${this.apiBaseUrl}/api/system-info`);
           const data = await response.json();
           
           if (data.git_available) {
@@ -1001,7 +1012,7 @@
         }
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/start_installation`, {
+          const response = await fetch(`${this.apiBaseUrl}/api/start-installation`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ installation_path: path })
@@ -1028,7 +1039,7 @@
         this.logMessage('🛑 Attempting to cancel installation...', 'info');
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/cancel_installation`, {
+          const response = await fetch(`${this.apiBaseUrl}/api/cancel-installation`, {
             method: 'POST'
           });
           
@@ -1167,7 +1178,7 @@
         this.scanPortsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/scan_usb_ports`);
+                      const response = await fetch(`${this.apiBaseUrl}/api/list-ports`);
           const data = await response.json();
           
           if (data.success) {

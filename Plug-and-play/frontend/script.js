@@ -84,7 +84,7 @@ class InstallationApp {
      */
     connectSocket() {
         try {
-            this.socket = io('http://127.0.0.1:5000');
+            this.socket = io('http://127.0.0.1:5002');
             
             this.socket.on('connect', () => {
                 this.isConnected = true;
