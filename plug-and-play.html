@@ -6,17 +6,18 @@
   <title>Tune Robotics - Plug & Play</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Hero section styling matching databench page */
+    /* Hero section styling exactly matching databench page */
     .plug-play-hero {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 8rem 2rem 3rem 2rem;
+      min-height: 90vh;
+      padding: 8rem 2rem 4rem 2rem;
       box-sizing: border-box;
       background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
       color: #000000;
@@ -64,9 +65,9 @@
     }
     
     .plug-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 4rem 2rem;
     }
 
     /* Responsive styles matching databench page */
@@ -83,6 +84,7 @@
     @media (max-width: 768px) {
       .plug-play-hero {
         padding: 5rem 1.5rem 2rem 1.5rem;
+        min-height: 85vh;
       }
       
       .plug-play-hero h1 {
@@ -99,6 +101,7 @@
     @media (max-width: 480px) {
       .plug-play-hero {
         padding: 4rem 1rem 1.5rem 1rem;
+        min-height: 80vh;
       }
       
       .plug-play-hero h1 {
@@ -567,28 +570,28 @@
     <div class="plug-play-hero">
       <h1>Plug & Play</h1>
       <p class="subtitle">Automated LeRobot installation with USB port detection</p>
-      
-      <!-- Server Status Banner -->
-      <div id="statusBanner" class="status-banner connected" style="margin-top: 2rem;">
-        <div>
-          <i class="fas fa-check-circle"></i>
-          <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
+    </div>
+  </main>
+
+  <!-- Main Content Container -->
+  <div class="plug-container">
+    <!-- Server Status Banner -->
+    <div id="statusBanner" class="status-banner connected" style="margin-bottom: 2rem;">
+      <div>
+        <i class="fas fa-check-circle"></i>
+        <span id="bannerText">Cloud service active - Ready for automated LeRobot installation</span>
+      </div>
+      <div class="system-status" id="systemStatus">
+        <div class="status-item ok">
+          <i class="fas fa-code-branch" id="gitIcon"></i>
+          <span id="gitStatus">Git Ready</span>
         </div>
-        <div class="system-status" id="systemStatus">
-          <div class="status-item ok">
-            <i class="fas fa-code-branch" id="gitIcon"></i>
-            <span id="gitStatus">Git Ready</span>
-          </div>
-          <div class="status-item ok">
-            <i class="fas fa-cube" id="condaIcon"></i>
-            <span id="condaStatus">Conda Ready</span>
-          </div>
+        <div class="status-item ok">
+          <i class="fas fa-cube" id="condaIcon"></i>
+          <span id="condaStatus">Conda Ready</span>
         </div>
       </div>
     </div>
-
-    <!-- Main Content Container -->
-    <div class="plug-container">
       <!-- Main Cards -->
       <div class="cards-grid">
         <!-- Installation Configuration -->
@@ -708,7 +711,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
   <footer id="contact" class="footer">
     <p>Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a></p>
