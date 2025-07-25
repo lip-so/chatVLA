@@ -710,7 +710,7 @@ FOLLOWER_ARM_PORT = "/dev/ttyUSB1"  # or similar
                 }
                 
                 // Simple connection test simulation
-                alert(`Testing connections...\n\n${assignments.leader ? `Leader (${assignments.leader}): ✅ Connected` : 'Leader: Not assigned'}\n${assignments.follower ? `Follower (${assignments.follower}): ✅ Connected` : 'Follower: Not assigned'}\n\nBoth arms are ready for use!`);
+                alert(`Testing connections...\n\n${assignments.leader ? `Leader (${assignments.leader}): Connected` : 'Leader: Not assigned'}\n${assignments.follower ? `Follower (${assignments.follower}): Connected` : 'Follower: Not assigned'}\n\nBoth arms are ready for use!`);
             }
             
             showManualGuidance() {

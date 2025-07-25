@@ -722,7 +722,7 @@
   <script>
     class PlugAndPlayApp {
       constructor() {
-        console.log('🚀 PlugAndPlayApp constructor starting...');
+        console.log('PlugAndPlayApp constructor starting...');
         
         try {
           this.socket = null;
@@ -737,33 +737,33 @@
           // Use relative URLs on Railway, absolute URLs locally
           this.apiBaseUrl = isRailway ? '' : 'http://localhost:5002';  // Local Flask backend for Plug & Play
           
-          console.log('✅ Basic properties initialized');
-          console.log(`📍 Running on ${isRailway ? 'Railway' : 'localhost'}`);
-          console.log(`🔗 API Base URL: ${this.apiBaseUrl || 'relative'}`);
+          console.log('Basic properties initialized');
+          console.log(`Running on ${isRailway ? 'Railway' : 'localhost'}`);
+          console.log(`API Base URL: ${this.apiBaseUrl || 'relative'}`);
           
           this.initializeElements();
-          console.log('✅ Elements initialized');
+          console.log('Elements initialized');
           
           this.bindEvents();
-          console.log('✅ Events bound');
+          console.log('Events bound');
           
           this.connectToBackend();
-          console.log('✅ Backend connection initiated');
+          console.log('Backend connection initiated');
           
           this.checkSystemInfo();
-          console.log('✅ System info check initiated');
+          console.log('System info check initiated');
           
-          console.log('🎉 PlugAndPlayApp constructor completed successfully!');
+          console.log('PlugAndPlayApp constructor completed successfully!');
           
         } catch (error) {
-          console.error('❌ PlugAndPlayApp constructor failed:', error);
+          console.error('PlugAndPlayApp constructor failed:', error);
           alert('Failed to initialize Plug & Play app: ' + error.message);
           throw error;
         }
       }
       
       initializeElements() {
-        console.log('🔧 Initializing elements...');
+        console.log('Initializing elements...');
         
         // Form elements
         this.installationPath = document.getElementById('installationPath');
@@ -773,14 +773,14 @@
         
         // Check if critical elements exist
         if (!this.startInstallBtn) {
-          console.error('❌ startInstallBtn not found!');
+          console.error('startInstallBtn not found!');
           throw new Error('Critical button elements not found');
         }
         if (!this.scanPortsBtn) {
           this.scanPortsBtn = document.getElementById('scanPortsBtn');
         }
         
-        console.log('✅ Form elements initialized');
+        console.log('Form elements initialized');
         
         // Progress elements
         this.progressFill = document.getElementById('progressFill');
@@ -814,43 +814,43 @@
       }
       
       bindEvents() {
-        console.log('🔗 Binding events...');
+        console.log('Binding events...');
         
         try {
           if (this.startInstallBtn) {
             this.startInstallBtn.addEventListener('click', () => this.startInstallation());
-            console.log('✅ Start install button bound');
+            console.log('Start install button bound');
           }
           
           if (this.cancelInstallBtn) {
             this.cancelInstallBtn.addEventListener('click', () => this.cancelInstallation());
-            console.log('✅ Cancel install button bound');
+            console.log('Cancel install button bound');
           }
           
           if (this.browseBtn) {
             this.browseBtn.addEventListener('click', () => this.browsePath());
-            console.log('✅ Browse button bound');
+            console.log('Browse button bound');
           }
           
           if (this.clearLogBtn) {
             this.clearLogBtn.addEventListener('click', () => this.clearLog());
-            console.log('✅ Clear log button bound');
+            console.log('Clear log button bound');
           }
           
           if (this.scanPortsBtn) {
             this.scanPortsBtn.addEventListener('click', () => this.scanUSBPorts());
-            console.log('✅ Scan ports button bound');
+            console.log('Scan ports button bound');
           }
           
           if (this.refreshPortsBtn) {
             this.refreshPortsBtn.addEventListener('click', () => this.refreshUSBPorts());
-            console.log('✅ Refresh ports button bound');
+            console.log('Refresh ports button bound');
           }
           
-          console.log('🎉 All events bound successfully');
+          console.log('All events bound successfully');
           
         } catch (error) {
-          console.error('❌ Error binding events:', error);
+          console.error('Error binding events:', error);
           throw error;
         }
       }
@@ -863,14 +863,14 @@
             this.isConnected = true;
             this.updateConnectionStatus(true);
             this.connectSocket();
-            this.logMessage('✅ Connected to Tune Robotics Unified API', 'info');
+            this.logMessage('Connected to Tune Robotics Unified API', 'info');
           } else {
             throw new Error('Backend not responding');
           }
         } catch (error) {
           this.isConnected = false;
           this.updateConnectionStatus(false);
-          this.logMessage('📖 Running in offline mode - showing static installation guide', 'info');
+          this.logMessage('Running in offline mode - showing static installation guide', 'info');
           this.showStaticInstallationGuide();
         }
       }
@@ -879,7 +879,7 @@
         // Try to connect Socket.IO for real-time updates (optional)
         try {
           if (typeof io === 'undefined') {
-            this.logMessage('⚠️ Socket.IO not available - buttons will work without real-time updates', 'warning');
+            this.logMessage('Socket.IO not available - buttons will work without real-time updates', 'warning');
             return;
           }
           
@@ -928,7 +928,7 @@
         });
         
         } catch (error) {
-          this.logMessage(`⚠️ Socket.IO connection failed: ${error.message} - buttons will work without real-time updates`, 'warning');
+          this.logMessage(`Socket.IO connection failed: ${error.message} - buttons will work without real-time updates`, 'warning');
         }
       }
       
@@ -955,39 +955,39 @@
         this.cancelInstallBtn.style.display = 'none';
         
         // Add helpful instructions to the log
-        this.logMessage('💡 The automated installer is currently offline', 'warning');
-        this.logMessage('📚 Click "Show Installation Guide" for manual installation steps', 'info');
-        this.logMessage('🔧 Or run locally with: python start-plug-and-play.py', 'info');
+        this.logMessage('The automated installer is currently offline', 'warning');
+        this.logMessage('Click "Show Installation Guide" for manual installation steps', 'info');
+        this.logMessage('Or run locally with: python start-plug-and-play.py', 'info');
       }
       
       showManualInstructions() {
         // Clear log and show manual installation steps
         this.logContainer.innerHTML = '';
-        this.logMessage('🚀 LeRobot Manual Installation Guide', 'welcome');
+        this.logMessage('LeRobot Manual Installation Guide', 'welcome');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 1: Install Prerequisites', 'info');
+        this.logMessage('Step 1: Install Prerequisites', 'info');
         this.logMessage('  • Install Git: https://git-scm.com/downloads', 'info');
         this.logMessage('  • Install Miniconda: https://docs.conda.io/en/latest/miniconda.html', 'info');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 2: Clone the Repository', 'info');
+        this.logMessage('Step 2: Clone the Repository', 'info');
         this.logMessage('  git clone https://github.com/huggingface/lerobot.git', 'info');
         this.logMessage('  cd lerobot', 'info');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 3: Create Conda Environment', 'info');
+        this.logMessage('Step 3: Create Conda Environment', 'info');
         this.logMessage('  conda create -y -n lerobot python=3.10', 'info');
         this.logMessage('  conda activate lerobot', 'info');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 4: Install FFmpeg', 'info');
+        this.logMessage('Step 4: Install FFmpeg', 'info');
         this.logMessage('  conda install -y ffmpeg -c conda-forge', 'info');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 5: Install LeRobot', 'info');
+        this.logMessage('Step 5: Install LeRobot', 'info');
         this.logMessage('  pip install -e .', 'info');
         this.logMessage('', 'info');
-        this.logMessage('📋 Step 6: Detect USB Ports (Optional)', 'info');
+        this.logMessage('Step 6: Detect USB Ports (Optional)', 'info');
         this.logMessage('  pip install pyserial', 'info');
         this.logMessage('  python -m serial.tools.list_ports', 'info');
         this.logMessage('', 'info');
-        this.logMessage('✅ Installation complete! Activate with: conda activate lerobot', 'info');
+        this.logMessage('Installation complete! Activate with: conda activate lerobot', 'info');
         
         // Update progress to show completion
         this.updateProgress(100, 'Manual installation guide displayed', 'completed');
@@ -995,7 +995,7 @@
       
       async checkSystemInfo() {
         // Try to get system info regardless of connection status
-        this.logMessage('🔍 Checking system info...', 'info');
+        this.logMessage('Checking system info...', 'info');
         
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/system-info`);
@@ -1050,12 +1050,12 @@
         }
         
         this.installationPath.value = defaultPath;
-        console.log('✅ Default path set:', defaultPath);
+        console.log('Default path set:', defaultPath);
       }
       
       async startInstallation() {
         // Try the installation regardless of connection status
-        this.logMessage('🔄 Attempting to start installation...', 'info');
+        this.logMessage('Attempting to start installation...', 'info');
         
         const path = this.installationPath.value.trim();
         if (!path) {
@@ -1076,10 +1076,10 @@
             this.installationRunning = true;
             this.startInstallBtn.disabled = true;
             this.cancelInstallBtn.disabled = false;
-            this.logMessage('🚀 Real installation started...', 'info');
-            this.logMessage(`📍 Installing to: ${path}`, 'info');
+            this.logMessage('Real installation started...', 'info');
+            this.logMessage(`Installing to: ${path}`, 'info');
           } else {
-            this.logMessage(`❌ Failed to start installation: ${data.error}`, 'error');
+            this.logMessage(`Failed to start installation: ${data.error}`, 'error');
           }
           
         } catch (error) {
@@ -1088,7 +1088,7 @@
       }
       
       async cancelInstallation() {
-        this.logMessage('🛑 Attempting to cancel installation...', 'info');
+        this.logMessage('Attempting to cancel installation...', 'info');
         
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/cancel-installation`, {
@@ -1101,7 +1101,7 @@
             this.cancelInstallBtn.disabled = true;
             this.updateProgress(0, 'Installation cancelled', '');
             this.statusIcon.className = 'fas fa-circle status-icon';
-            this.logMessage('🛑 Installation cancelled by user', 'warning');
+            this.logMessage('Installation cancelled by user', 'warning');
             
             // Clear steps
             this.stepsContainer.innerHTML = '';
@@ -1143,21 +1143,21 @@
               }
               
               this.installationPath.value = path;
-              this.logMessage(`📁 Directory selected: ${path}`, 'info');
+              this.logMessage(`Directory selected: ${path}`, 'info');
               
             } else {
               // Fallback for browsers that don't support the API
-              this.logMessage('💡 Directory picker not supported in this browser', 'warning');
-              this.logMessage('🔧 Please enter your installation path manually in the field above', 'info');
+              this.logMessage('Directory picker not supported in this browser', 'warning');
+              this.logMessage('Please enter your installation path manually in the field above', 'info');
               this.installationPath.focus();
               this.installationPath.select();
             }
           } catch (error) {
             if (error.name === 'AbortError') {
-              this.logMessage('📁 Directory selection cancelled', 'info');
+              this.logMessage('Directory selection cancelled', 'info');
             } else {
-              this.logMessage(`❌ Error accessing directory: ${error.message}`, 'error');
-              this.logMessage('💡 Please enter your installation path manually', 'info');
+              this.logMessage(`Error accessing directory: ${error.message}`, 'error');
+              this.logMessage('Please enter your installation path manually', 'info');
               this.installationPath.focus();
             }
           } finally {
@@ -1235,15 +1235,15 @@
           
           if (data.success) {
             this.displayUSBPorts(data.ports || []);
-            this.logMessage(`🔌 Found ${data.ports?.length || 0} USB devices`, 'info');
+            this.logMessage(`Found ${data.ports?.length || 0} USB devices`, 'info');
           } else {
             // Show guidance for manual USB detection
             this.displayUSBGuidance(data.guidance || 'USB scanning guidance not available');
-            this.logMessage('💡 USB scanning guidance provided', 'info');
+            this.logMessage('USB scanning guidance provided', 'info');
           }
           
         } catch (error) {
-          this.logMessage(`📖 Showing USB port detection guide (offline mode)`, 'info');
+          this.logMessage(`Showing USB port detection guide (offline mode)`, 'info');
           this.displayUSBGuidance('Follow the steps below to manually detect your robotic arm USB ports');
         } finally {
           this.scanPortsBtn.disabled = false;
@@ -1254,7 +1254,7 @@
       displayUSBGuidance(guidance) {
         this.portsContainer.innerHTML = `
           <div style="padding: 1rem; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-            <h4 style="margin: 0 0 0.5rem 0; color: #7dd3fc;">💡 USB Port Detection Guide</h4>
+            <h4 style="margin: 0 0 0.5rem 0; color: #7dd3fc;">USB Port Detection Guide</h4>
             <p style="margin: 0 0 1rem 0; color: #e2e8f0; line-height: 1.5;">${guidance}</p>
             <div style="background: #0f172a; padding: 0.75rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #86efac;">
               # Install pyserial for USB detection<br>
@@ -1267,7 +1267,7 @@
               for port in ports: print(port.device, port.description)
             </div>
             <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.3);">
-              <p style="margin: 0 0 0.5rem 0; color: #93c5fd; font-weight: 600;">🔧 Interactive Port Detection:</p>
+              <p style="margin: 0 0 0.5rem 0; color: #93c5fd; font-weight: 600;">Interactive Port Detection:</p>
               <ol style="margin: 0; padding-left: 1.5rem; color: #dbeafe;">
                 <li>Run the command above with no arms connected</li>
                 <li>Connect your Leader arm and run again</li>
@@ -1309,7 +1309,7 @@
         this.startInstallBtn.disabled = false;
         this.cancelInstallBtn.disabled = true;
         this.updateProgress(100, 'Installation complete!', 'detecting_usb_ports');
-        this.logMessage('🎉 LeRobot installation completed successfully!', 'info');
+        this.logMessage('LeRobot installation completed successfully!', 'info');
       }
       
       onInstallationError(data) {
@@ -1318,7 +1318,7 @@
         this.cancelInstallBtn.disabled = true;
         this.statusIcon.className = 'fas fa-circle status-icon error';
         this.statusText.textContent = 'Installation failed';
-        this.logMessage(`❌ Installation failed: ${data.error}`, 'error');
+        this.logMessage(`Installation failed: ${data.error}`, 'error');
       }
       
              logMessage(message, level = 'info') {
@@ -1327,13 +1327,13 @@
          
          // Add appropriate icon based on level
          const icons = {
-           'welcome': '🎉',
-           'info': 'ℹ️',
-           'warning': '⚠️',
-           'error': '❌'
+           'welcome': '[WELCOME]',
+           'info': '[INFO]',
+           'warning': '[WARNING]',
+           'error': '[ERROR]'
          };
          
-         const icon = icons[level] || 'ℹ️';
+         const icon = icons[level] || '[INFO]';
          const timestamp = new Date().toLocaleTimeString();
          
          logEntry.innerHTML = `
