@@ -679,14 +679,33 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="landing.html" class="logo">Tune</a>
-    <div class="nav-links">
+    <div class="navbar-container">
+      <div class="nav-links nav-links-left">
+        <a href="Vision.html">Vision</a>
+        <a href="databench.html">DataBench</a>
+      </div>
+      <a href="landing.html" class="logo">Tune</a>
+      <div class="nav-links nav-links-right">
+        <a href="plug-and-play.html">Plug & Play</a>
+        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-content">
       <a href="Vision.html">Vision</a>
       <a href="databench.html">DataBench</a>
       <a href="plug-and-play.html">Plug & Play</a>
       <a href="mailto:yo@tunerobotics.xyz">Contact</a>
     </div>
-  </nav>
+  </div>
 
   <main class="main">
     <div class="databench-hero">
@@ -850,173 +869,8 @@
       </a>
     </p>
   </footer>
-
-  <!-- Info Modal -->
-  <div class="modal-overlay" id="infoModal">
-    <div class="info-modal">
-      <div class="modal-header">
-        <h2>DataBench Metrics Guide</h2>
-        <button class="close-button" id="closeModal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="metrics-info">
-        <!-- Action Consistency -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">a</span>
-            <span class="metric-info-title">Action Consistency</span>
-          </div>
-          <div class="metric-info-description">
-            Evaluates how well the dataset maintains consistency between visual content, text descriptions, actions, and observations across time.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Visual-Text Alignment:</strong> How well videos match task descriptions (using CLIP similarity)</li>
-              <li><strong>Action-Observation Consistency:</strong> Correlation between commanded actions and observed state changes</li>
-              <li><strong>Cross-Episode Consistency:</strong> Consistency of actions across episodes with the same task</li>
-              <li><strong>Temporal Consistency:</strong> Stability of visual-text alignment over time within episodes</li>
-            </ul>
-            <strong>Why it matters:</strong> Consistent datasets lead to more reliable robot learning and better generalization.
-          </div>
-        </div>
-
-        <!-- Visual Diversity -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">v</span>
-            <span class="metric-info-title">Visual Diversity</span>
-          </div>
-          <div class="metric-info-description">
-            Measures the variety and richness of visual scenes, environments, and conditions in the dataset.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Pairwise Distances:</strong> Average visual similarity between different video frames</li>
-              <li><strong>Clustering Analysis:</strong> How well visual content separates into distinct groups</li>
-              <li><strong>Entropy Measures:</strong> Information-theoretic diversity of visual features</li>
-            </ul>
-            <strong>Why it matters:</strong> Diverse visual data helps robots adapt to different environments and lighting conditions.
-          </div>
-        </div>
-
-        <!-- High-Fidelity Vision -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">h</span>
-            <span class="metric-info-title">High-Fidelity Vision</span>
-          </div>
-          <div class="metric-info-description">
-            Assesses the technical quality and setup of visual data collection for optimal robot learning.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Multiple Views:</strong> Number and quality of camera angles (multi-view bonus)</li>
-              <li><strong>Resolution & Framerate:</strong> Video technical specifications (HD vs 4K, fps)</li>
-              <li><strong>Environment Quality:</strong> Lighting, blur detection, object visibility</li>
-              <li><strong>Prompt Quality:</strong> Clarity and specificity of task descriptions</li>
-            </ul>
-            <strong>Why it matters:</strong> High-quality visual data is essential for precise manipulation and scene understanding.
-          </div>
-        </div>
-
-        <!-- Trajectory Quality -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">t</span>
-            <span class="metric-info-title">Trajectory Quality</span>
-          </div>
-          <div class="metric-info-description">
-            Evaluates the temporal structure, synchronization, and completeness of robot trajectory data.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Synchronization:</strong> Time alignment between different data streams (≤5ms = excellent)</li>
-              <li><strong>Frequency Analysis:</strong> Data collection rate (≥30Hz = excellent, ≥10Hz = good)</li>
-              <li><strong>Data Completeness:</strong> Percentage of non-null values across the trajectory</li>
-              <li><strong>Temporal Consistency:</strong> Smooth progression of states over time</li>
-            </ul>
-            <strong>Why it matters:</strong> Well-synchronized, high-frequency data enables precise motion learning and control.
-          </div>
-        </div>
-
-        <!-- Dataset Coverage -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">c</span>
-            <span class="metric-info-title">Dataset Coverage</span>
-          </div>
-          <div class="metric-info-description">
-            Measures the scale, diversity, and comprehensive coverage of tasks, scenarios, and edge cases.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Scale Analysis:</strong> Total number of trajectories (50k+ = excellent, 1k+ = good)</li>
-              <li><strong>Task Diversity:</strong> Variety of different manipulation tasks (10+ = excellent)</li>
-              <li><strong>Visual Variety:</strong> Range of objects, backgrounds, and conditions</li>
-              <li><strong>Failure Analysis:</strong> Inclusion of failed attempts and edge cases</li>
-            </ul>
-            <strong>Why it matters:</strong> Comprehensive coverage ensures robust learning across diverse real-world scenarios.
-          </div>
-        </div>
-
-        <!-- Robot Action Quality -->
-        <div class="metric-info">
-          <div class="metric-info-header">
-            <span class="metric-info-code">r</span>
-            <span class="metric-info-title">Robot Action Quality</span>
-          </div>
-          <div class="metric-info-description">
-            Analyzes the quality, smoothness, and physical feasibility of robot actions and commands.
-          </div>
-          <div class="metric-info-details">
-            <strong>What it measures:</strong>
-            <ul>
-              <li><strong>Action Smoothness:</strong> Continuity and jerk minimization in robot motions</li>
-              <li><strong>Joint Limits:</strong> Compliance with physical constraints of the robot</li>
-              <li><strong>Velocity Profiles:</strong> Realistic acceleration and speed patterns</li>
-              <li><strong>Gripper Control:</strong> Appropriate opening/closing patterns and timing</li>
-            </ul>
-            <strong>Why it matters:</strong> High-quality actions lead to safer, more efficient robot behavior and better imitation learning.
-          </div>
-        </div>
-      </div>
-
-      <!-- Score Guide -->
-      <div class="score-guide">
-        <h3>Score Interpretation Guide</h3>
-        <div class="score-ranges">
-          <div class="score-range">
-            <div class="score-color excellent"></div>
-            <span><strong>0.8 - 1.0:</strong> Excellent - Professional quality, ready for deployment</span>
-          </div>
-          <div class="score-range">
-            <div class="score-color good"></div>
-            <span><strong>0.6 - 0.8:</strong> Good - High quality with minor improvements needed</span>
-          </div>
-          <div class="score-range">
-            <div class="score-color moderate"></div>
-            <span><strong>0.4 - 0.6:</strong> Moderate - Acceptable quality, some issues to address</span>
-          </div>
-          <div class="score-range">
-            <div class="score-color poor"></div>
-            <span><strong>0.2 - 0.4:</strong> Poor - Significant improvements needed</span>
-          </div>
-          <div class="score-range">
-            <div class="score-color very-poor"></div>
-            <span><strong>0.0 - 0.2:</strong> Very Poor - Major issues, requires substantial work</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  
+  <script src="navbar.js"></script>
   <script>
     class DataBenchUI {
       constructor() {
@@ -1305,7 +1159,7 @@
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', () => {
-      new DataBenchUI();
+      window.dataBenchUI = new DataBenchUI();
       
       // Update run button state when dataset path changes
       document.getElementById('datasetPath').addEventListener('input', () => {

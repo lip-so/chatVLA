@@ -556,14 +556,33 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="landing.html" class="logo">Tune</a>
-    <div class="nav-links">
+    <div class="navbar-container">
+      <div class="nav-links nav-links-left">
+        <a href="Vision.html">Vision</a>
+        <a href="databench.html">DataBench</a>
+      </div>
+      <a href="landing.html" class="logo">Tune</a>
+      <div class="nav-links nav-links-right">
+        <a href="plug-and-play.html">Plug & Play</a>
+        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-content">
       <a href="Vision.html">Vision</a>
       <a href="databench.html">DataBench</a>
       <a href="plug-and-play.html">Plug & Play</a>
       <a href="mailto:yo@tunerobotics.xyz">Contact</a>
     </div>
-  </nav>
+  </div>
 
   <!-- Page Title Section -->
   <main class="main">
@@ -719,6 +738,7 @@
 
   <!-- Include Socket.IO for WebSocket communication -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+  <script src="navbar.js"></script>
   <script>
     class PlugAndPlayApp {
       constructor() {
