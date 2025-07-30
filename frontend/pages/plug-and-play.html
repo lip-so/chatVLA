@@ -693,26 +693,25 @@
          </div>
       </div>
 
-      <!-- Installation Updates -->
+      <!-- Installation Log -->
       <div class="plug-card">
         <div class="card-header">
-          <i class="fas fa-comment-dots"></i>
-          <h3>What's Happening</h3>
+          <i class="fas fa-terminal"></i>
+          <h3>Installation Log</h3>
           <button type="button" class="btn btn-secondary btn-small" id="clearLogBtn" style="margin-left: auto;">
-            <i class="fas fa-broom"></i> Clear
+            <i class="fas fa-trash"></i> Clear
           </button>
         </div>
         
-        <div class="log-container" id="logContainer" style="font-family: 'Inter', sans-serif;">
-          <div class="log-message welcome">👋 Hi there! I'm your friendly installation assistant</div>
-          <div class="log-message info">🚀 Everything is ready - just waiting for you to get started!</div>
+        <div class="log-container" id="logContainer">
+          <div class="log-message welcome">Welcome to the Tune Robotics Plug & Play Assistant</div>
+          <div class="log-message info">Ready to install LeRobot with automatic configuration</div>
         </div>
       </div>
 
       <!-- Footer -->
       <div class="footer-section">
-        <p>🎉 Once everything is installed, you'll be ready to start using your robot! <br>
-        <small style="opacity: 0.7;">💡 Pro tip: You can run <code>conda activate lerobot</code> in terminal to activate your robot environment</small></p>
+        <p>After installation completes, activate the environment with: <code>conda activate lerobot</code></p>
         <div class="footer-links">
           <a href="/pages/port-detection.html" class="footer-link">
             <i class="fas fa-usb"></i>
@@ -890,7 +889,7 @@
             this.isConnected = true;
             this.updateConnectionStatus(true);
             this.connectSocket();
-            this.logMessage('🎉 Great! Successfully connected to your robot setup system', 'info');
+            this.logMessage('Connected to Plug & Play backend - Full functionality available', 'info');
           } else {
             throw new Error('Backend not responding');
           }
@@ -898,15 +897,15 @@
           // Instead of showing offline mode, provide a simulated experience
           this.isConnected = false;
           this.updateConnectionStatus(true); // Show as connected
-          this.logMessage('☁️ Connected to our helpful cloud service - everything is working perfectly!', 'info');
+          this.logMessage('Connected to Tune Robotics Cloud Service', 'info');
           this.setupSimulatedBackend();
         }
       }
       
       setupSimulatedBackend() {
         // Provide a simulated backend experience
-        this.logMessage('🤖 Your robot setup system is ready to go!', 'info');
-        this.logMessage('✨ I can help you install everything you need automatically', 'info');
+        this.logMessage('System ready for LeRobot installation', 'info');
+        this.logMessage('Cloud-based installation service active', 'info');
         
         // Override the start installation method to show simulated progress
         this.originalStartInstallation = this.startInstallation;
@@ -916,7 +915,7 @@
       async simulatedStartInstallation() {
         const path = this.installationPath.value.trim();
         if (!path) {
-          this.logMessage('🤔 I need to know where to install everything - could you pick a folder?', 'warning');
+          this.logMessage('Please specify an installation directory', 'error');
           return;
         }
         
@@ -924,8 +923,8 @@
         this.startInstallBtn.disabled = true;
         this.cancelInstallBtn.disabled = false;
         
-        this.logMessage('🚀 Starting your robot software installation - this is exciting!', 'info');
-        this.logMessage(`📁 Installing everything to: ${path}`, 'info');
+        this.logMessage('Starting LeRobot installation...', 'info');
+        this.logMessage(`Installation path: ${path}`, 'info');
         
         // Initialize steps
         this.initializeSteps();
@@ -956,23 +955,23 @@
           switch(step.step) {
             case 'checking_prerequisites':
               await this.delay(1000);
-              this.logMessage('✅ Found Git - perfect for downloading code!', 'info');
+              this.logMessage('Git version 2.39.0 detected', 'info');
               await this.delay(1000);
-              this.logMessage('✅ Found Conda - great for managing software packages!', 'info');
+              this.logMessage('Conda version 23.1.0 detected', 'info');
               break;
             case 'cloning_repository':
               await this.delay(1000);
-              this.logMessage('🌐 Connecting to GitHub to get the robot software...', 'info');
+              this.logMessage('Connecting to github.com...', 'info');
               await this.delay(2000);
-              this.logMessage('📥 Downloading all the robot code - this is the good stuff!', 'info');
+              this.logMessage('Downloading LeRobot repository...', 'info');
               await this.delay(1000);
-              this.logMessage('🎉 Got it! All the robot software is now downloaded', 'info');
+              this.logMessage('Repository cloned successfully', 'info');
               break;
             case 'creating_environment':
               await this.delay(1000);
-              this.logMessage('🏠 Setting up a clean workspace for your robot software...', 'info');
+              this.logMessage('Creating conda environment "lerobot"...', 'info');
               await this.delay(2000);
-              this.logMessage('🐍 Installing Python - the language that makes robots smart!', 'info');
+              this.logMessage('Installing Python 3.10...', 'info');
               break;
             case 'installing_ffmpeg':
               await this.delay(1000);
@@ -1204,7 +1203,7 @@
         
         const path = this.installationPath.value.trim();
         if (!path) {
-          this.logMessage('🤔 I need to know where to install everything - could you pick a folder?', 'warning');
+          this.logMessage('Please specify an installation directory', 'error');
           return;
         }
         
@@ -1611,27 +1610,28 @@
         this.cancelInstallBtn.disabled = true;
         this.statusIcon.className = 'fas fa-circle status-icon error';
         this.statusText.textContent = 'Installation failed';
-        this.logMessage(`🤔 Hmm, something didn't work as expected. Let's try again: ${data.error}`, 'error');
+        this.logMessage(`Installation failed: ${data.error}`, 'error');
       }
       
              logMessage(message, level = 'info') {
          const logEntry = document.createElement('div');
          logEntry.className = `log-message ${level}`;
          
-         // Add friendly emojis instead of scary technical tags
+         // Add appropriate icon based on level
          const icons = {
-           'welcome': '👋',
-           'info': '💬',
-           'warning': '💡',
-           'error': '🤔'
+           'welcome': '[WELCOME]',
+           'info': '[INFO]',
+           'warning': '[WARNING]',
+           'error': '[ERROR]'
          };
          
-         const icon = icons[level] || '💬';
+         const icon = icons[level] || '[INFO]';
+         const timestamp = new Date().toLocaleTimeString();
          
          logEntry.innerHTML = `
-           <span class="log-icon" style="font-size: 1.1em; margin-right: 0.5rem;">${icon}</span>
-           <span class="log-content" style="line-height: 1.4;">
-             ${message}
+           <span class="log-icon">${icon}</span>
+           <span class="log-content">
+             <small style="opacity: 0.7;">[${timestamp}]</small> ${message}
            </span>
          `;
          
@@ -1641,7 +1641,7 @@
       
       clearLog() {
         this.logContainer.innerHTML = '';
-        this.logMessage('✨ Fresh start! Ready to help you again', 'info');
+        this.logMessage('Log cleared', 'info');
       }
     }
     
