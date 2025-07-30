@@ -1,8 +1,0 @@
-{
-  "dataset_name": "gribok201/eval_record-test16",
-  "version": "2025.07.08",
-  "notes": "Evaluated on 30 samples",
-  "action_consistency": 0.6312241852283478,
-  "visual_diversity": 2.405181938980859e-08,
-  "linguistic_diversity": 0.0
-}

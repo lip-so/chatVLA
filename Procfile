@@ -1,1 +1,0 @@
-web: PYTHONPATH=/app/databench python3 multi_api.py 

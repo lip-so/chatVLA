@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Vision - Natural language understanding for robot control. Chat with your robot using natural language commands.">
+  <title>Tune Robotics - Vision</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Vision hero section styling matching databench/plug-and-play pages */
+    .vision-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 90vh;
+      padding: 8rem 2rem 4rem 2rem;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
+      color: #000000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vision-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .vision-hero h1 {
+      font-size: 2.5rem;
+      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      color: #000000;
+      text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 0px rgba(0, 0, 0, 0.8),
+        2px 2px 0px rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      line-height: 1.1;
+      position: relative;
+      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+    }
+
+    .vision-hero .subtitle {
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.8);
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      line-height: 1.7;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+    
+    .vision-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    /* Responsive styles matching other pages */
+    @media (max-width: 1024px) {
+      .vision-hero {
+        padding: 6rem 2rem 3rem 2rem;
+      }
+      
+      .vision-hero h1 {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .vision-hero {
+        padding: 5rem 1.5rem 2rem 1.5rem;
+        min-height: 85vh;
+      }
+      
+      .vision-hero h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .vision-hero .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .vision-hero {
+        padding: 4rem 1rem 1.5rem 1rem;
+        min-height: 80vh;
+      }
+      
+      .vision-hero h1 {
+        font-size: 1.5rem;
+        letter-spacing: 0.02em;
+      }
+      
+      .vision-hero .subtitle {
+        font-size: 0.9rem;
+      }
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .feature-card p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .demo-section {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+
+    .demo-section h2 {
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2rem;
+    }
+
+    .demo-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .step-number {
+      background: var(--accent);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .cta-section {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--surface-hover);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .cta-section h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-button {
+      padding: 0.75rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cta-button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .cta-button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .cta-button:not(.primary) {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .cta-button:not(.primary):hover {
+      background: var(--surface-hover);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="logo">Tune</a>
+      <div class="nav-links">
+        <a href="/pages/vision.html" class="active">Vision</a>
+        <a href="/pages/databench.html">DataBench</a>
+        <a href="/pages/plug-and-play.html">Plug & Play</a>
+        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-content">
+      <a href="/pages/vision.html" class="active">Vision</a>
+      <a href="/pages/databench.html">DataBench</a>
+      <a href="/pages/plug-and-play.html">Plug & Play</a>
+      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+    </div>
+  </div>
+
+  <!-- Vision Hero Section -->
+  <section class="vision-hero">
+    <h1>VISION</h1>
+    <p class="subtitle">Chat with your robot using natural language commands</p>
+  </section>
+
+  <!-- Main Content -->
+  <main class="vision-container">
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>Natural Language Control</h3>
+        <p>Tell your robot what to do in plain English. Our advanced language models translate your intentions into precise robot actions.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">👁️</div>
+        <h3>Multi-Modal Understanding</h3>
+        <p>Combine vision, language, and action understanding for comprehensive robot control that works in complex real-world scenarios.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Real-Time Interface</h3>
+        <p>Instant feedback and control with low-latency communication between your commands and robot actions.</p>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>How It Works</h2>
+      <div class="demo-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Speak or Type</h4>
+            <p>Give natural language commands like "pick up the red cup" or "move to the kitchen"</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>AI Processing</h4>
+            <p>Our vision-language model processes your command and the robot's camera feed</p>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Action Execution</h4>
+            <p>The robot executes precise movements based on understanding of your intent</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <h2>Ready to Get Started?</h2>
+      <p>Experience the future of robot control with natural language commands.</p>
+      <div class="cta-buttons">
+        <a href="/pages/plug-and-play.html" class="cta-button primary">Setup Your Robot</a>
+        <a href="/pages/databench.html" class="cta-button">Evaluate Datasets</a>
+        <a href="mailto:yo@tunerobotics.xyz" class="cta-button">Contact Us</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a></p>
+    </div>
+  </footer>
+  
+  <script src="/js/navbar.js"></script>
+</body>
+</html>

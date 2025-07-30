@@ -1,0 +1,64 @@
+# Repository Reorganization Log
+
+Date: /Users/sofiia/chatVLA
+
+## File Movements
+
+- Moved: `index.html` → `frontend/index.html`
+- Moved: `styles.css` → `frontend/css/styles.css`
+- Moved: `app.js` → `frontend/js/app.js`
+- Moved: `navbar.js` → `frontend/js/navbar.js`
+- Moved: `logo.png` → `frontend/assets/logo.png`
+- Moved: `databench.html` → `frontend/pages/databench.html`
+- Moved: `plug-and-play.html` → `frontend/pages/plug-and-play.html`
+- Moved: `port-detection.html` → `frontend/pages/port-detection.html`
+- Moved: `multi_api.py` → `backend/api/main.py`
+- Moved: `databench_api.py` → `backend/databench/api.py`
+- Moved: `plug_and_play_api.py` → `backend/plug_and_play/api.py`
+- Moved: `databench/metrics/semantic_mapper.py` → `backend/databench/metrics/semantic_mapper.py`
+- Moved: `databench/metrics/robot_action_quality.py` → `backend/databench/metrics/robot_action_quality.py`
+- Moved: `databench/metrics/temporal_aligner.py` → `backend/databench/metrics/temporal_aligner.py`
+- Moved: `databench/metrics/nlp_extractor.py` → `backend/databench/metrics/nlp_extractor.py`
+- Moved: `databench/metrics/high_fidelity_vision.py` → `backend/databench/metrics/high_fidelity_vision.py`
+- Moved: `databench/metrics/dataset_coverage.py` → `backend/databench/metrics/dataset_coverage.py`
+- Moved: `databench/metrics/action_consistency.py` → `backend/databench/metrics/action_consistency.py`
+- Moved: `databench/metrics/__init__.py` → `backend/databench/metrics/__init__.py`
+- Moved: `databench/metrics/completion_detector.py` → `backend/databench/metrics/completion_detector.py`
+- Moved: `databench/metrics/visual_diversity.py` → `backend/databench/metrics/visual_diversity.py`
+- Moved: `databench/metrics/action_primitives.py` → `backend/databench/metrics/action_primitives.py`
+- Moved: `databench/metrics/prompt_action_verifier.py` → `backend/databench/metrics/prompt_action_verifier.py`
+- Moved: `databench/metrics/vision_verifier.py` → `backend/databench/metrics/vision_verifier.py`
+- Moved: `databench/metrics/trajectory_quality.py` → `backend/databench/metrics/trajectory_quality.py`
+- Moved: `databench/scripts/dataset_analyzer.py` → `backend/databench/scripts/dataset_analyzer.py`
+- Moved: `databench/scripts/evaluate_safe.py` → `backend/databench/scripts/evaluate_safe.py`
+- Moved: `databench/scripts/config_loader.py` → `backend/databench/scripts/config_loader.py`
+- Moved: `databench/scripts/embed_utils.py` → `backend/databench/scripts/embed_utils.py`
+- Moved: `databench/scripts/__init__.py` → `backend/databench/scripts/__init__.py`
+- Moved: `databench/scripts/evaluate.py` → `backend/databench/scripts/evaluate.py`
+- Moved: `databench/config.yaml` → `backend/databench/config.yaml`
+- Moved: `databench/requirements.txt` → `backend/databench/requirements.txt`
+- Moved: `databench/README.md` → `backend/databench/README.md`
+- Moved: `databench/yolov8n.pt` → `backend/databench/yolov8n.pt`
+- Moved: `databench/demo_prompt_action_verifier.py` → `backend/databench/demo_prompt_action_verifier.py`
+- Moved: `Plug-and-play/backend/app.py` → `backend/plug_and_play/app.py`
+- Moved: `Plug-and-play/installers/fixed_run.py` → `backend/plug_and_play/installers/fixed_run.py`
+- Moved: `Plug-and-play/installers/installation_service.py` → `backend/plug_and_play/installers/installation_service.py`
+- Moved: `Plug-and-play/installers/error_handler.py` → `backend/plug_and_play/installers/error_handler.py`
+- Moved: `Plug-and-play/installers/lerobot_installer.py` → `backend/plug_and_play/installers/lerobot_installer.py`
+- Moved: `Plug-and-play/utils/lerobot/find_port.py` → `backend/plug_and_play/utils/lerobot/find_port.py`
+- Moved: `databench/scripts/test_video_loading.py` → `tests/test_video_loading.py`
+- Moved: `Procfile` → `deployment/Procfile`
+- Moved: `railway.toml` → `deployment/railway.toml`
+- Moved: `render.yaml` → `deployment/render.yaml`
+- Moved: `runtime.txt` → `deployment/runtime.txt`
+- Moved: `Plug-and-play/docs/USAGE_PORT_DETECTION.md` → `docs/USAGE_PORT_DETECTION.md`
+- Moved: `api/plug-and-play-mock.json` → `backend/api/mock-data.json`
+- Deleted: `databench_requirements.txt`
+- Deleted: `requirements-full.txt`
+- Deleted: `requirements-light.txt`
+- Deleted: `start_databench.py`
+- Deleted: `start_railway.py`
+- Deleted: `start-plug-and-play.py`
+- Deleted: `databench`
+- Deleted: `Plug-and-play`
+- Deleted: `api`
