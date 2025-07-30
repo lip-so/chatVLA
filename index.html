@@ -1,12 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Tune Robotics</title>
-    <meta http-equiv="refresh" content="0; url=landing.html" />
-    <link rel="canonical" href="https://tunerobotics.xyz/landing.html" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tune Robotics: Chat with your robot and make it do your dishes. Tune your robot, instantly.">
+  <title>Tune Robotics</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <p>Redirecting to <a href="landing.html">tunerobotics.xyz/landing.html</a></p>
-    <a href="Vision.html" class="cta-button">Vision</a>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="logo">Tune</a>
+      <div class="nav-links">
+        <a href="Vision.html">Vision</a>
+        <a href="databench.html">DataBench</a>
+        <a href="plug-and-play.html">Plug & Play</a>
+        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-content">
+      <a href="Vision.html">Vision</a>
+      <a href="databench.html">DataBench</a>
+      <a href="plug-and-play.html">Plug & Play</a>
+      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+    </div>
+  </div>
+  <main class="landing-main">
+    <div class="landing-content">
+      <h1 class="landing-super-title">Chat with your robot</h1>
+      <h2 class="landing-title">Tune your robot. Instantly.</h2>
+      <div class="landing-actions">
+        <a href="Vision.html" class="cta-button">Vision</a>
+        <a href="plug-and-play.html" class="cta-button primary">Get Started</a>
+        <a href="mailto:yo@tunerobotics.xyz" class="cta-button">Contact</a>
+      </div>
+      <div class="pre-register-placeholder">[Pre-registration form coming soon]</div>
+      <p class="landing-subtitle">Just tell your robot what you want it to do -<br>it'll do it with Tune.</p>
+    </div>
+  </main>
+  <footer id="contact" class="footer">
+    <p>Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a></p>
+  </footer>
+  
+  <script src="navbar.js"></script>
+  <script src="app.js"></script>
 </body>
 </html> 
