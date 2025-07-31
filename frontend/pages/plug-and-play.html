@@ -747,6 +747,13 @@
           this.isConnected = false;
           this.installationRunning = false;
           
+          // Load auth manager if not already loaded
+          if (!window.authManager) {
+            const authScript = document.createElement('script');
+            authScript.src = '/js/auth.js';
+            document.head.appendChild(authScript);
+          }
+          
           // Detect if we're on Railway/production or localhost
           const isProduction = window.location.hostname.includes('github.io') || 
                               window.location.hostname.includes('railway.app') ||
@@ -881,9 +888,17 @@
         }
       }
       
+      getAuthHeaders() {
+        return window.authManager ? window.authManager.getAuthHeaders() : {};
+      }
+      
       async connectToBackend() {
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/installation-status`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/installation-status`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           if (response.ok) {
             const data = await response.json();
             this.isConnected = true;
@@ -1135,7 +1150,11 @@
         this.logMessage('Checking system info...', 'info');
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/system-info`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/system-info`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           
           if (data.git_available) {
@@ -1210,7 +1229,10 @@
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/plugplay/start-installation`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...this.getAuthHeaders()
+            },
             body: JSON.stringify({ installation_path: path })
           });
           
@@ -1237,7 +1259,10 @@
         try {
           // Try the real backend first
           const response = await fetch(`${this.apiBaseUrl}/api/plugplay/cancel-installation`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+              ...this.getAuthHeaders()
+            }
           });
           
           if (response.ok) {
@@ -1396,7 +1421,11 @@
         
         // Step 1: Get baseline ports
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           this.baselinePorts = data.ports || [];
           this.logMessage(`Baseline scan: Found ${this.baselinePorts.length} existing ports`, 'info');
@@ -1451,7 +1480,11 @@
         detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           const currentPorts = data.ports || [];
           
@@ -1504,7 +1537,11 @@
         detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           const currentPorts = data.ports || [];
           

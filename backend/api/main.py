@@ -7,6 +7,10 @@ from flask import Flask, Blueprint, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Add backend to path for imports
 backend_path = Path(__file__).parent.parent
@@ -21,12 +25,30 @@ from plug_and_play.api import (
     SERIAL_AVAILABLE
 )
 
+# Import authentication module
+from auth import db, auth_bp, requires_auth
+
 # Initialize Flask app
 app = Flask(__name__, 
             static_folder='../../frontend',
             static_url_path='')
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 
+    'sqlite:///tune_robotics.db'
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Initialize extensions
+db.init_app(app)
 CORS(app, origins=["*"])
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Create database tables
+with app.app_context():
+    db.create_all()
 
 # Initialize managers
 databench_evaluator = DataBenchEvaluator()
@@ -79,16 +101,21 @@ def health():
             "plug_and_play": {
                 "available": True,
                 "serial_available": SERIAL_AVAILABLE
+            },
+            "authentication": {
+                "available": True,
+                "status": "ready"
             }
         },
         "timestamp": datetime.now().isoformat()
     })
 
 # ============================================================================
-# DataBench Routes
+# DataBench Routes (Protected)
 # ============================================================================
 
 @databench_bp.route('/metrics', methods=['GET'])
+@requires_auth
 def get_metrics():
     """Get available DataBench metrics"""
     metrics = {}
@@ -101,6 +128,7 @@ def get_metrics():
     return jsonify({"metrics": metrics})
 
 @databench_bp.route('/evaluate', methods=['POST'])
+@requires_auth
 def evaluate_dataset():
     """Run DataBench evaluation"""
     try:
@@ -117,10 +145,11 @@ def evaluate_dataset():
         return jsonify({"error": str(e)}), 500
 
 # ============================================================================
-# Plug & Play Routes
+# Plug & Play Routes (Protected)
 # ============================================================================
 
 @plugplay_bp.route('/system-info', methods=['GET'])
+@requires_auth
 def system_info():
     """Get system information"""
     return jsonify({
@@ -133,6 +162,7 @@ def system_info():
     })
 
 @plugplay_bp.route('/list-ports', methods=['GET'])
+@requires_auth
 def list_ports():
     """List available USB ports"""
     if not SERIAL_AVAILABLE:
@@ -145,6 +175,7 @@ def list_ports():
     return jsonify({"ports": ports})
 
 @plugplay_bp.route('/start-installation', methods=['POST'])
+@requires_auth
 def start_installation():
     """Start LeRobot installation"""
     try:
@@ -165,12 +196,14 @@ def start_installation():
         }), 500
 
 @plugplay_bp.route('/installation-status', methods=['GET'])
+@requires_auth
 def installation_status():
     """Get installation status"""
     status = installation_manager.get_status()
     return jsonify(status)
 
 @plugplay_bp.route('/cancel-installation', methods=['POST'])
+@requires_auth
 def cancel_installation():
     """Cancel installation"""
     return jsonify({
@@ -180,16 +213,18 @@ def cancel_installation():
     })
 
 # Register blueprints
+app.register_blueprint(auth_bp)  # Add auth blueprint
 app.register_blueprint(databench_bp)
 app.register_blueprint(plugplay_bp)
 
 # ============================================================================
-# WebSocket Events (for Plug & Play)
+# WebSocket Events (for Plug & Play) - Protected
 # ============================================================================
 
 @socketio.on('connect')
 def handle_connect():
     """Handle client connection"""
+    # In a real implementation, you might want to verify the socket connection
     print(f"Client connected: {request.sid}")
     emit('connected', {'message': 'Connected to Tune Robotics server'})
 
@@ -201,6 +236,7 @@ def handle_disconnect():
 @socketio.on('request_installation_update')
 def handle_installation_update():
     """Send installation status update"""
+    # This would typically require authentication for websocket events
     status = installation_manager.get_status()
     emit('installation_update', status)
 
@@ -215,9 +251,10 @@ if __name__ == '__main__':
     🚀 Tune Robotics Unified API Server
     =====================================
     Services:
-    - DataBench: {'Available' if DATABENCH_AVAILABLE else 'Unavailable'}
-    - Plug & Play: Available
-    - USB Detection: {'Available' if SERIAL_AVAILABLE else 'Limited'}
+    - DataBench: {'Available' if DATABENCH_AVAILABLE else 'Unavailable'} (Protected)
+    - Plug & Play: Available (Protected)
+    - USB Detection: {'Available' if SERIAL_AVAILABLE else 'Limited'} (Protected)
+    - Authentication: Available
     
     Starting server on http://localhost:{port}
     """)

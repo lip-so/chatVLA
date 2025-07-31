@@ -1014,11 +1014,13 @@
           const apiUrl = 'https://web-production-fdfaa.up.railway.app';
           progressText.textContent = 'Connecting to DataBench cloud service...';
 
-          // Call the actual Flask API
-          const response = await fetch(`${apiUrl}/api/evaluate`, {
+          // Call the actual Flask API with authentication
+          const authHeaders = window.authManager ? window.authManager.getAuthHeaders() : {};
+          const response = await fetch(`${apiUrl}/api/databench/evaluate`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              ...authHeaders
             },
             body: JSON.stringify(formData)
           });
