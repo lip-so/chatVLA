@@ -1,27 +1,24 @@
-// Mobile menu toggle functionality and authentication state
+// Mobile menu toggle functionality and Firebase authentication state
 document.addEventListener('DOMContentLoaded', function() {
   const mobileMenuToggle = document.getElementById('mobileMenuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   
-  // Load auth.js if not already loaded
-  if (!window.authManager) {
-    const authScript = document.createElement('script');
-    authScript.src = '/js/auth.js';
-    document.head.appendChild(authScript);
-  }
-  
-  // Update navbar based on authentication state
+  // Update navbar based on Firebase authentication state
   function updateNavbar() {
-    if (!window.authManager) return;
-    
     const navLinks = document.querySelector('.nav-links');
     const mobileMenuContent = document.querySelector('.mobile-menu-content');
     
     if (!navLinks) return;
     
     // Check if user is authenticated
-    const isAuthenticated = window.authManager.isAuthenticated();
-    const user = window.authManager.user;
+    let isAuthenticated = false;
+    let currentUser = null;
+    
+    // Try to get Firebase auth state
+    if (window.firebaseAuth && window.firebaseAuth.currentUser) {
+      isAuthenticated = true;
+      currentUser = window.firebaseAuth.currentUser;
+    }
     
     // Remove existing auth-related links
     const existingAuthLinks = navLinks.querySelectorAll('.auth-link');
@@ -33,12 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Create auth links
-    if (isAuthenticated) {
+    if (isAuthenticated && currentUser) {
       // Desktop navbar
       const userDisplay = document.createElement('span');
       userDisplay.className = 'auth-link user-display';
-      userDisplay.style.cssText = 'color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-right: 15px;';
-      userDisplay.textContent = `Hi, ${user.username}`;
+      userDisplay.style.cssText = 'color: rgba(0, 0, 0, 0.8); font-size: 14px; margin-right: 15px;';
+      userDisplay.textContent = `Hi, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
       
       const logoutLink = document.createElement('a');
       logoutLink.href = '#';
@@ -52,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Mobile menu
       if (mobileMenuContent) {
         const mobileUserDisplay = userDisplay.cloneNode(true);
-        mobileUserDisplay.style.cssText = 'color: rgba(255, 255, 255, 0.8); font-size: 14px; display: block; padding: 10px 0;';
+        mobileUserDisplay.style.cssText = 'color: rgba(0, 0, 0, 0.8); font-size: 14px; display: block; padding: 10px 0;';
         
         const mobileLogoutLink = logoutLink.cloneNode(true);
         mobileLogoutLink.addEventListener('click', handleLogout);
@@ -61,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuContent.appendChild(mobileLogoutLink);
       }
     } else {
-      // Desktop navbar
+      // Desktop navbar - show login/signup buttons
       const loginLink = document.createElement('a');
       loginLink.href = '/pages/login.html';
       loginLink.className = 'auth-link';
@@ -97,47 +94,65 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuContent.appendChild(mobileRegisterLink);
       }
     }
+    
+    // Show/hide protected features
+    const navLinksFeatures = document.querySelector('.nav-links-features');
+    const mobileMenuFeatures = document.querySelector('.mobile-menu-features');
+    
+    if (isAuthenticated) {
+      if (navLinksFeatures) navLinksFeatures.style.display = 'flex';
+      if (mobileMenuFeatures) mobileMenuFeatures.style.display = 'block';
+    } else {
+      if (navLinksFeatures) navLinksFeatures.style.display = 'none';
+      if (mobileMenuFeatures) mobileMenuFeatures.style.display = 'none';
+    }
   }
   
-  // Handle logout
+  // Handle logout with Firebase
   async function handleLogout(e) {
     e.preventDefault();
     
-    if (!window.authManager) return;
-    
-    try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          ...window.authManager.getAuthHeaders(),
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      window.authManager.clearAuthData();
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-      window.authManager.clearAuthData();
-      window.location.href = '/';
+    if (window.firebaseAuth) {
+      try {
+        // Import signOut dynamically
+        const { signOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+        await signOut(window.firebaseAuth);
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
     }
+    
+    // Always redirect to home
+    window.location.href = '/';
   }
   
-  // Wait for auth manager to load then update navbar
-  const checkAuthManager = setInterval(() => {
-    if (window.authManager) {
-      clearInterval(checkAuthManager);
-      updateNavbar();
+  // Initialize navbar immediately
+  updateNavbar();
+  
+  // Wait for Firebase auth to load then update navbar
+  const checkFirebaseAuth = setInterval(() => {
+    if (window.firebaseAuth) {
+      clearInterval(checkFirebaseAuth);
       
-      // Verify token validity
-      window.authManager.verifyToken().then(isValid => {
-        if (!isValid && window.authManager.token) {
-          // Token was invalid, update navbar
+      // Listen for auth state changes
+      if (window.onAuthStateChanged) {
+        window.onAuthStateChanged(window.firebaseAuth, (user) => {
           updateNavbar();
-        }
-      });
+        });
+      }
+      
+      // Update again when Firebase is ready
+      updateNavbar();
     }
   }, 100);
+  
+  // Fallback: show buttons after 2 seconds if Firebase never loads
+  setTimeout(() => {
+    if (!window.firebaseAuth) {
+      console.log('Firebase not loaded, using fallback navbar');
+      updateNavbar();
+    }
+  }, 2000);
   
   // Mobile menu functionality
   if (mobileMenuToggle && mobileMenu) {
@@ -183,31 +198,40 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Check authentication on protected pages
+  // Check authentication on protected pages (less strict for now)
   function checkPageProtection() {
     const protectedPages = ['/pages/databench.html', '/pages/plug-and-play.html', '/pages/port-detection.html'];
     const currentPath = window.location.pathname;
     
     // Check if current page is protected
     if (protectedPages.some(page => currentPath.includes(page))) {
-      // Wait for auth manager
+      console.log('On protected page:', currentPath);
+      
+      // For now, just log - we can redirect to login when Firebase is properly set up
+      // TODO: Uncomment this when Firebase credentials are configured
+      /*
+      // Wait for Firebase auth
       const checkAuth = setInterval(() => {
-        if (window.authManager) {
+        if (window.firebaseAuth) {
           clearInterval(checkAuth);
           
-          // Verify authentication
-          if (!window.authManager.isAuthenticated()) {
-            window.authManager.redirectToLogin();
-          } else {
-            // Verify token is still valid
-            window.authManager.verifyToken().then(isValid => {
-              if (!isValid) {
-                window.authManager.redirectToLogin();
+          // Check authentication state
+          if (window.onAuthStateChanged) {
+            window.onAuthStateChanged(window.firebaseAuth, (user) => {
+              if (!user) {
+                // User not authenticated, redirect to login
+                window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
               }
             });
           }
+          
+          // Check immediate state
+          if (!window.firebaseAuth.currentUser) {
+            window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+          }
         }
       }, 50);
+      */
     }
   }
   

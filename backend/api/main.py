@@ -25,30 +25,20 @@ from plug_and_play.api import (
     SERIAL_AVAILABLE
 )
 
-# Import authentication module
-from auth import db, auth_bp, requires_auth
+# Import Firebase authentication module
+from auth.firebase_auth import firebase_bp, requires_firebase_auth
 
 # Initialize Flask app
 app = Flask(__name__, 
             static_folder='../../frontend',
             static_url_path='')
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL', 
-    'sqlite:///tune_robotics.db'
-)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# App configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Initialize extensions
-db.init_app(app)
 CORS(app, origins=["*"])
 socketio = SocketIO(app, cors_allowed_origins="*")
-
-# Create database tables
-with app.app_context():
-    db.create_all()
 
 # Initialize managers
 databench_evaluator = DataBenchEvaluator()
@@ -102,7 +92,7 @@ def health():
                 "available": True,
                 "serial_available": SERIAL_AVAILABLE
             },
-            "authentication": {
+            "firebase_authentication": {
                 "available": True,
                 "status": "ready"
             }
@@ -111,11 +101,11 @@ def health():
     })
 
 # ============================================================================
-# DataBench Routes (Protected)
+# DataBench Routes (Protected with Firebase)
 # ============================================================================
 
 @databench_bp.route('/metrics', methods=['GET'])
-@requires_auth
+@requires_firebase_auth
 def get_metrics():
     """Get available DataBench metrics"""
     metrics = {}
@@ -128,7 +118,7 @@ def get_metrics():
     return jsonify({"metrics": metrics})
 
 @databench_bp.route('/evaluate', methods=['POST'])
-@requires_auth
+@requires_firebase_auth
 def evaluate_dataset():
     """Run DataBench evaluation"""
     try:
@@ -145,11 +135,11 @@ def evaluate_dataset():
         return jsonify({"error": str(e)}), 500
 
 # ============================================================================
-# Plug & Play Routes (Protected)
+# Plug & Play Routes (Protected with Firebase)
 # ============================================================================
 
 @plugplay_bp.route('/system-info', methods=['GET'])
-@requires_auth
+@requires_firebase_auth
 def system_info():
     """Get system information"""
     return jsonify({
@@ -162,7 +152,7 @@ def system_info():
     })
 
 @plugplay_bp.route('/list-ports', methods=['GET'])
-@requires_auth
+@requires_firebase_auth
 def list_ports():
     """List available USB ports"""
     if not SERIAL_AVAILABLE:
@@ -175,7 +165,7 @@ def list_ports():
     return jsonify({"ports": ports})
 
 @plugplay_bp.route('/start-installation', methods=['POST'])
-@requires_auth
+@requires_firebase_auth
 def start_installation():
     """Start LeRobot installation"""
     try:
@@ -196,14 +186,14 @@ def start_installation():
         }), 500
 
 @plugplay_bp.route('/installation-status', methods=['GET'])
-@requires_auth
+@requires_firebase_auth
 def installation_status():
     """Get installation status"""
     status = installation_manager.get_status()
     return jsonify(status)
 
 @plugplay_bp.route('/cancel-installation', methods=['POST'])
-@requires_auth
+@requires_firebase_auth
 def cancel_installation():
     """Cancel installation"""
     return jsonify({
@@ -213,7 +203,7 @@ def cancel_installation():
     })
 
 # Register blueprints
-app.register_blueprint(auth_bp)  # Add auth blueprint
+app.register_blueprint(firebase_bp)  # Firebase auth blueprint
 app.register_blueprint(databench_bp)
 app.register_blueprint(plugplay_bp)
 
@@ -224,7 +214,7 @@ app.register_blueprint(plugplay_bp)
 @socketio.on('connect')
 def handle_connect():
     """Handle client connection"""
-    # In a real implementation, you might want to verify the socket connection
+    # In a real implementation, you might want to verify the socket connection with Firebase
     print(f"Client connected: {request.sid}")
     emit('connected', {'message': 'Connected to Tune Robotics server'})
 
@@ -248,13 +238,13 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     
     print(f"""
-    🚀 Tune Robotics Unified API Server
-    =====================================
+    🚀 Tune Robotics Unified API Server (Firebase Auth)
+    ===================================================
     Services:
-    - DataBench: {'Available' if DATABENCH_AVAILABLE else 'Unavailable'} (Protected)
-    - Plug & Play: Available (Protected)
-    - USB Detection: {'Available' if SERIAL_AVAILABLE else 'Limited'} (Protected)
-    - Authentication: Available
+    - DataBench: {'Available' if DATABENCH_AVAILABLE else 'Unavailable'} (Firebase Protected)
+    - Plug & Play: Available (Firebase Protected)
+    - USB Detection: {'Available' if SERIAL_AVAILABLE else 'Limited'} (Firebase Protected)
+    - Firebase Authentication: Available
     
     Starting server on http://localhost:{port}
     """)
