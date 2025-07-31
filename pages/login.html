@@ -386,17 +386,11 @@
   </div>
   
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      signInWithPopup, 
-      GoogleAuthProvider, 
-      onAuthStateChanged 
-    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    
-    // Firebase configuration - REPLACE WITH YOUR ACTUAL CONFIG
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  
+  <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBWiDdaqFp8wiKV7yVbdhJdBdrQNn-V8O4",
       authDomain: "tune-robotics.firebaseapp.com",
@@ -408,17 +402,14 @@
     };
     
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const googleProvider = new GoogleAuthProvider();
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
     
     // Make available globally
     window.firebaseApp = app;
     window.firebaseAuth = auth;
-    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-    window.signInWithPopup = signInWithPopup;
-    window.googleProvider = googleProvider;
-    window.onAuthStateChanged = onAuthStateChanged;
+    window.onAuthStateChanged = auth.onAuthStateChanged;
     
     // Simple auth manager for compatibility
     window.authManager = {
@@ -458,7 +449,7 @@
       errorDiv.classList.remove('show');
       
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await auth.signInWithEmailAndPassword(email, password);
         button.textContent = 'Success! Redirecting...';
         setTimeout(() => window.authManager.redirectAfterLogin(), 1000);
       } catch (error) {
@@ -498,7 +489,7 @@
       errorDiv.classList.remove('show');
       
       try {
-        const result = await signInWithPopup(auth, googleProvider);
+        const result = await auth.signInWithPopup(googleProvider);
         button.textContent = 'Success! Redirecting...';
         setTimeout(() => window.authManager.redirectAfterLogin(), 1000);
       } catch (error) {
