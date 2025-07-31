@@ -10,67 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* B&W Navbar Styling */
-    .navbar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      position: absolute;
-      width: calc(100% - 6rem);
-      top: 0;
-      left: 0;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(25px);
-      border-bottom: 2px solid rgba(0, 0, 0, 0.15);
-      border-radius: 0 0 24px 24px;
-      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-    }
-    
-    .navbar-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      max-width: 1200px;
-    }
-    
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.025em;
-      text-decoration: none;
-      color: #000000;
-      padding: 0 2rem;
-      white-space: nowrap;
-    }
-    
-    .nav-links {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
-    
-    .nav-links a {
-      color: #000000;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      white-space: nowrap;
-    }
-    
-    .nav-links a:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-    
-    .mobile-menu-toggle {
-      display: none;
-    }
-    
-    /* B&W DataBench Hero Section */
     .databench-hero {
       display: flex;
       flex-direction: column;
@@ -80,22 +19,10 @@
       min-height: 90vh;
       padding: 8rem 2rem 4rem 2rem;
       box-sizing: border-box;
-      background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #e8e8e8 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
       color: #000000;
       position: relative;
       overflow: hidden;
-      border-bottom: 3px solid #000000;
-    }
-    
-    .databench-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.05) 100%);
-      pointer-events: none;
     }
 
     .databench-hero > * {
@@ -704,7 +631,6 @@
         font-size: 0.75rem;
         padding: 0.5rem 1rem;
       }
-    }
 
       .modal-overlay {
         padding: 1rem;
@@ -738,6 +664,7 @@
         font-size: 0.8rem;
       }
     }
+    
     /* Checkbox styling */
     .param-checkbox input[type="checkbox"]:checked + label::after {
       content: 'X';
@@ -753,7 +680,7 @@
 <body>
   <nav class="navbar">
     <div class="navbar-container">
-      <a href="../index.html" class="logo">Tune</a>
+      <a href="../../index.html" class="logo">Tune</a>
       <div class="nav-links">
         <a href="vision.html">Vision</a>
         <a href="databench.html">DataBench</a>
@@ -932,6 +859,152 @@
     </div>
   </div>
 
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="info-modal">
+      <div class="modal-header">
+        <h2>Understanding DataBench Metrics</h2>
+        <button class="close-button" id="closeModal">&times;</button>
+      </div>
+      
+      <div class="metrics-info">
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">a</span>
+            <span class="metric-info-title">Action Consistency</span>
+          </div>
+          <p class="metric-info-description">
+            Evaluates how well actions align with visual observations and language instructions.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Visual-text alignment using CLIP embeddings</li>
+              <li>Action-observation consistency analysis</li>
+              <li>Temporal coherence between frames</li>
+              <li>Prompt-action verification</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">v</span>
+            <span class="metric-info-title">Visual Diversity</span>
+          </div>
+          <p class="metric-info-description">
+            Measures the variety and richness of visual content in your dataset.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Pairwise distance calculations between frames</li>
+              <li>Clustering analysis for scene variety</li>
+              <li>Visual entropy measurements</li>
+              <li>Coverage of different scenarios</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">h</span>
+            <span class="metric-info-title">High-Fidelity Vision</span>
+          </div>
+          <p class="metric-info-description">
+            Assesses the quality of visual data capture and setup.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Multi-view camera setup analysis</li>
+              <li>Resolution and frame quality checks</li>
+              <li>Environment lighting and clarity</li>
+              <li>Instruction prompt clarity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">t</span>
+            <span class="metric-info-title">Trajectory Quality</span>
+          </div>
+          <p class="metric-info-description">
+            Analyzes the quality and consistency of recorded trajectories.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Synchronization between modalities</li>
+              <li>Sampling frequency consistency</li>
+              <li>Data completeness checks</li>
+              <li>Trajectory smoothness analysis</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">c</span>
+            <span class="metric-info-title">Dataset Coverage</span>
+          </div>
+          <p class="metric-info-description">
+            Evaluates the comprehensiveness and scale of your dataset.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Dataset scale and episode count</li>
+              <li>Task diversity measurements</li>
+              <li>Visual and action variety</li>
+              <li>Success/failure rate balance</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">r</span>
+            <span class="metric-info-title">Robot Action Quality</span>
+          </div>
+          <p class="metric-info-description">
+            Checks the feasibility and quality of robot actions.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Action smoothness and continuity</li>
+              <li>Joint limit compliance</li>
+              <li>Physical feasibility checks</li>
+              <li>Action space coverage</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-guide">
+        <h3>Score Interpretation</h3>
+        <div class="score-ranges">
+          <div class="score-range">
+            <div class="score-color excellent"></div>
+            <span>0.8 - 1.0: Excellent quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color good"></div>
+            <span>0.6 - 0.8: Good quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color moderate"></div>
+            <span>0.4 - 0.6: Moderate quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color poor"></div>
+            <span>0.2 - 0.4: Poor quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color very-poor"></div>
+            <span>0.0 - 0.2: Very poor quality</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <p>
       Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a> | 
@@ -1087,11 +1160,13 @@
           const apiUrl = 'https://web-production-fdfaa.up.railway.app';
           progressText.textContent = 'Connecting to DataBench cloud service...';
 
-          // Call the actual Flask API
-          const response = await fetch(`${apiUrl}/api/evaluate`, {
+          // Call the actual Flask API with authentication
+          const authHeaders = window.authManager ? window.authManager.getAuthHeaders() : {};
+          const response = await fetch(`${apiUrl}/api/databench/evaluate`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              ...authHeaders
             },
             body: JSON.stringify(formData)
           });
