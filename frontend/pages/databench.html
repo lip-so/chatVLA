@@ -631,7 +631,6 @@
         font-size: 0.75rem;
         padding: 0.5rem 1rem;
       }
-    }
 
       .modal-overlay {
         padding: 1rem;
@@ -665,6 +664,7 @@
         font-size: 0.8rem;
       }
     }
+    
     /* Checkbox styling */
     .param-checkbox input[type="checkbox"]:checked + label::after {
       content: 'X';
@@ -855,6 +855,152 @@
       <h3><i class="fas fa-chart-bar"></i> Evaluation Results</h3>
       <div class="results-grid" id="resultsGrid">
         <!-- Results will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="info-modal">
+      <div class="modal-header">
+        <h2>Understanding DataBench Metrics</h2>
+        <button class="close-button" id="closeModal">&times;</button>
+      </div>
+      
+      <div class="metrics-info">
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">a</span>
+            <span class="metric-info-title">Action Consistency</span>
+          </div>
+          <p class="metric-info-description">
+            Evaluates how well actions align with visual observations and language instructions.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Visual-text alignment using CLIP embeddings</li>
+              <li>Action-observation consistency analysis</li>
+              <li>Temporal coherence between frames</li>
+              <li>Prompt-action verification</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">v</span>
+            <span class="metric-info-title">Visual Diversity</span>
+          </div>
+          <p class="metric-info-description">
+            Measures the variety and richness of visual content in your dataset.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Pairwise distance calculations between frames</li>
+              <li>Clustering analysis for scene variety</li>
+              <li>Visual entropy measurements</li>
+              <li>Coverage of different scenarios</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">h</span>
+            <span class="metric-info-title">High-Fidelity Vision</span>
+          </div>
+          <p class="metric-info-description">
+            Assesses the quality of visual data capture and setup.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Multi-view camera setup analysis</li>
+              <li>Resolution and frame quality checks</li>
+              <li>Environment lighting and clarity</li>
+              <li>Instruction prompt clarity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">t</span>
+            <span class="metric-info-title">Trajectory Quality</span>
+          </div>
+          <p class="metric-info-description">
+            Analyzes the quality and consistency of recorded trajectories.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Synchronization between modalities</li>
+              <li>Sampling frequency consistency</li>
+              <li>Data completeness checks</li>
+              <li>Trajectory smoothness analysis</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">c</span>
+            <span class="metric-info-title">Dataset Coverage</span>
+          </div>
+          <p class="metric-info-description">
+            Evaluates the comprehensiveness and scale of your dataset.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Dataset scale and episode count</li>
+              <li>Task diversity measurements</li>
+              <li>Visual and action variety</li>
+              <li>Success/failure rate balance</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="metric-info">
+          <div class="metric-info-header">
+            <span class="metric-info-code">r</span>
+            <span class="metric-info-title">Robot Action Quality</span>
+          </div>
+          <p class="metric-info-description">
+            Checks the feasibility and quality of robot actions.
+          </p>
+          <div class="metric-info-details">
+            <ul>
+              <li>Action smoothness and continuity</li>
+              <li>Joint limit compliance</li>
+              <li>Physical feasibility checks</li>
+              <li>Action space coverage</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-guide">
+        <h3>Score Interpretation</h3>
+        <div class="score-ranges">
+          <div class="score-range">
+            <div class="score-color excellent"></div>
+            <span>0.8 - 1.0: Excellent quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color good"></div>
+            <span>0.6 - 0.8: Good quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color moderate"></div>
+            <span>0.4 - 0.6: Moderate quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color poor"></div>
+            <span>0.2 - 0.4: Poor quality</span>
+          </div>
+          <div class="score-range">
+            <div class="score-color very-poor"></div>
+            <span>0.0 - 0.2: Very poor quality</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
