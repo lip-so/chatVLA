@@ -682,10 +682,10 @@
     <div class="navbar-container">
       <a href="../index.html" class="logo">Tune</a>
       <div class="nav-links">
-        <a href="vision.html">Vision</a>
-        <a href="databench.html">DataBench</a>
-        <a href="plug-and-play.html">Plug & Play</a>
-        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+        <span class="nav-links-features" style="display: none;">
+          <a href="databench.html">DataBench</a>
+          <a href="plug-and-play.html">Plug & Play</a>
+        </span>
       </div>
     </div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle">
@@ -698,10 +698,10 @@
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-content">
-      <a href="vision.html">Vision</a>
-      <a href="databench.html">DataBench</a>
-      <a href="plug-and-play.html">Plug & Play</a>
-      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      <span class="mobile-menu-features" style="display: none;">
+        <a href="databench.html">DataBench</a>
+        <a href="plug-and-play.html">Plug & Play</a>
+      </span>
     </div>
   </div>
 
@@ -1014,6 +1014,11 @@
     </p>
   </footer>
   
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  
+  <script src="../js/firebase-auth-browser.js"></script>
   <script src="../js/navbar.js"></script>
   <script>
     class DataBenchUI {

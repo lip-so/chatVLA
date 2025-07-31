@@ -129,19 +129,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize navbar immediately
   updateNavbar();
   
+  // Listen for auth state changes using custom event
+  window.addEventListener('authStateChanged', (event) => {
+    console.log('Navbar: Auth state changed event:', event.detail);
+    updateNavbar();
+  });
+  
   // Wait for Firebase auth to load then update navbar
   const checkFirebaseAuth = setInterval(() => {
-    if (window.firebaseAuth) {
+    if (window.firebaseAuth && window.authManager && window.authManager.isReady) {
       clearInterval(checkFirebaseAuth);
+      console.log('Navbar: Firebase is ready, updating navbar');
       
-      // Listen for auth state changes
-      if (window.onAuthStateChanged) {
-        window.onAuthStateChanged(window.firebaseAuth, (user) => {
-          updateNavbar();
-        });
-      }
-      
-      // Update again when Firebase is ready
+      // Get current user and update UI
       updateNavbar();
     }
   }, 100);
