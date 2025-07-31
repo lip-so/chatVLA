@@ -458,7 +458,10 @@
     // Make available globally
     window.firebaseApp = app;
     window.firebaseAuth = auth;
-    window.onAuthStateChanged = auth.onAuthStateChanged;
+    
+    // Configure Google provider
+    googleProvider.addScope('email');
+    googleProvider.addScope('profile');
     
     // Simple auth manager for compatibility
     window.authManager = {
@@ -472,7 +475,7 @@
     };
     
     // Update auth state
-    onAuthStateChanged(auth, (user) => {
+    auth.onAuthStateChanged((user) => {
       if (user) {
         window.authManager.user = {
           uid: user.uid,

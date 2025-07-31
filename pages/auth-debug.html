@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Debug - Tune Robotics</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .status {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    button {
+      background: #000;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #333;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Firebase Auth Debug Page</h1>
+  
+  <div class="status">
+    <h2>Firebase Status</h2>
+    <div id="firebase-status">Checking...</div>
+  </div>
+  
+  <div class="status">
+    <h2>Auth Status</h2>
+    <div id="auth-status">Checking...</div>
+  </div>
+  
+  <div class="status">
+    <h2>Current User</h2>
+    <pre id="current-user">None</pre>
+  </div>
+  
+  <div class="status">
+    <h2>Test Actions</h2>
+    <button id="test-login">Test Login (test@example.com)</button>
+    <button id="test-google">Test Google Login</button>
+    <button id="test-logout">Test Logout</button>
+    <button id="check-auth">Check Auth State</button>
+  </div>
+  
+  <div class="status">
+    <h2>Console Log</h2>
+    <pre id="console-log"></pre>
+  </div>
+  
+  <p><a href="../index.html">← Back to Home</a></p>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  
+  <script>
+    // Logging helper
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('console-log');
+      const timestamp = new Date().toLocaleTimeString();
+      const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+      logDiv.innerHTML += `<span class="${type}">[${timestamp}] ${message}</span>\n`;
+      console.log(`[${type}] ${message}`);
+    }
+    
+    // Check Firebase availability
+    function checkFirebase() {
+      const statusDiv = document.getElementById('firebase-status');
+      if (typeof firebase !== 'undefined') {
+        statusDiv.innerHTML = '<span class="success">✓ Firebase SDK Loaded</span>';
+        log('Firebase SDK is available', 'success');
+        return true;
+      } else {
+        statusDiv.innerHTML = '<span class="error">✗ Firebase SDK Not Loaded</span>';
+        log('Firebase SDK not found!', 'error');
+        return false;
+      }
+    }
+    
+    // Initialize Firebase
+    let app, auth;
+    
+    if (checkFirebase()) {
+      try {
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyBWiDdaqFp8wiKV7yVbdhJdBdrQNn-V8O4",
+          authDomain: "tune-robotics.firebaseapp.com",
+          projectId: "tune-robotics",
+          storageBucket: "tune-robotics.firebasestorage.app",
+          messagingSenderId: "618052352489",
+          appId: "1:618052352489:web:c64395ba84aa7e8bc13378",
+          measurementId: "G-95T7DVMYXW"
+        };
+        
+        // Initialize Firebase
+        app = firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        
+        log('Firebase initialized successfully', 'success');
+        document.getElementById('firebase-status').innerHTML += '<br><span class="success">✓ Firebase App Initialized</span>';
+        
+        // Set up auth state listener
+        auth.onAuthStateChanged((user) => {
+          log(`Auth state changed: ${user ? user.email : 'No user'}`, 'info');
+          updateAuthStatus(user);
+        });
+        
+      } catch (error) {
+        log(`Firebase initialization error: ${error.message}`, 'error');
+        document.getElementById('firebase-status').innerHTML += `<br><span class="error">✗ ${error.message}</span>`;
+      }
+    }
+    
+    // Update auth status display
+    function updateAuthStatus(user) {
+      const statusDiv = document.getElementById('auth-status');
+      const userDiv = document.getElementById('current-user');
+      
+      if (user) {
+        statusDiv.innerHTML = '<span class="success">✓ Authenticated</span>';
+        userDiv.textContent = JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          emailVerified: user.emailVerified
+        }, null, 2);
+      } else {
+        statusDiv.innerHTML = '<span class="info">Not authenticated</span>';
+        userDiv.textContent = 'None';
+      }
+    }
+    
+    // Test login
+    document.getElementById('test-login').addEventListener('click', async () => {
+      log('Testing email/password login...', 'info');
+      try {
+        const result = await auth.signInWithEmailAndPassword('test@example.com', 'password123');
+        log('Login successful!', 'success');
+      } catch (error) {
+        log(`Login failed: ${error.code} - ${error.message}`, 'error');
+      }
+    });
+    
+    // Test Google login
+    document.getElementById('test-google').addEventListener('click', async () => {
+      log('Testing Google login...', 'info');
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+        
+        const result = await auth.signInWithPopup(provider);
+        log(`Google login successful! User: ${result.user.email}`, 'success');
+      } catch (error) {
+        log(`Google login failed: ${error.code} - ${error.message}`, 'error');
+      }
+    });
+    
+    // Test logout
+    document.getElementById('test-logout').addEventListener('click', async () => {
+      log('Testing logout...', 'info');
+      try {
+        await auth.signOut();
+        log('Logout successful!', 'success');
+      } catch (error) {
+        log(`Logout failed: ${error.message}`, 'error');
+      }
+    });
+    
+    // Check auth state
+    document.getElementById('check-auth').addEventListener('click', () => {
+      const user = auth.currentUser;
+      if (user) {
+        log(`Current user: ${user.email}`, 'info');
+      } else {
+        log('No user currently signed in', 'info');
+      }
+      updateAuthStatus(user);
+    });
+    
+    // Initial check
+    setTimeout(() => {
+      if (auth) {
+        updateAuthStatus(auth.currentUser);
+      }
+    }, 1000);
+  </script>
+</body>
+</html> 
