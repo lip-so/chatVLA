@@ -747,6 +747,13 @@
           this.isConnected = false;
           this.installationRunning = false;
           
+          // Load auth manager if not already loaded
+          if (!window.authManager) {
+            const authScript = document.createElement('script');
+            authScript.src = '/js/auth.js';
+            document.head.appendChild(authScript);
+          }
+          
           // Detect if we're on Railway/production or localhost
           const isProduction = window.location.hostname.includes('github.io') || 
                               window.location.hostname.includes('railway.app') ||
@@ -881,9 +888,17 @@
         }
       }
       
+      getAuthHeaders() {
+        return window.authManager ? window.authManager.getAuthHeaders() : {};
+      }
+      
       async connectToBackend() {
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/installation-status`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/installation-status`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           if (response.ok) {
             const data = await response.json();
             this.isConnected = true;
@@ -1135,7 +1150,11 @@
         this.logMessage('Checking system info...', 'info');
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/system-info`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/system-info`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           
           if (data.git_available) {
@@ -1210,7 +1229,10 @@
         try {
           const response = await fetch(`${this.apiBaseUrl}/api/plugplay/start-installation`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              ...this.getAuthHeaders()
+            },
             body: JSON.stringify({ installation_path: path })
           });
           
@@ -1237,7 +1259,10 @@
         try {
           // Try the real backend first
           const response = await fetch(`${this.apiBaseUrl}/api/plugplay/cancel-installation`, {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+              ...this.getAuthHeaders()
+            }
           });
           
           if (response.ok) {
@@ -1396,7 +1421,11 @@
         
         // Step 1: Get baseline ports
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           this.baselinePorts = data.ports || [];
           this.logMessage(`Baseline scan: Found ${this.baselinePorts.length} existing ports`, 'info');
@@ -1409,16 +1438,14 @@
       
       showWizardStep1() {
         this.portsContainer.innerHTML = `
-          <div style="padding: 2rem; background: linear-gradient(135deg, #000000 0%, #333333 50%, #000000 100%); border-radius: 16px; text-align: center; color: white; border: 2px solid rgba(255,255,255,0.1);">
+          <div style="padding: 2rem; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); border-radius: 16px; text-align: center; color: white;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🔌</div>
             <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem;">Interactive Port Detection</h3>
             <p style="margin: 0 0 2rem 0; opacity: 0.9; line-height: 1.6;">
               We'll automatically detect your robotic arms as you connect them.<br>
               <strong>Make sure all robotic arms are disconnected first.</strong>
             </p>
-            <button id="startLeaderDetection" style="padding: 0.75rem 2rem; background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%); color: #000000; border: 2px solid #000000; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.2s ease;" 
-                    onmouseover="this.style.background='linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)'" 
-                    onmouseout="this.style.background='linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <button id="startLeaderDetection" style="padding: 0.75rem 2rem; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">
               <i class="fas fa-play"></i> Start Leader Arm Detection
             </button>
           </div>
@@ -1430,16 +1457,14 @@
       
       showWizardStep2() {
         this.portsContainer.innerHTML = `
-          <div style="padding: 2rem; background: linear-gradient(135deg, #333333 0%, #000000 50%, #333333 100%); border-radius: 16px; text-align: center; color: white; border: 2px solid rgba(255,255,255,0.2);">
+          <div style="padding: 2rem; background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-radius: 16px; text-align: center; color: white;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🦾</div>
             <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem;">Step 1: Connect Leader Arm</h3>
             <p style="margin: 0 0 2rem 0; opacity: 0.9; line-height: 1.6;">
               Please connect your <strong>Leader arm</strong> to the computer via USB.<br>
               Once connected, click the button below to detect it.
             </p>
-            <button id="detectLeader" style="padding: 0.75rem 2rem; background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%); color: #000000; border: 2px solid #000000; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)'" 
-                    onmouseout="this.style.background='linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <button id="detectLeader" style="padding: 0.75rem 2rem; background: #f59e0b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">
               <i class="fas fa-search"></i> Detect Leader Arm
             </button>
           </div>
@@ -1455,7 +1480,11 @@
         detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           const currentPorts = data.ports || [];
           
@@ -1482,19 +1511,17 @@
       
       showWizardStep3() {
         this.portsContainer.innerHTML = `
-          <div style="padding: 2rem; background: linear-gradient(135deg, #666666 0%, #000000 50%, #666666 100%); border-radius: 16px; text-align: center; color: white; border: 2px solid rgba(255,255,255,0.3);">
+          <div style="padding: 2rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-radius: 16px; text-align: center; color: white;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
             <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem;">Leader Arm Detected!</h3>
-            <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px; margin: 1rem 0; border: 1px solid rgba(255,255,255,0.2);">
+            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
               <strong>Leader:</strong> ${this.leaderPort.device}<br>
               <small style="opacity: 0.8;">${this.leaderPort.description || 'Unknown device'}</small>
             </div>
             <p style="margin: 0 0 2rem 0; opacity: 0.9; line-height: 1.6;">
               Great! Now connect your <strong>Follower arm</strong> to detect it.
             </p>
-            <button id="detectFollower" style="padding: 0.75rem 2rem; background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%); color: #000000; border: 2px solid #000000; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)'" 
-                    onmouseout="this.style.background='linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <button id="detectFollower" style="padding: 0.75rem 2rem; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">
               <i class="fas fa-search"></i> Detect Follower Arm
             </button>
           </div>
@@ -1510,7 +1537,11 @@
         detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`);
+          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/list-ports`, {
+            headers: {
+              ...this.getAuthHeaders()
+            }
+          });
           const data = await response.json();
           const currentPorts = data.ports || [];
           
@@ -1538,30 +1569,28 @@
       
       showWizardComplete() {
         this.portsContainer.innerHTML = `
-          <div style="padding: 2rem; background: linear-gradient(135deg, #000000 0%, #444444 50%, #000000 100%); border-radius: 16px; text-align: center; color: white; border: 3px solid rgba(255,255,255,0.4);">
+          <div style="padding: 2rem; background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); border-radius: 16px; text-align: center; color: white;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
             <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem;">Port Detection Complete!</h3>
             <div style="display: grid; gap: 1rem; margin: 1.5rem 0;">
-              <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+              <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <i class="fas fa-robot" style="color: #ffffff;"></i>
+                  <i class="fas fa-robot" style="color: #f59e0b;"></i>
                   <strong>Leader Arm</strong>
                 </div>
                 <div style="font-family: monospace; font-size: 0.9rem;">${this.leaderPort.device}</div>
                 <div style="font-size: 0.8rem; opacity: 0.8;">${this.leaderPort.description || 'Unknown device'}</div>
               </div>
-              <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+              <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <i class="fas fa-robot" style="color: #cccccc;"></i>
+                  <i class="fas fa-robot" style="color: #3b82f6;"></i>
                   <strong>Follower Arm</strong>
                 </div>
                 <div style="font-family: monospace; font-size: 0.9rem;">${this.followerPort.device}</div>
                 <div style="font-size: 0.8rem; opacity: 0.8;">${this.followerPort.description || 'Unknown device'}</div>
               </div>
             </div>
-            <button id="wizardDone" style="padding: 0.75rem 2rem; background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%); color: #000000; border: 2px solid #000000; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%)'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)'" 
-                    onmouseout="this.style.background='linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <button id="wizardDone" style="padding: 0.75rem 2rem; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">
               <i class="fas fa-check"></i> Configuration Complete
             </button>
           </div>
