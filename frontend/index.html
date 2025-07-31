@@ -14,12 +14,10 @@
     <div class="navbar-container">
       <a href="/" class="logo">Tune</a>
       <div class="nav-links">
-        <a href="/pages/vision.html">Vision</a>
         <span class="nav-links-features" style="display: none;">
           <a href="/pages/databench.html">DataBench</a>
           <a href="/pages/plug-and-play.html">Plug & Play</a>
         </span>
-        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
       </div>
     </div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle">
@@ -32,12 +30,10 @@
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-content">
-      <a href="/pages/vision.html">Vision</a>
       <span class="mobile-menu-features" style="display: none;">
         <a href="/pages/databench.html">DataBench</a>
         <a href="/pages/plug-and-play.html">Plug & Play</a>
       </span>
-      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
     </div>
   </div>
   <main class="landing-main">
@@ -68,7 +64,6 @@
           if (window.authManager.isAuthenticated()) {
             // User is authenticated - show all platform features
             landingActions.innerHTML = `
-              <a href="/pages/vision.html" class="cta-button">Vision</a>
               <a href="/pages/plug-and-play.html" class="cta-button primary">Get Started</a>
               <a href="/pages/databench.html" class="cta-button">DataBench</a>
             `;
