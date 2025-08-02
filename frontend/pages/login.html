@@ -196,9 +196,12 @@
           displayName: user.displayName || user.email.split('@')[0]
         }));
         
-        // Trigger navbar update
+        // Trigger navbar and landing page updates
         if (window.updateNavbar) {
           window.updateNavbar();
+        }
+        if (window.updateLandingActions) {
+          window.updateLandingActions();
         }
         
         button.classList.remove('loading');
@@ -266,9 +269,12 @@
           displayName: user.displayName || user.email.split('@')[0]
         }));
         
-        // Trigger navbar update
+        // Trigger navbar and landing page updates
         if (window.updateNavbar) {
           window.updateNavbar();
+        }
+        if (window.updateLandingActions) {
+          window.updateLandingActions();
         }
         
         button.classList.add('success');

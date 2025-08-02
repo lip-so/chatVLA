@@ -48,30 +48,35 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Create auth links
     if (isAuthenticated && currentUser) {
-      // Desktop navbar
-      const userDisplay = document.createElement('span');
-      userDisplay.className = 'auth-link user-display';
-      userDisplay.style.cssText = 'color: rgba(0, 0, 0, 0.8); font-size: 14px; margin-right: 15px;';
-      userDisplay.textContent = `Hi, ${currentUser.displayName || currentUser.email.split('@')[0]}`;
-      
+      // Desktop navbar - only show logout button
       const logoutLink = document.createElement('a');
       logoutLink.href = '#';
       logoutLink.className = 'auth-link';
       logoutLink.textContent = 'Logout';
+      logoutLink.style.cssText = 'background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(51, 51, 51, 0.85)); color: white; padding: 8px 16px; border-radius: 50px; margin-left: 10px; transition: all 0.3s ease;';
       logoutLink.addEventListener('click', handleLogout);
       
-      navLinks.appendChild(userDisplay);
+      // Add hover effect
+      logoutLink.addEventListener('mouseenter', () => {
+        logoutLink.style.transform = 'translateY(-2px) scale(1.02)';
+        logoutLink.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)';
+      });
+      
+      logoutLink.addEventListener('mouseleave', () => {
+        logoutLink.style.transform = 'none';
+        logoutLink.style.boxShadow = 'none';
+      });
+      
       navLinks.appendChild(logoutLink);
       
       // Mobile menu
       if (mobileMenuContent) {
-        const mobileUserDisplay = userDisplay.cloneNode(true);
-        mobileUserDisplay.style.cssText = 'color: rgba(0, 0, 0, 0.8); font-size: 14px; display: block; padding: 10px 0;';
-        
-        const mobileLogoutLink = logoutLink.cloneNode(true);
+        const mobileLogoutLink = document.createElement('a');
+        mobileLogoutLink.href = '#';
+        mobileLogoutLink.className = 'auth-link';
+        mobileLogoutLink.textContent = 'Logout';
         mobileLogoutLink.addEventListener('click', handleLogout);
         
-        mobileMenuContent.appendChild(mobileUserDisplay);
         mobileMenuContent.appendChild(mobileLogoutLink);
       }
     } else {
@@ -142,6 +147,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear fallback localStorage auth data
     localStorage.removeItem('tune_auth_state');
     localStorage.removeItem('tune_auth_user');
+    
+    // Update UI before redirect
+    if (window.updateLandingActions) {
+      window.updateLandingActions();
+    }
     
     // Always redirect to home
     window.location.href = '/';

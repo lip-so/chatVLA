@@ -8,6 +8,73 @@
   <link rel="icon" type="image/png" href="/assets/logo.png">
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  
+  <style>
+    .welcome-greeting {
+      margin: 1.5rem 0 2.5rem 0;
+      opacity: 0;
+      animation: fadeInGreeting 0.6s ease-out forwards;
+    }
+    
+    .greeting-content {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: rgba(0, 0, 0, 0.7);
+      letter-spacing: 0.01em;
+    }
+    
+    .greeting-text {
+      /* Inherited from parent */
+    }
+    
+    .greeting-name {
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.9);
+    }
+    
+    .greeting-wave {
+      font-size: 1.3rem;
+      display: inline-block;
+      animation: wave 2s ease-in-out infinite;
+      margin-left: 0.2rem;
+    }
+    
+    @keyframes fadeInGreeting {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      10%, 30% { transform: rotate(14deg); }
+      20% { transform: rotate(-8deg); }
+      40% { transform: rotate(-4deg); }
+      50% { transform: rotate(10deg); }
+      60% { transform: rotate(0deg); }
+    }
+    
+    @media (max-width: 768px) {
+      .welcome-greeting {
+        margin: 1rem 0 2rem 0;
+      }
+      
+      .greeting-content {
+        font-size: 1.1rem;
+      }
+      
+      .greeting-wave {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -40,6 +107,16 @@
     <div class="landing-content">
       <h1 class="landing-super-title">Chat with your robot</h1>
       <h2 class="landing-title">Tune your robot. Instantly.</h2>
+      
+      <!-- Personalized greeting for authenticated users -->
+      <div class="welcome-greeting" id="welcomeGreeting" style="display: none;">
+        <div class="greeting-content">
+          <span class="greeting-text">Welcome back,</span>
+          <span class="greeting-name" id="greetingName">User</span>
+          <span class="greeting-wave">👋</span>
+        </div>
+      </div>
+      
       <div class="landing-actions" id="landingActions">
         <!-- Actions will be dynamically inserted based on auth state -->
       </div>
@@ -56,6 +133,8 @@
     // Update landing actions based on auth state
     function updateLandingActions() {
       const landingActions = document.getElementById('landingActions');
+      const welcomeGreeting = document.getElementById('welcomeGreeting');
+      const greetingName = document.getElementById('greetingName');
       const navLinksFeatures = document.querySelector('.nav-links-features');
       const mobileMenuFeatures = document.querySelector('.mobile-menu-features');
       
@@ -63,21 +142,38 @@
       
       // Check if user is authenticated
       let isAuthenticated = false;
+      let currentUser = null;
       
       // Try Firebase auth first
       if (window.firebaseAuth && window.firebaseAuth.currentUser) {
         isAuthenticated = true;
+        currentUser = window.firebaseAuth.currentUser;
       }
       
       // Fallback: Check localStorage for development when Firebase isn't working
       if (!isAuthenticated) {
         const storedAuth = localStorage.getItem('tune_auth_state');
-        if (storedAuth === 'true') {
-          isAuthenticated = true;
+        const storedUser = localStorage.getItem('tune_auth_user');
+        if (storedAuth === 'true' && storedUser) {
+          try {
+            isAuthenticated = true;
+            currentUser = JSON.parse(storedUser);
+          } catch (e) {
+            console.error('Error parsing stored user:', e);
+          }
         }
       }
       
-      if (isAuthenticated) {
+      if (isAuthenticated && currentUser) {
+        // Show personalized greeting
+        if (welcomeGreeting && greetingName) {
+          const displayName = currentUser.displayName || 
+                              currentUser.email?.split('@')[0] || 
+                              'User';
+          greetingName.textContent = displayName;
+          welcomeGreeting.style.display = 'block';
+        }
+        
         // User is authenticated - show all platform features
         landingActions.innerHTML = `
           <a href="/pages/plug-and-play.html" class="cta-button primary">Get Started</a>
@@ -88,6 +184,11 @@
         if (navLinksFeatures) navLinksFeatures.style.display = 'flex';
         if (mobileMenuFeatures) mobileMenuFeatures.style.display = 'block';
       } else {
+        // Hide personalized greeting
+        if (welcomeGreeting) {
+          welcomeGreeting.style.display = 'none';
+        }
+        
         // User is not authenticated - show vision + contact us/register
         landingActions.innerHTML = `
           <a href="/pages/vision.html" class="cta-button">Vision</a>
