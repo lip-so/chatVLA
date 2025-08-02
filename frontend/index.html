@@ -69,6 +69,14 @@
         isAuthenticated = true;
       }
       
+      // Fallback: Check localStorage for development when Firebase isn't working
+      if (!isAuthenticated) {
+        const storedAuth = localStorage.getItem('tune_auth_state');
+        if (storedAuth === 'true') {
+          isAuthenticated = true;
+        }
+      }
+      
       if (isAuthenticated) {
         // User is authenticated - show all platform features
         landingActions.innerHTML = `
@@ -136,6 +144,19 @@
         updateLandingActions();
       }
     }, 2000);
+    
+    // Make updateLandingActions available globally so other pages can trigger updates
+    window.updateLandingActions = updateLandingActions;
+    
+    // Listen for storage changes (when auth state changes in other tabs/pages)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'tune_auth_state' || e.key === 'tune_auth_user') {
+        updateLandingActions();
+        if (window.updateNavbar) {
+          window.updateNavbar();
+        }
+      }
+    });
   </script>
 </body>
 </html> 

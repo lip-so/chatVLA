@@ -186,6 +186,7 @@
       redirectAfterLogin: () => {
         const urlParams = new URLSearchParams(window.location.search);
         const redirect = urlParams.get('redirect');
+        // Default to main page after successful registration
         window.location.href = redirect || '/';
       }
     };
@@ -386,6 +387,21 @@
           displayName: username
         });
         
+        const user = userCredential.user;
+        
+        // Store auth state for development (fallback when Firebase credentials are placeholder)
+        localStorage.setItem('tune_auth_state', 'true');
+        localStorage.setItem('tune_auth_user', JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || username || user.email.split('@')[0]
+        }));
+        
+        // Trigger navbar update
+        if (window.updateNavbar) {
+          window.updateNavbar();
+        }
+        
         button.classList.remove('loading');
         button.classList.add('success');
         buttonText.textContent = 'Success!';
@@ -441,6 +457,21 @@
       
       try {
         const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        // Store auth state for development (fallback when Firebase credentials are placeholder)
+        localStorage.setItem('tune_auth_state', 'true');
+        localStorage.setItem('tune_auth_user', JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email.split('@')[0]
+        }));
+        
+        // Trigger navbar update
+        if (window.updateNavbar) {
+          window.updateNavbar();
+        }
+        
         button.classList.add('success');
         button.innerHTML = '<span>Success!</span>';
         successDiv.textContent = 'Registration successful! Redirecting...';

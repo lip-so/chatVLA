@@ -14,10 +14,27 @@ document.addEventListener('DOMContentLoaded', function() {
     let isAuthenticated = false;
     let currentUser = null;
     
-    // Try to get Firebase auth state
+    // Try to get Firebase auth state first
     if (window.firebaseAuth && window.firebaseAuth.currentUser) {
       isAuthenticated = true;
       currentUser = window.firebaseAuth.currentUser;
+    }
+    
+    // Fallback: Check localStorage for development when Firebase isn't working
+    if (!isAuthenticated) {
+      const storedAuth = localStorage.getItem('tune_auth_state');
+      const storedUser = localStorage.getItem('tune_auth_user');
+      
+      if (storedAuth === 'true' && storedUser) {
+        try {
+          isAuthenticated = true;
+          currentUser = JSON.parse(storedUser);
+        } catch (e) {
+          // Clear invalid stored data
+          localStorage.removeItem('tune_auth_state');
+          localStorage.removeItem('tune_auth_user');
+        }
+      }
     }
     
     // Remove existing auth-related links
@@ -122,6 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     
+    // Clear fallback localStorage auth data
+    localStorage.removeItem('tune_auth_state');
+    localStorage.removeItem('tune_auth_user');
+    
     // Always redirect to home
     window.location.href = '/';
   }
@@ -198,17 +219,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Check authentication on protected pages (less strict for now)
+  // Check authentication on protected pages (disabled for development)
   function checkPageProtection() {
     const protectedPages = ['/pages/databench.html', '/pages/plug-and-play.html', '/pages/port-detection.html'];
     const currentPath = window.location.pathname;
     
     // Check if current page is protected
     if (protectedPages.some(page => currentPath.includes(page))) {
-      console.log('On protected page:', currentPath);
+      console.log('On protected page:', currentPath, '- Auth protection disabled for development');
       
-      // For now, just log - we can redirect to login when Firebase is properly set up
-      // TODO: Uncomment this when Firebase credentials are configured
+      // TODO: Re-enable when Firebase credentials are properly configured
+      // For now, allow access to protected pages without authentication for development
       /*
       // Wait for Firebase auth
       const checkAuth = setInterval(() => {
@@ -231,10 +252,20 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
       }, 50);
+      
+      // Fallback: if Firebase doesn't load in 3 seconds, redirect to login
+      setTimeout(() => {
+        if (!window.firebaseAuth || !window.firebaseAuth.currentUser) {
+          window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+        }
+      }, 3000);
       */
     }
   }
   
   // Run page protection check
   checkPageProtection();
+  
+  // Make updateNavbar available globally so other pages can trigger updates
+  window.updateNavbar = updateNavbar;
 }); 
