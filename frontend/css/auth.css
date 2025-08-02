@@ -180,7 +180,7 @@ body.auth-page::before {
   position: absolute;
   top: 18px;
   left: 18px;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   padding: 0 6px;
   pointer-events: none;
   z-index: 1;
