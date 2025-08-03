@@ -370,12 +370,17 @@ port_detector = PortDetectionManager()
 @app.route('/')
 def serve_frontend():
     """Serve the main HTML page."""
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory('../../frontend', 'index.html')
+
+@app.route('/pages/<path:filename>')
+def serve_pages(filename):
+    """Serve page files."""
+    return send_from_directory('../../frontend/pages', filename)
 
 @app.route('/<path:path>')
 def serve_static(path):
-    """Serve static files (CSS, JS, etc.)."""
-    return send_from_directory('../frontend', path)
+    """Serve static files (CSS, JS, etc)."""
+    return send_from_directory('../../frontend', path)
 
 @app.route('/api/browse-directory', methods=['POST'])
 def browse_directory():
@@ -615,7 +620,7 @@ def save_port_config():
 @app.route('/port-detection')
 def serve_port_detection():
     """Serve the port detection page."""
-    return send_from_directory('../frontend', 'port-detection.html')
+    return send_from_directory('../../frontend/pages', 'port-detection.html')
 
 # WebSocket events
 
@@ -631,5 +636,10 @@ def handle_disconnect():
 
 if __name__ == '__main__':
     import os
-    port = int(os.environ.get('PORT', 5002))
-    socketio.run(app, host='127.0.0.1', port=port, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
+    # Use 0.0.0.0 for deployment, 127.0.0.1 for local development
+    host = '0.0.0.0' if not debug else '127.0.0.1'
+    
+    socketio.run(app, host=host, port=port, debug=debug)
