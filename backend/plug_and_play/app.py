@@ -13,6 +13,16 @@ from pathlib import Path
 import subprocess
 import shutil
 from typing import Dict, Any, List
+import sys
+
+# Add the project root to the Python path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Set up static directories with absolute paths
+FRONTEND_DIR = PROJECT_ROOT / 'frontend'
+STATIC_DIR = FRONTEND_DIR
+PAGES_DIR = FRONTEND_DIR / 'pages'
 try:
     import serial
     import serial.tools.list_ports
@@ -20,10 +30,12 @@ try:
 except ImportError:
     SERIAL_AVAILABLE = False
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'lerobot-installer-secret-key'
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+app = Flask(__name__, 
+            static_folder=str(FRONTEND_DIR),
+            static_url_path='/')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'lerobot-installer-secret-key')
+CORS(app, origins=["*"])
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # Global state for installation process
 installation_state = {
@@ -277,7 +289,7 @@ class InstallationManager:
     def _copy_port_detection_tools(self):
         """Copy port detection utilities to installation directory."""
         try:
-            utils_dir = Path(__file__).parent.parent / "utils"
+            utils_dir = PROJECT_ROOT / "backend" / "plug_and_play" / "utils"
             source_file = utils_dir / "lerobot" / "find_port.py"
             
             if source_file.exists():
@@ -348,7 +360,7 @@ FOLLOWER_ARM_PORT = "{follower_port}"
 # Leader Arm:  {leader_port}
 # Follower Arm: {follower_port}
 '''
-            config_file = Path(__file__).parent.parent / 'lerobot_ports.py'
+            config_file = PROJECT_ROOT / 'backend' / 'lerobot_ports.py'
             
             with open(config_file, 'w') as f:
                 f.write(config_content)
@@ -370,17 +382,20 @@ port_detector = PortDetectionManager()
 @app.route('/')
 def serve_frontend():
     """Serve the main HTML page."""
-    return send_from_directory('../../frontend', 'index.html')
+    return send_from_directory(str(FRONTEND_DIR), 'index.html')
 
 @app.route('/pages/<path:filename>')
 def serve_pages(filename):
     """Serve page files."""
-    return send_from_directory('../../frontend/pages', filename)
+    return send_from_directory(str(PAGES_DIR), filename)
 
 @app.route('/<path:path>')
 def serve_static(path):
     """Serve static files (CSS, JS, etc)."""
-    return send_from_directory('../../frontend', path)
+    # Security check: don't allow path traversal
+    if '..' in path:
+        return 'Forbidden', 403
+    return send_from_directory(str(FRONTEND_DIR), path)
 
 @app.route('/api/browse-directory', methods=['POST'])
 def browse_directory():
@@ -620,7 +635,7 @@ def save_port_config():
 @app.route('/port-detection')
 def serve_port_detection():
     """Serve the port detection page."""
-    return send_from_directory('../../frontend/pages', 'port-detection.html')
+    return send_from_directory(str(PAGES_DIR), 'port-detection.html')
 
 # WebSocket events
 
