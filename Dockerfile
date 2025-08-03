@@ -23,4 +23,4 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 
 # Run the application
-CMD ["python", "backend/api/main.py"]
+CMD ["python", "backend/plug_and_play/app.py"]
