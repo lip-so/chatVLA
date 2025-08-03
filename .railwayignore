@@ -1,0 +1,16 @@
+# Railway ignore file
+# Ignore reference directories not needed for deployment
+ref/
+tests/
+docs/
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+.env
+.venv/
+env/
+venv/
+*.egg-info/
+.DS_Store
+*.log
