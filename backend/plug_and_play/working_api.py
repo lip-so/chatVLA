@@ -122,8 +122,32 @@ def favicon():
 @app.route('/pages/<path:filename>')
 def serve_pages(filename):
     """Serve frontend pages"""
-    frontend_dir = Path(__file__).parent.parent.parent / 'frontend' / 'pages'
-    return send_from_directory(str(frontend_dir), filename)
+    # Try both frontend/pages and root pages directories for deployment compatibility
+    frontend_pages_dir = Path(__file__).parent.parent.parent / 'frontend' / 'pages'
+    root_pages_dir = Path(__file__).parent.parent.parent / 'pages'
+    
+    if (frontend_pages_dir / filename).exists():
+        return send_from_directory(str(frontend_pages_dir), filename)
+    elif (root_pages_dir / filename).exists():
+        return send_from_directory(str(root_pages_dir), filename)
+    else:
+        return jsonify({'error': 'Page not found'}), 404
+
+@app.route('/plug-and-play-databench-style.html')
+def serve_plug_and_play_direct():
+    """Direct route for plug-and-play (deployment fallback)"""
+    # Try multiple locations for deployment compatibility
+    locations = [
+        Path(__file__).parent.parent.parent / 'frontend' / 'pages' / 'plug-and-play-databench-style.html',
+        Path(__file__).parent.parent.parent / 'pages' / 'plug-and-play-databench-style.html',
+        Path(__file__).parent.parent.parent / 'plug-and-play-databench-style.html'
+    ]
+    
+    for location in locations:
+        if location.exists():
+            return send_file(str(location))
+    
+    return jsonify({'error': 'Plug & Play page not found'}), 404
 
 @app.route('/css/<path:filename>')
 def serve_css(filename):
