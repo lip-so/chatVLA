@@ -1,11 +1,12 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "pip install -r requirements.txt"
 
 [deploy]
 startCommand = "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT backend.plug_and_play.wsgi:application"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-[[services]]
-name = "web"
-port = 5000
+[env]
+PYTHONPATH = "/app"
+FLASK_ENV = "production"

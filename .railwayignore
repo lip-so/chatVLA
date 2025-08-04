@@ -1,16 +1,46 @@
-# Railway ignore file
-# Ignore reference directories not needed for deployment
-ref/
-tests/
+# Ignore GitHub Pages artifacts
+_site/
+.jekyll-cache/
+.sass-cache/
+.github/
+_config.yml
+
+# Ignore frontend files (served by Flask)
+frontend/
+
+# Ignore documentation
 docs/
-*.pyc
+*.md
+README.md
+
+# Ignore old files
+oldchatVLA/
+
+# Ignore reference files
+ref/
+
+# Ignore test files
+tests/
+test_*.py
+*_test.py
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache
 __pycache__/
-.pytest_cache/
-.coverage
-.env
-.venv/
+*.pyc
+*.pyo
+*.pyd
+.Python
 env/
 venv/
-*.egg-info/
-.DS_Store
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
 *.log

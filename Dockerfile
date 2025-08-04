@@ -8,12 +8,24 @@ RUN apt-get update && apt-get install -y \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy only necessary files first
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy backend code
+COPY backend/ ./backend/
+COPY start.py .
+
+# Copy static files for Flask to serve
+COPY index.html .
+COPY 404.html .
+COPY pages/ ./pages/
+COPY css/ ./css/
+COPY js/ ./js/
+COPY assets/ ./assets/
+COPY robots.txt .
+COPY sitemap.xml .
+COPY CNAME .
 
 # Expose port
 EXPOSE 5000

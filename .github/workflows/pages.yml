@@ -1,0 +1,13 @@
+# Disable GitHub Pages
+name: Disable Pages
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  disable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip Pages Build
+        run: echo "GitHub Pages is disabled for this repository"
