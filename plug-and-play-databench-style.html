@@ -1463,16 +1463,16 @@
         
         if (data.success) {
           addLog('terminal', '✅ Port detection completed successfully!', 'success');
-          
-          // Mark step 2 complete and activate step 3
-          document.getElementById('step2Number').classList.remove('active');
-          document.getElementById('step2Number').classList.add('completed');
-          document.getElementById('step2').classList.remove('active');
-          
-          document.getElementById('step3').classList.remove('disabled');
-          document.getElementById('step3').classList.add('active');
-          document.getElementById('step3Number').classList.add('active');
-          document.getElementById('pipelineContent').classList.remove('hidden');
+      
+      // Mark step 2 complete and activate step 3
+        document.getElementById('step2Number').classList.remove('active');
+        document.getElementById('step2Number').classList.add('completed');
+        document.getElementById('step2').classList.remove('active');
+        
+        document.getElementById('step3').classList.remove('disabled');
+        document.getElementById('step3').classList.add('active');
+        document.getElementById('step3Number').classList.add('active');
+        document.getElementById('pipelineContent').classList.remove('hidden');
           
           stopPortDetection();
         } else {
@@ -1529,7 +1529,7 @@ conda activate lerobot
     // Initialize on load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, initializing...');
-      init();
+    init();
     });
   </script>
 </body>

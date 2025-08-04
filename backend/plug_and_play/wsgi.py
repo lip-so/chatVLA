@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Import the app and socketio from the module
-from backend.plug_and_play.app import app, socketio
+from backend.plug_and_play.working_api import app, socketio
 
 # Create the application instance for WSGI servers
 application = app
