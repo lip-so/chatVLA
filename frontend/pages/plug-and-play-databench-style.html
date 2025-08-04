@@ -501,6 +501,111 @@
 
     .hidden { display: none !important; }
 
+    /* LeRobot Port Detection Styles */
+    .detection-step {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+    }
+
+    .instruction-box {
+      background: var(--surface-hover);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-left: 4px solid var(--accent);
+    }
+
+    .instruction-box.waiting {
+      border-left-color: #ffc107;
+      background: #fff7cd;
+      color: #333;
+    }
+
+    .current-ports {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .port-info-simple {
+      padding: 0.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+    }
+
+    .detected-port {
+      background: #e8f5e9;
+      border: 1px solid #28a745;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .detected-port h5 {
+      color: #28a745;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .detection-complete {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      border: 2px solid #28a745;
+    }
+
+    .detected-ports-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .port-assignment {
+      background: var(--surface-hover);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .port-assignment h5 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-primary);
+    }
+
+    .port-assignment code {
+      background: var(--accent);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      display: inline-block;
+    }
+
+    .detection-status {
+      font-style: italic;
+      color: #666;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .waiting {
+      animation: pulse 2s infinite;
+    }
+
     .installation-choice {
       display: flex;
       gap: 1rem;
@@ -767,7 +872,7 @@
           <div id="usbContent" class="hidden">
             <p>Detect and configure USB ports for your robot arms.</p>
             <button class="btn-primary" onclick="detectPorts()">
-              <i class="fas fa-usb"></i> Detect Ports
+              Detect Ports
             </button>
             <div id="portList" class="hidden">
               <!-- Port detection results will appear here -->
@@ -817,10 +922,7 @@
     const robots = {
       'koch': { name: 'Koch', icon: '🦾' },
       'so100': { name: 'SO-100', icon: '🤖' },
-      'so101': { name: 'SO-101', icon: '🦿' },
-      'viperx': { name: 'ViperX', icon: '🐍' },
-      'lekiwi': { name: 'LeKiwi', icon: '🥝' },
-      'stretch3': { name: 'Stretch 3', icon: '🏠' }
+      'so101': { name: 'SO-101', icon: '🦿' }
     };
 
     let selectedRobot = null;
@@ -842,8 +944,18 @@
 
     // Initialize robot grid
     function initRobotGrid() {
+      console.log('Initializing robot grid...');
       const grid = document.getElementById('robotGrid');
+      console.log('Grid element:', grid);
+      console.log('Robots:', robots);
+      
+      if (!grid) {
+        console.error('robotGrid element not found!');
+        return;
+      }
+      
       Object.entries(robots).forEach(([key, robot]) => {
+        console.log(`Creating card for robot: ${key}`, robot);
         const card = document.createElement('div');
         card.className = 'robot-card';
         card.dataset.robot = key;
@@ -859,7 +971,10 @@
         `;
         card.onclick = () => selectRobot(key);
         grid.appendChild(card);
+        console.log(`Added card for ${key} to grid`);
       });
+      
+      console.log('Robot grid initialization complete. Grid children:', grid.children.length);
     }
 
     // Initialize choice cards
@@ -1079,13 +1194,277 @@
       terminal.scrollTop = terminal.scrollHeight;
     }
 
-    // Detect ports (placeholder)
-    function detectPorts() {
-      addLog('terminal', 'Starting port detection...', 'info');
-      // Port detection logic will be implemented here
+    // LeRobot-style port detection - disconnect/reconnect method
+    let portDetectionState = {
+      active: false,
+      step: 'idle', // 'idle', 'start', 'leader_disconnect', 'leader_reconnect', 'follower_disconnect', 'follower_reconnect', 'complete'
+      baseline_ports: [],
+      detected_ports: {},
+      monitoring_interval: null
+    };
+    
+    async function detectPorts() {
+      const button = event.target;
+      
+      if (portDetectionState.active) {
+        stopPortDetection();
+        return;
+      }
+      
+      try {
+        // Start the guided detection process
+        await startGuidedDetection();
+        
+      } catch (error) {
+        console.error('Port detection error:', error);
+        addLog('terminal', `❌ Error: ${error.message}`, 'error');
+        button.disabled = false;
+        button.textContent = 'Detect Ports';
+      }
+    }
+    
+    async function startGuidedDetection() {
+      const button = document.querySelector('#usbContent button');
+      const portList = document.getElementById('portList');
+      
+      button.disabled = true;
+      button.textContent = 'Starting Detection...';
+      portList.classList.remove('hidden');
+      
+      portDetectionState.active = true;
+      portDetectionState.step = 'start';
+      
+      // Get initial ports
+      const response = await fetch(`${API_URL}/api/detect_ports`);
+      const data = await response.json();
+      portDetectionState.baseline_ports = data.ports;
+      
+      // Show initial instructions
+      displayDetectionStep();
+      
+      button.textContent = 'Stop Detection';
+      button.disabled = false;
+      
+      // Start monitoring for port changes
+      startPortChangeMonitoring();
+    }
+    
+    function displayDetectionStep() {
+      const portList = document.getElementById('portList');
+      let html = '';
+      
+      switch (portDetectionState.step) {
+        case 'start':
+          html = `
+            <div class="detection-step">
+              <h4>🤖 LeRobot Port Detection</h4>
+              <p>This will help you identify the USB ports for your robot arms through a simple disconnect/reconnect process.</p>
+              
+              <div class="current-ports">
+                <h5>Current Connected Ports:</h5>
+                ${portDetectionState.baseline_ports.map(port => 
+                  `<div class="port-info-simple">📱 ${port.device} - ${port.description}</div>`
+                ).join('')}
+              </div>
+              
+              <div class="instruction-box">
+                <h5>🔍 STEP 1: Detect Leader Arm</h5>
+                <p><strong>Instructions:</strong></p>
+                <ol>
+                  <li>Locate the USB cable connected to your <strong>LEADER ARM</strong></li>
+                  <li>UNPLUG the USB cable from the leader arm</li>
+                  <li>Wait for the system to detect the disconnection</li>
+                </ol>
+              </div>
+              
+              <button class="btn-primary" onclick="startLeaderDetection()">Start Leader Detection</button>
+            </div>
+          `;
+          break;
+          
+        case 'leader_disconnect':
+          html = `
+            <div class="detection-step">
+              <h4>🔍 Detecting Leader Arm...</h4>
+              <div class="instruction-box waiting">
+                <h5>⏳ Please disconnect your LEADER ARM now</h5>
+                <p>Unplug the USB cable from your leader arm. The system is monitoring for changes...</p>
+                <div class="detection-status">Waiting for disconnection...</div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'leader_reconnect':
+          html = `
+            <div class="detection-step">
+              <h4>✅ Leader Port Detected!</h4>
+              <div class="detected-port">
+                <h5>🦾 Leader Arm Port: ${portDetectionState.detected_ports.leader}</h5>
+              </div>
+              
+              <div class="instruction-box">
+                <h5>🔌 Please RECONNECT your leader arm</h5>
+                <p>Plug the USB cable back into your leader arm to confirm the detection.</p>
+              </div>
+              
+              <button class="btn-primary" onclick="proceedToFollowerDetection()">Continue to Follower Detection</button>
+            </div>
+          `;
+          break;
+          
+        case 'follower_disconnect':
+          html = `
+            <div class="detection-step">
+              <h4>🔍 Detecting Follower Arm...</h4>
+              <div class="instruction-box waiting">
+                <h5>⏳ Please disconnect your FOLLOWER ARM now</h5>
+                <p>Unplug the USB cable from your follower arm. The system is monitoring for changes...</p>
+                <div class="detection-status">Waiting for disconnection...</div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'follower_reconnect':
+          html = `
+            <div class="detection-step">
+              <h4>✅ Follower Port Detected!</h4>
+              <div class="detected-port">
+                <h5>🤖 Follower Arm Port: ${portDetectionState.detected_ports.follower}</h5>
+              </div>
+              
+              <div class="instruction-box">
+                <h5>🔌 Please RECONNECT your follower arm</h5>
+                <p>Plug the USB cable back into your follower arm to confirm the detection.</p>
+              </div>
+              
+              <button class="btn-primary" onclick="completeDetection()">Complete Detection</button>
+            </div>
+          `;
+          break;
+          
+        case 'complete':
+          html = `
+            <div class="detection-complete">
+              <h4>🎉 Port Detection Complete!</h4>
+              
+              <div class="detected-ports-summary">
+                <div class="port-assignment">
+                  <h5>🦾 Leader Arm:</h5>
+                  <code>${portDetectionState.detected_ports.leader}</code>
+                </div>
+                <div class="port-assignment">
+                  <h5>🤖 Follower Arm:</h5>
+                  <code>${portDetectionState.detected_ports.follower}</code>
+                </div>
+              </div>
+              
+              <p>✅ Port configuration has been saved and will be used for all future robot operations.</p>
+              
+              <button class="btn-primary" onclick="finishPortDetection()">Continue to Next Step</button>
+            </div>
+          `;
+          break;
+      }
+      
+      portList.innerHTML = html;
+    }
+    
+    function startLeaderDetection() {
+      portDetectionState.step = 'leader_disconnect';
+      displayDetectionStep();
+      addLog('terminal', '🔍 Starting leader arm detection - please unplug the leader arm USB cable', 'info');
+    }
+    
+    function proceedToFollowerDetection() {
+      portDetectionState.step = 'follower_disconnect';
+      displayDetectionStep();
+      addLog('terminal', '🔍 Starting follower arm detection - please unplug the follower arm USB cable', 'info');
+    }
+    
+    async function completeDetection() {
+      portDetectionState.step = 'complete';
+      displayDetectionStep();
+      
+      // Save the detected ports to backend
+      try {
+        await fetch(`${API_URL}/api/save_detected_ports`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(portDetectionState.detected_ports)
+        });
+        addLog('terminal', '💾 Port configuration saved successfully!', 'success');
+      } catch (error) {
+        addLog('terminal', '⚠️ Failed to save port configuration', 'error');
+      }
+    }
+    
+    function startPortChangeMonitoring() {
+      portDetectionState.monitoring_interval = setInterval(async () => {
+        if (!portDetectionState.active) return;
+        
+        try {
+          const response = await fetch(`${API_URL}/api/detect_ports`);
+          const data = await response.json();
+          const currentPorts = new Set(data.ports.map(p => p.device));
+          const baselinePorts = new Set(portDetectionState.baseline_ports.map(p => p.device));
+          
+          // Detect disconnections
+          const disconnectedPorts = [...baselinePorts].filter(p => !currentPorts.has(p));
+          
+          if (disconnectedPorts.length > 0 && (portDetectionState.step === 'leader_disconnect' || portDetectionState.step === 'follower_disconnect')) {
+            const disconnectedPort = disconnectedPorts[0];
+            
+            if (portDetectionState.step === 'leader_disconnect') {
+              portDetectionState.detected_ports.leader = disconnectedPort;
+              portDetectionState.step = 'leader_reconnect';
+              addLog('terminal', `🦾 Leader arm detected on port: ${disconnectedPort}`, 'success');
+            } else if (portDetectionState.step === 'follower_disconnect') {
+              portDetectionState.detected_ports.follower = disconnectedPort;
+              portDetectionState.step = 'follower_reconnect';
+              addLog('terminal', `🤖 Follower arm detected on port: ${disconnectedPort}`, 'success');
+            }
+            
+            displayDetectionStep();
+          }
+          
+        } catch (error) {
+          console.error('Port monitoring error:', error);
+        }
+      }, 1000);
+    }
+    
+    function stopPortDetection() {
+      portDetectionState.active = false;
+      portDetectionState.step = 'idle';
+      
+      if (portDetectionState.monitoring_interval) {
+        clearInterval(portDetectionState.monitoring_interval);
+        portDetectionState.monitoring_interval = null;
+      }
+      
+      const button = document.querySelector('#usbContent button');
+      button.textContent = 'Detect Ports';
+      
+      const portList = document.getElementById('portList');
+      portList.classList.add('hidden');
+      
+      addLog('terminal', 'Port detection stopped', 'info');
+    }
+    
+    async function finishPortDetection() {
+      try {
+        const response = await fetch(`${API_URL}/api/finish_port_detection`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          addLog('terminal', '✅ Port detection completed successfully!', 'success');
       
       // Mark step 2 complete and activate step 3
-      setTimeout(() => {
         document.getElementById('step2Number').classList.remove('active');
         document.getElementById('step2Number').classList.add('completed');
         document.getElementById('step2').classList.remove('active');
@@ -1094,7 +1473,16 @@
         document.getElementById('step3').classList.add('active');
         document.getElementById('step3Number').classList.add('active');
         document.getElementById('pipelineContent').classList.remove('hidden');
-      }, 2000);
+          
+          stopPortDetection();
+        } else {
+          addLog('terminal', `❌ Error finishing detection: ${data.message}`, 'error');
+        }
+        
+      } catch (error) {
+        console.error('Finish detection error:', error);
+        addLog('terminal', `❌ Error: ${error.message}`, 'error');
+      }  
     }
 
     // Run pipeline command
@@ -1139,7 +1527,10 @@ conda activate lerobot
     });
 
     // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing...');
     init();
+    });
   </script>
 </body>
 </html>

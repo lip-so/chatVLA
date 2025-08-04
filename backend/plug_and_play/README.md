@@ -10,9 +10,6 @@ Complete LeRobot pipeline with automated setup and robot selection.
   - Koch Follower (6-DOF leader-follower arm)
   - SO-100 Follower (5-DOF desktop arm)
   - SO-101 Follower (6-DOF precision arm)
-  - ViperX (7-DOF research platform)
-  - LeKiwi (Mobile platform with arm)
-  - Stretch 3 (Home robot)
 
 ### Full Pipeline Integration
 1. **Setup & Calibration**: Automated motor detection and calibration

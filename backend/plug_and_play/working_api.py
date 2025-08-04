@@ -39,8 +39,47 @@ current_installation = {
     'path': None,
     'robot': None,
     'step': None,
-    'progress': 0
+    'progress': 0,
+    'env_name': None,
+    'leader_port': None,
+    'follower_port': None
 }
+
+def find_available_env_name():
+    """Find an available conda environment name"""
+    base_name = "lerobot"
+    
+    # First try the base name
+    if not check_conda_env_exists(base_name):
+        return base_name
+    
+    # If base name exists, try with incremental numbers
+    counter = 1
+    while counter < 100:  # Safety limit
+        env_name = f"{base_name}_{counter}"
+        if not check_conda_env_exists(env_name):
+            return env_name
+        counter += 1
+    
+    # Fallback to timestamp-based name
+    import time
+    timestamp = int(time.time())
+    return f"{base_name}_{timestamp}"
+
+def check_conda_env_exists(env_name):
+    """Check if a conda environment exists"""
+    try:
+        result = subprocess.run(['conda', 'env', 'list'], 
+                              capture_output=True, text=True, timeout=30)
+        if result.returncode == 0:
+            # Check if environment name appears in the output
+            for line in result.stdout.split('\n'):
+                if line.strip().startswith(env_name + ' ') or line.strip().startswith(env_name + '\t'):
+                    return True
+        return False
+    except:
+        # If we can't check, assume it doesn't exist
+        return False
 
 def is_valid_lerobot_installation(path):
     """Check if a path contains a valid LeRobot installation"""
@@ -308,17 +347,9 @@ def run_installation(path, robot, use_existing=False):
                 return
                 
             # Step 3: Create conda environment
-            emit_log("Creating conda environment 'lerobot'...")
-            
-            # Remove existing environment (ignore errors)
-            try:
-                if SECURE_COMMANDS_AVAILABLE:
-                    safe_commands.run_command('conda', ['env', 'remove', '-n', 'lerobot', '-y'])
-                else:
-                    subprocess.run(['conda', 'env', 'remove', '-n', 'lerobot', '-y'], 
-                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            except:
-                pass  # Environment might not exist
+            env_name = find_available_env_name()
+            current_installation['env_name'] = env_name
+            emit_log(f"Creating conda environment '{env_name}'...")
             
             # Create new environment
             try:
@@ -328,7 +359,7 @@ def run_installation(path, robot, use_existing=False):
                     
                     returncode = safe_commands.stream_command(
                         'conda', 
-                        ['create', '-n', 'lerobot', 'python=3.10', '-y'],
+                        ['create', '-n', env_name, 'python=3.10', '-y'],
                         callback=log_callback
                     )
                     
@@ -336,7 +367,7 @@ def run_installation(path, robot, use_existing=False):
                         emit_log("ERROR: Failed to create conda environment", level='error')
                         return
                 else:
-                    cmd = ['conda', 'create', '-n', 'lerobot', 'python=3.10', '-y']
+                    cmd = ['conda', 'create', '-n', env_name, 'python=3.10', '-y']
                     run_with_output(cmd)
                 
             except SystemCommandError as e:
@@ -354,7 +385,7 @@ def run_installation(path, robot, use_existing=False):
                     
                     returncode = safe_commands.stream_command(
                         'conda', 
-                        ['run', '-n', 'lerobot', 'pip', 'install', '-e', '.'],
+                        ['run', '-n', env_name, 'pip', 'install', '-e', '.'],
                         working_dir=str(path),
                         callback=log_callback
                     )
@@ -363,7 +394,7 @@ def run_installation(path, robot, use_existing=False):
                         emit_log("ERROR: Failed to install LeRobot", level='error')
                         return
                 else:
-                    cmd = ['conda', 'run', '-n', 'lerobot', 'pip', 'install', '-e', '.']
+                    cmd = ['conda', 'run', '-n', env_name, 'pip', 'install', '-e', '.']
                     run_with_output(cmd)
                 
             except SystemCommandError as e:
@@ -374,7 +405,7 @@ def run_installation(path, robot, use_existing=False):
             emit_log(f"Installing packages for {robot}...")
             
             packages_to_install = ['pyserial']
-            if robot in ['koch', 'viperx']:
+            if robot in ['koch']:
                 packages_to_install.append('dynamixel-sdk')
                 
             for package in packages_to_install:
@@ -385,14 +416,14 @@ def run_installation(path, robot, use_existing=False):
                         
                         returncode = safe_commands.stream_command(
                             'conda', 
-                            ['run', '-n', 'lerobot', 'pip', 'install', package],
+                            ['run', '-n', env_name, 'pip', 'install', package],
                             callback=log_callback
                         )
                         
                         if returncode != 0:
                             emit_log(f"WARNING: Failed to install {package}", level='error')
                     else:
-                        cmd = ['conda', 'run', '-n', 'lerobot', 'pip', 'install', package]
+                        cmd = ['conda', 'run', '-n', env_name, 'pip', 'install', package]
                         run_with_output(cmd)
                     
                 except SystemCommandError as e:
@@ -435,42 +466,28 @@ def emit_log(message, level='info'):
         'timestamp': time.time()
     })
 
-def create_robot_config(path, robot):
+def create_robot_config(path, robot, leader_port=None, follower_port=None):
     """Create actual robot configuration files"""
     config = {
         'koch': {
             'robot_type': 'koch_follower',
-            'leader_port': '/dev/ttyUSB0',
-            'follower_port': '/dev/ttyUSB1',
+            'leader_port': leader_port or '/dev/ttyUSB0',
+            'follower_port': follower_port or '/dev/ttyUSB1',
             'motors': 6
         },
         'so100': {
             'robot_type': 'so100_follower',
-            'leader_port': '/dev/ttyUSB0',
-            'follower_port': '/dev/ttyUSB1',
+            'leader_port': leader_port or '/dev/ttyUSB0',
+            'follower_port': follower_port or '/dev/ttyUSB1',
             'motors': 5
         },
         'so101': {
             'robot_type': 'so101_follower',
-            'leader_port': '/dev/ttyUSB0',
-            'follower_port': '/dev/ttyUSB1',
+            'leader_port': leader_port or '/dev/ttyUSB0',
+            'follower_port': follower_port or '/dev/ttyUSB1',
             'motors': 6
         },
-        'viperx': {
-            'robot_type': 'viperx',
-            'port': '/dev/ttyUSB0',
-            'motors': 7
-        },
-        'lekiwi': {
-            'robot_type': 'lekiwi',
-            'port': '/dev/ttyUSB0',
-            'motors': 9
-        },
-        'stretch3': {
-            'robot_type': 'stretch3',
-            'connection': 'network',
-            'motors': 6
-        }
+
     }
     
     robot_config = config.get(robot, config['koch'])
@@ -750,6 +767,92 @@ def test_connection():
         'message': 'Backend is running successfully',
         'timestamp': time.time()
     })
+
+@app.route('/api/finish_port_detection', methods=['POST'])
+def finish_port_detection():
+    """Finish port detection and save configuration"""
+    global port_monitor
+    
+    if not port_monitor['active']:
+        return jsonify({'success': False, 'message': 'Port detection not active'})
+    
+    try:
+        # Save the detected ports if we have them
+        if port_monitor['detected_robot_ports']:
+            leader_port = port_monitor['detected_robot_ports'].get('leader')
+            follower_port = port_monitor['detected_robot_ports'].get('follower')
+            
+            # Create robot configuration with detected ports
+            robot = current_installation.get('robot', 'koch')  # Default to koch
+            path = current_installation.get('path', '~/lerobot')
+            create_robot_config(Path(path), robot, leader_port, follower_port)
+            
+            emit_log(f"✅ Port configuration saved successfully!", level='success')
+            emit_log(f"Leader port: {leader_port or 'Not assigned'}", level='info')
+            emit_log(f"Follower port: {follower_port or 'Not assigned'}", level='info')
+        else:
+            emit_log("⚠️ No ports were assigned during detection", level='warning')
+        
+        # Stop port detection
+        port_monitor['active'] = False
+        port_monitor['detected_robot_ports'] = {}
+        
+        # Notify frontend that detection is complete
+        socketio.emit('port_detection_finished', {
+            'success': True,
+            'detected_ports': port_monitor['detected_robot_ports']
+        })
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Port detection finished',
+            'detected_ports': port_monitor['detected_robot_ports']
+        })
+        
+    except Exception as e:
+        emit_log(f"ERROR: Failed to finish port detection: {str(e)}", level='error')
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/save_detected_ports', methods=['POST'])
+def save_detected_ports():
+    """Save detected ports to the global state and configuration"""
+    global port_monitor
+    
+    try:
+        data = request.get_json()
+        leader_port = data.get('leader')
+        follower_port = data.get('follower')
+        
+        if not leader_port or not follower_port:
+            return jsonify({'success': False, 'message': 'Both leader and follower ports required'})
+        
+        # Save to global state
+        port_monitor['detected_robot_ports'] = {
+            'leader': leader_port,
+            'follower': follower_port
+        }
+        
+        # Update current installation state
+        current_installation['leader_port'] = leader_port
+        current_installation['follower_port'] = follower_port
+        
+        # Create/update robot configuration if we have installation info
+        if current_installation.get('path') and current_installation.get('robot'):
+            robot = current_installation['robot']
+            path = current_installation['path']
+            create_robot_config(Path(path), robot, leader_port, follower_port)
+        
+        emit_log(f"✅ Port configuration saved: Leader={leader_port}, Follower={follower_port}", level='success')
+        
+        return jsonify({
+            'success': True,
+            'message': 'Port configuration saved successfully',
+            'ports': {'leader': leader_port, 'follower': follower_port}
+        })
+        
+    except Exception as e:
+        emit_log(f"ERROR: Failed to save port configuration: {str(e)}", level='error')
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # WebSocket events
 @socketio.on('connect')
