@@ -3,10 +3,10 @@ builder = "DOCKERFILE"
 dockerfilePath = "./Dockerfile"
 
 [deploy]
-startCommand = "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT backend.plug_and_play.wsgi:application"
+startCommand = "python railway_start.py"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
-healthcheckPath = "/"
+healthcheckPath = "/api/test"
 healthcheckTimeout = 300
 
 [env]
