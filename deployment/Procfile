@@ -1,1 +1,1 @@
-web: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT backend.plug_and_play.wsgi:application
+web: python deploy.py

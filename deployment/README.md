@@ -35,17 +35,14 @@ FLASK_ENV=production
 ## Running Locally
 
 ```bash
-cd backend
-python api/main.py
-# or
-PORT=5001 python api/main.py  # if port 5000 is in use
-```
+# Development mode (with debug)
+python backend/api/main.py
 
-## Running with Working API (Full Plug & Play Features)
+# Production mode
+python deploy.py
 
-```bash
-cd backend/plug_and_play
-python working_api.py
+# Custom port
+PORT=5001 python deploy.py
 ```
 
 ## Common Issues

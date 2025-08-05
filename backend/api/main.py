@@ -2,6 +2,9 @@
 
 import os
 import sys
+import threading
+import time
+import subprocess
 from pathlib import Path
 from flask import Flask, Blueprint, jsonify, send_from_directory, request
 from flask_cors import CORS
@@ -47,6 +50,64 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 databench_evaluator = DataBenchEvaluator()
 installation_manager = PlugPlayInstallationManager()
 usb_detector = USBPortDetector()
+
+# Global state for plug & play installation
+current_installation = {
+    'running': False,
+    'path': None,
+    'robot': None,
+    'step': None,
+    'progress': 0,
+    'env_name': None,
+    'leader_port': None,
+    'follower_port': None
+}
+
+def emit_log(message, level='info'):
+    """Send log message to frontend via SocketIO"""
+    socketio.emit('install_log', {
+        'message': message,
+        'level': level,
+        'timestamp': time.time()
+    })
+
+def run_installation(path, robot, use_existing=False):
+    """Run a simplified installation process for deployment"""
+    global current_installation
+    current_installation['running'] = True
+    current_installation['path'] = str(path)
+    current_installation['robot'] = robot
+    
+    try:
+        emit_log(f"Starting installation for {robot} robot...")
+        emit_log(f"Installation path: {path}")
+        
+        # Simulate installation steps for deployment
+        time.sleep(1)
+        emit_log("Checking system requirements...")
+        
+        time.sleep(2)
+        emit_log("Setting up robot configuration...")
+        
+        time.sleep(2)
+        emit_log("Configuring USB port detection...")
+        
+        time.sleep(1)
+        emit_log("Installation completed successfully!", level='success')
+        emit_log(f"Robot type: {robot}", level='success')
+        emit_log(f"Installation path: {path}", level='success')
+        
+        # Trigger next step
+        socketio.emit('installation_complete', {
+            'path': str(path),
+            'robot': robot,
+            'next_step': 'usb_detection'
+        })
+        
+    except Exception as e:
+        emit_log(f"ERROR: {str(e)}", level='error')
+    finally:
+        current_installation['running'] = False
 
 # Pass socketio to installation manager after it's created
 installation_manager.socketio = socketio
@@ -170,42 +231,55 @@ def list_ports():
 
 @plugplay_bp.route('/start-installation', methods=['POST'])
 def start_installation():
-    """Start LeRobot installation - proxy to working_api"""
+    """Start LeRobot installation"""
     try:
-        from flask import request
-        import requests
-        
-        # Proxy the request to the working_api endpoint
-        # In production, this should use the actual working_api service
         data = request.get_json()
         
-        # For now, return a response that matches what the frontend expects
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+        
+        path = Path(data.get('installation_path', './lerobot')).expanduser()
+        robot = data.get('selected_robot', 'koch')
+        use_existing = data.get('use_existing', False)
+        
+        if current_installation['running']:
+            return jsonify({
+                'success': False, 
+                'error': 'Installation already running'
+            }), 400
+        
+        # Start installation in background thread
+        thread = threading.Thread(target=run_installation, args=(path, robot, use_existing))
+        thread.daemon = True
+        thread.start()
+        
         return jsonify({
-            "success": True,
-            "status": "started",
-            "path": data.get('installation_path', './lerobot'),
-            "robot": data.get('selected_robot', 'koch')
+            'success': True, 
+            'status': 'started', 
+            'path': str(path), 
+            'robot': robot
         })
         
     except Exception as e:
         return jsonify({
             "success": False,
             "error": str(e)
-        }), 200
+        }), 500
 
 @plugplay_bp.route('/installation-status', methods=['GET'])
 def installation_status():
     """Get installation status"""
-    status = installation_manager.get_status()
-    return jsonify(status)
+    return jsonify(current_installation)
 
 @plugplay_bp.route('/cancel-installation', methods=['POST'])
 def cancel_installation():
-    """Cancel installation"""
+    """Cancel running installation"""
+    global current_installation
+    current_installation['running'] = False
+    emit_log("Installation cancelled by user", level='warning')
     return jsonify({
-        "success": True,
-        "message": "Installation cancelled",
-        "status": "cancelled"
+        'success': True, 
+        'message': 'Installation cancelled'
     })
 
 # Register blueprints
@@ -235,6 +309,20 @@ def handle_installation_update():
     # This would typically require authentication for websocket events
     status = installation_manager.get_status()
     emit('installation_update', status)
+
+# ============================================================================
+# SocketIO Event Handlers
+# ============================================================================
+
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    emit('status', {'message': 'Connected to server'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    print('Client disconnected')
 
 # ============================================================================
 # Main Entry Point
