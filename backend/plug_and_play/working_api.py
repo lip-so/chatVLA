@@ -327,6 +327,11 @@ def list_ports():
         print(f"Error listing ports: {e}")
         return jsonify([])
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for Railway"""
+    return jsonify({'status': 'healthy', 'service': 'Tune Robotics Backend'})
+
 def run_installation(path, robot, use_existing=False):
     """Run the actual installation"""
     current_installation['running'] = True
