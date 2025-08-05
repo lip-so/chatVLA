@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only necessary files first
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-simple.txt .
+RUN pip install --no-cache-dir -r requirements-simple.txt
 
 # Copy backend code
 COPY backend/ ./backend/
@@ -18,6 +18,9 @@ COPY start.py .
 COPY railway_start.py .
 COPY railway_debug.py .
 COPY minimal_app.py .
+COPY ultra_minimal.py .
+COPY app.py .
+COPY Procfile .
 
 # Copy static files for Flask to serve
 COPY index.html .
@@ -38,5 +41,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run the minimal application for Railway compatibility
-CMD python minimal_app.py
+# Run the full backend application
+CMD python app.py
