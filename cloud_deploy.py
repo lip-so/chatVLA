@@ -248,7 +248,7 @@ class CloudPlugPlayManager:
         }
     
     def _run_cloud_installation(self, install_path, robot, use_existing=False):
-        """Actually install LeRobot on the cloud server"""
+        """Cloud-optimized installation process for Railway deployment"""
         global current_installation
         
         try:
@@ -265,60 +265,64 @@ class CloudPlugPlayManager:
                 self.emit_log("Prerequisites check failed", level='error')
                 return
             
-            # Step 2: Clone repository if needed
-            if not use_existing:
-                current_installation['step'] = 'cloning_repository'
-                current_installation['progress'] = 30
-                self.emit_log("Cloning LeRobot repository...")
-                
-                if not self._clone_lerobot_repo(install_path):
-                    self.emit_log("Repository cloning failed", level='error')
-                    return
+            # Step 2: Skip repository cloning for cloud deployment (already have the code)
+            current_installation['step'] = 'preparing_installation'
+            current_installation['progress'] = 40
+            self.emit_log("Preparing cloud installation environment...")
             
-            # Step 3: Set up environment
-            current_installation['step'] = 'creating_environment'
-            current_installation['progress'] = 50
-            self.emit_log("Setting up Python environment...")
+            # Create installation directory
+            install_dir = Path(install_path)
+            install_dir.mkdir(parents=True, exist_ok=True)
+            self.emit_log(f"Created installation directory: {install_dir}")
             
-            if not self._setup_cloud_environment():
-                self.emit_log("Environment setup failed", level='error')
-                return
-            
-            # Step 4: Install dependencies
+            # Step 3: Install core dependencies (cloud-optimized)
             current_installation['step'] = 'installing_dependencies'
-            current_installation['progress'] = 70
-            self.emit_log("Installing LeRobot dependencies...")
+            current_installation['progress'] = 60
+            self.emit_log("Installing essential robotics packages...")
             
             if not self._install_cloud_dependencies():
                 self.emit_log("Dependency installation failed", level='error')
                 return
             
-            # Step 5: Configure robot
+            # Step 4: Configure robot for cloud communication
             current_installation['step'] = 'configuring_robot'
-            current_installation['progress'] = 90
-            self.emit_log(f"Configuring {robot} robot...")
+            current_installation['progress'] = 80
+            self.emit_log(f"Configuring {robot} robot for cloud communication...")
             
-            if not self._configure_robot(robot):
+            if not self._configure_robot_cloud(robot, install_dir):
                 self.emit_log("Robot configuration failed", level='error')
+                return
+            
+            # Step 5: Setup cloud-to-hardware bridge
+            current_installation['step'] = 'setting_up_bridge'
+            current_installation['progress'] = 95
+            self.emit_log("Setting up cloud-to-hardware communication bridge...")
+            
+            if not self._setup_hardware_bridge(robot, install_dir):
+                self.emit_log("Hardware bridge setup failed", level='error')
                 return
             
             # Installation complete
             current_installation['progress'] = 100
             current_installation['step'] = 'completed'
-            self.emit_log("LeRobot installation completed successfully on cloud!", level='success')
+            self.emit_log("Cloud installation completed successfully!", level='success')
             self.emit_log(f"Robot type: {robot}", level='success')
             self.emit_log(f"Installation path: {install_path}", level='success')
+            self.emit_log("Ready for robot connection and operation!", level='success')
             
             # Emit completion event
             if self.socketio:
                 self.socketio.emit('installation_complete', {
                     'path': str(install_path),
                     'robot': robot,
-                    'next_step': 'ready_for_use'
+                    'next_step': 'connect_hardware',
+                    'cloud_ready': True
                 })
             
         except Exception as e:
+            logger.exception("Cloud installation failed")
             self.emit_log(f"Installation failed: {str(e)}", level='error')
+            # Don't re-raise - keep server running
         finally:
             current_installation['running'] = False
             self.is_running = False
@@ -433,7 +437,7 @@ class CloudPlugPlayManager:
             self.emit_log(f"Dependency installation error: {str(e)}", level='error')
             return False
     
-    def _configure_robot(self, robot):
+    def _configure_robot_cloud(self, robot, install_dir):
         """Configure robot settings for cloud operation"""
         try:
             self.emit_log(f"Configuring {robot} robot for cloud operation...")
@@ -443,29 +447,127 @@ class CloudPlugPlayManager:
                 'koch': {
                     'dof': 6,
                     'type': 'leader_follower',
-                    'description': 'Koch Follower (6-DOF leader-follower arm)'
+                    'description': 'Koch Follower (6-DOF leader-follower arm)',
+                    'baud_rate': 1000000,
+                    'port_pattern': '/dev/ttyUSB*'
                 },
                 'so100': {
                     'dof': 5,
                     'type': 'desktop_arm',
-                    'description': 'SO-100 Follower (5-DOF desktop arm)'
+                    'description': 'SO-100 Follower (5-DOF desktop arm)',
+                    'baud_rate': 1000000,
+                    'port_pattern': '/dev/ttyUSB*'
                 },
                 'so101': {
                     'dof': 6,
                     'type': 'precision_arm',
-                    'description': 'SO-101 Follower (6-DOF precision arm)'
+                    'description': 'SO-101 Follower (6-DOF precision arm)',
+                    'baud_rate': 1000000,
+                    'port_pattern': '/dev/ttyUSB*'
                 }
             }
             
             config = robot_configs.get(robot, robot_configs['koch'])
             
+            # Create configuration file
+            config_file = install_dir / f"{robot}_config.yaml"
+            config_content = f"""# {config['description']} Configuration
+robot_type: {robot}
+dof: {config['dof']}
+communication:
+  type: serial
+  baud_rate: {config['baud_rate']}
+  port_pattern: "{config['port_pattern']}"
+  timeout: 1.0
+
+cloud_deployment: true
+installation_date: {datetime.now().isoformat()}
+"""
+            
+            with open(config_file, 'w') as f:
+                f.write(config_content)
+            
             self.emit_log(f"Robot configured: {config['description']}")
+            self.emit_log(f"Configuration saved to: {config_file}")
             current_installation['robot_config'] = config
             
             return True
             
         except Exception as e:
+            logger.exception("Robot configuration error")
             self.emit_log(f"Robot configuration error: {str(e)}", level='error')
+            return False
+    
+    def _setup_hardware_bridge(self, robot, install_dir):
+        """Setup cloud-to-hardware communication bridge"""
+        try:
+            self.emit_log("Setting up hardware communication bridge...")
+            
+            # Create a simple hardware bridge script
+            bridge_script = install_dir / "hardware_bridge.py"
+            bridge_content = f'''#!/usr/bin/env python3
+"""
+Hardware communication bridge for {robot} robot
+Enables cloud server to communicate with local hardware
+"""
+
+import serial
+import serial.tools.list_ports
+import json
+import time
+from pathlib import Path
+
+class HardwareBridge:
+    def __init__(self, robot_type="{robot}"):
+        self.robot_type = robot_type
+        self.connection = None
+        
+    def scan_ports(self):
+        """Scan for available serial ports"""
+        ports = []
+        for port in serial.tools.list_ports.comports():
+            ports.append({{
+                'device': port.device,
+                'description': port.description,
+                'hwid': port.hwid
+            }})
+        return ports
+    
+    def connect(self, port, baud_rate=1000000):
+        """Connect to robot hardware"""
+        try:
+            self.connection = serial.Serial(port, baud_rate, timeout=1.0)
+            return True
+        except Exception as e:
+            print(f"Connection failed: {{e}}")
+            return False
+    
+    def disconnect(self):
+        """Disconnect from robot hardware"""
+        if self.connection:
+            self.connection.close()
+            self.connection = None
+
+if __name__ == "__main__":
+    bridge = HardwareBridge()
+    ports = bridge.scan_ports()
+    print(f"Available ports: {{json.dumps(ports, indent=2)}}")
+'''
+            
+            with open(bridge_script, 'w') as f:
+                f.write(bridge_content)
+            
+            # Make it executable
+            bridge_script.chmod(0o755)
+            
+            self.emit_log(f"Hardware bridge created: {bridge_script}")
+            self.emit_log("Bridge ready for robot connection")
+            
+            return True
+            
+        except Exception as e:
+            logger.exception("Hardware bridge setup error")
+            self.emit_log(f"Hardware bridge setup error: {str(e)}", level='error')
             return False
     
     def get_usb_ports(self):
