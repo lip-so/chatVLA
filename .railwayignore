@@ -8,16 +8,16 @@ _config.yml
 # Ignore frontend files (served by Flask)
 frontend/
 
-# Ignore documentation
+# Ignore documentation (but allow essential README files)
 docs/
-*.md
-README.md
+REORGANIZATION_LOG.md
+VERIFICATION_REPORT.md
 
 # Ignore old files
 oldchatVLA/
 
-# Ignore reference files
-ref/
+# Ignore reference files (not needed for deployment)
+# ref/ - temporarily commented out to fix deployment tar issues
 
 # Ignore test files
 tests/

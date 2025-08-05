@@ -59,7 +59,7 @@ def demo_port_detection():
     for port in baseline_ports:
         print(f"  • {port['device']} - {port['description']}")
     
-    print("\n🔌 Step 2: Monitoring for changes...")
+    print("\nStep 2: Monitoring for changes...")
     print("Connect/disconnect your robot arms to see real-time detection!")
     print("Press Ctrl+C to stop monitoring\n")
     
@@ -76,7 +76,7 @@ def demo_port_detection():
             removed_ports = baseline_devices - current_devices
             
             if new_ports:
-                print(f"✅ NEW PORT DETECTED: {list(new_ports)}")
+                print(f" NEW PORT DETECTED: {list(new_ports)}")
                 for port_device in new_ports:
                     port_info = next((p for p in current_ports if p['device'] == port_device), None)
                     if port_info:
