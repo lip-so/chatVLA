@@ -22,6 +22,7 @@ COPY ultra_minimal.py .
 COPY app.py .
 COPY deploy.py .
 COPY simple_deploy.py .
+COPY wsgi.py .
 COPY Procfile .
 
 # Copy static files for Flask to serve
@@ -44,4 +45,4 @@ ENV PORT=5000
 ENV PYTHONPATH=/app
 
 # Run the application with Gunicorn for production
-CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT simple_deploy:app
+CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:app

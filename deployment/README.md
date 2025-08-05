@@ -127,3 +127,8 @@ PORT=5001 python simple_deploy.py
    - ✅ **FIXED**: Now using Gunicorn with eventlet worker for production
    - Root cause: Flask-SocketIO's development server was being used in production
    - Solution: Configured Gunicorn with eventlet for WebSocket support
+
+8. **✅ "Failed to start installation: Unexpected token '<', \"<html> <he\"... is not valid JSON"**:
+   - ✅ **FIXED**: API endpoint now properly returns JSON instead of HTML error pages
+   - Root cause: Parameter name mismatches between frontend files and blueprint routing issues  
+   - Solution: Fixed parameter handling and created proper WSGI entry point (`wsgi.py`)
