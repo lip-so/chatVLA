@@ -267,23 +267,65 @@ def check_lerobot():
         'pip_installed': pip_installed
     })
 
+@app.route('/api/plugplay/start-installation', methods=['POST'])
 @app.route('/api/install', methods=['POST'])
 def install_lerobot():
     """Actually install LeRobot"""
     data = request.get_json()
-    path = Path(data.get('path', '~/lerobot')).expanduser()
+    path = Path(data.get('installation_path') or data.get('path', '~/lerobot')).expanduser()
     robot = data.get('robot', 'koch')
     use_existing = data.get('use_existing', False)
     
     if current_installation['running']:
-        return jsonify({'error': 'Installation already running'}), 400
+        return jsonify({'success': False, 'error': 'Installation already running'})
     
     # Start installation in background
     thread = threading.Thread(target=run_installation, args=(path, robot, use_existing))
     thread.daemon = True
     thread.start()
     
-    return jsonify({'status': 'started', 'path': str(path), 'robot': robot})
+    return jsonify({'success': True, 'status': 'started', 'path': str(path), 'robot': robot})
+
+@app.route('/api/plugplay/cancel-installation', methods=['POST'])
+def cancel_installation():
+    """Cancel running installation"""
+    global current_installation
+    current_installation['running'] = False
+    return jsonify({'success': True, 'message': 'Installation cancelled'})
+
+@app.route('/api/plugplay/installation-status', methods=['GET'])
+def installation_status():
+    """Get installation status"""
+    return jsonify(current_installation)
+
+@app.route('/api/plugplay/system-info', methods=['GET'])
+def system_info():
+    """Get system information"""
+    return jsonify({
+        'system': 'Linux' if os.name == 'posix' else 'Windows',
+        'python_version': sys.version,
+        'available': True
+    })
+
+@app.route('/api/plugplay/list-ports', methods=['GET'])
+def list_ports():
+    """List available serial ports"""
+    if not SERIAL_AVAILABLE:
+        return jsonify([])
+    
+    try:
+        import serial.tools.list_ports
+        ports = []
+        for port in serial.tools.list_ports.comports():
+            ports.append({
+                'device': port.device,
+                'description': port.description,
+                'hwid': port.hwid
+            })
+        return jsonify(ports)
+    except Exception as e:
+        print(f"Error listing ports: {e}")
+        return jsonify([])
 
 def run_installation(path, robot, use_existing=False):
     """Run the actual installation"""

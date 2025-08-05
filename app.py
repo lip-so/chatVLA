@@ -1,46 +1,28 @@
 #!/usr/bin/env python3
 """
-Railway-compatible Flask app
+Railway-compatible Flask app with full LeRobot backend
 """
 import os
-from flask import Flask, jsonify, send_file
+import sys
 from pathlib import Path
 
-app = Flask(__name__)
+# Set up paths for imports
+PROJECT_ROOT = Path(__file__).parent.absolute()
+sys.path.insert(0, str(PROJECT_ROOT))
 
-@app.route('/')
-def index():
-    """Serve main page"""
-    try:
-        return send_file('index.html')
-    except:
-        return """
-<!DOCTYPE html>
-<html>
-<head><title>Tune Robotics</title></head>
-<body>
-    <h1>Tune Robotics - Backend Active!</h1>
-    <p>✅ Backend is running on Railway!</p>
-    <p><a href="/api/test">Test API</a></p>
-</body>
-</html>
-"""
-
-@app.route('/api/test')
-def test():
-    """Test API endpoint"""
-    return jsonify({
-        'status': 'working',
-        'message': 'Railway Flask backend is running successfully',
-        'port': os.environ.get('PORT', '5000')
-    })
-
-@app.route('/health')
-def health():
-    """Health check endpoint"""
-    return jsonify({'status': 'healthy'})
+# Import the full working API
+from backend.plug_and_play.working_api import app, socketio
 
 # For Railway compatibility
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    print(f"Starting Tune Robotics full backend on port {port}")
+    
+    # Use socketio.run for full SocketIO + Flask functionality
+    socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=port,
+        debug=False,
+        use_reloader=False
+    )

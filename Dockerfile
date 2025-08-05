@@ -41,5 +41,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run using gunicorn (Railway standard)
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT:-5000}"]
+# Run the full backend application
+CMD python app.py
