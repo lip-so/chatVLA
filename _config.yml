@@ -1,0 +1,41 @@
+# Jekyll configuration for GitHub Pages
+title: "Tune Robotics"
+description: "Chat with your robot and make it do your dishes. Tune your robot, instantly."
+baseurl: ""
+url: "https://lip-so.github.io/chatVLA"
+
+# Build settings
+markdown: kramdown
+plugins:
+  - jekyll-feed
+
+# Exclude files/folders from processing
+exclude:
+  - backend/
+  - ref/lerobot/robots/*/README.md
+  - ref/lerobot/robots/*/*.mdx
+  - ref/lerobot/policies/*/README.md
+  - deployment/
+  - tests/
+  - "*.py"
+  - requirements*.txt
+  - Dockerfile
+  - .dockerignore
+  - .gitignore
+  - README.md
+  - REORGANIZATION_LOG.md
+  - VERIFICATION_REPORT.md
+  - .railway*
+  - __pycache__/
+  - "*.pyc"
+
+# Collections
+collections: []
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
