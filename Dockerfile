@@ -36,4 +36,4 @@ ENV PORT=5000
 ENV PYTHONPATH=/app
 
 # Run the application using gunicorn with eventlet workers for SocketIO support
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:$PORT", "backend.plug_and_play.wsgi:application"]
+CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:${PORT:-5000} backend.plug_and_play.wsgi:application
