@@ -1,0 +1,29 @@
+# Lightweight requirements for Railway deployment
+# Removes heavy ML dependencies that cause timeouts
+
+# Core Flask dependencies
+Flask>=2.3.0
+flask-cors>=4.0.0
+flask-socketio>=5.3.6
+python-dotenv>=1.0.0
+
+# Production server with WebSocket support
+gunicorn>=21.2.0
+eventlet>=0.33.3
+
+# Authentication dependencies (optional)
+PyJWT>=2.8.0
+bcrypt>=4.1.2
+
+# Firebase dependencies (optional)
+firebase-admin>=6.4.0
+
+# Hardware communication
+pyserial>=3.5
+
+# Basic utilities
+PyYAML>=6.0.1
+requests>=2.31.0
+
+# Essential only - NO heavy ML dependencies
+# torch, transformers, datasets removed to prevent Railway timeouts
