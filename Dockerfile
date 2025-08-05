@@ -22,6 +22,7 @@ COPY ultra_minimal.py .
 COPY app.py .
 COPY deploy.py .
 COPY simple_deploy.py .
+COPY cloud_deploy.py .
 COPY wsgi.py .
 COPY Procfile .
 
