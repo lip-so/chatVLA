@@ -933,7 +933,8 @@
     let installPath = null;
 
     // Backend URL
-    const API_URL = 'http://localhost:5003';
+    // Dynamically determine API URL based on current location
+    const API_URL = window.location.origin;
 
     // Initialize
     async function init() {
@@ -1153,7 +1154,7 @@
       updateInstallStatus('Starting installation...');
       
       try {
-        const response = await fetch(`${API_URL}/api/install`, {
+                    const response = await fetch(`${API_URL}/api/plugplay/start-installation`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

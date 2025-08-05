@@ -770,10 +770,10 @@
           // Use Railway production URL for GitHub Pages, localhost for local dev
           if (isProduction) {
             // For production (GitHub Pages), use the Railway backend URL
-            this.apiBaseUrl = 'https://tune-robotics-production.up.railway.app';
+            this.apiBaseUrl = window.location.origin;
           } else {
             // For local development
-            this.apiBaseUrl = 'http://localhost:5002';
+            this.apiBaseUrl = window.location.origin;
           }
           
           console.log('Basic properties initialized');

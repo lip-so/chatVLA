@@ -531,7 +531,7 @@ FOLLOWER_ARM_PORT = "/dev/ttyUSB1"  # or similar
         // USB Port Detection Application
         class PortDetectionApp {
             constructor() {
-                this.apiBaseUrl = 'https://web-production-fdfaa.up.railway.app';
+                this.apiBaseUrl = window.location.origin;
                 this.detectedPorts = [];
                 this.isScanning = false;
                 

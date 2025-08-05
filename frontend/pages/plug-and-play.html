@@ -755,21 +755,8 @@
             document.head.appendChild(authScript);
           }
           
-          // Detect if we're on Railway/production or localhost
-          const isProduction = window.location.hostname.includes('github.io') || 
-                              window.location.hostname.includes('railway.app') ||
-                              (!window.location.hostname.includes('localhost') && 
-                               !window.location.hostname.includes('127.0.0.1') &&
-                               !window.location.hostname.includes('192.168.'));
-          
-          // Use Railway production URL for GitHub Pages, localhost for local dev
-          if (isProduction) {
-            // For production (GitHub Pages), use the Railway backend URL
-            this.apiBaseUrl = 'https://tune-robotics-production.up.railway.app';
-          } else {
-            // For local development
-            this.apiBaseUrl = 'http://127.0.0.1:5000';
-          }
+          // Use the same origin for API calls - works for any deployment
+          this.apiBaseUrl = window.location.origin;
           
           console.log('Basic properties initialized');
           console.log(`Running in ${isProduction ? 'production' : 'development'} mode`);

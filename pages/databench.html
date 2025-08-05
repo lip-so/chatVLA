@@ -1163,7 +1163,7 @@
           progressText.textContent = 'Connecting to DataBench server...';
           
           // Use the Railway cloud API with full DataBench functionality
-          const apiUrl = 'https://web-production-fdfaa.up.railway.app';
+          const apiUrl = window.location.origin;
           progressText.textContent = 'Connecting to DataBench cloud service...';
 
           // Call the actual Flask API with authentication
