@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ ./backend/
 COPY start.py .
+COPY railway_start.py .
 
 # Copy static files for Flask to serve
 COPY index.html .
@@ -35,5 +36,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run the application using gunicorn with eventlet workers for SocketIO support
-CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:${PORT:-5000} backend.plug_and_play.wsgi:application
+# Run the application using the Railway startup script
+CMD python railway_start.py
