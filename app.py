@@ -10,19 +10,48 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.absolute()
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# Import the full working API
-from backend.plug_and_play.working_api import app, socketio
+print(f"Python path: {sys.path[:3]}")
+print(f"Current dir: {os.getcwd()}")
+print(f"Files in current dir: {os.listdir('.')[:10]}")
+
+try:
+    # Import the full working API
+    from backend.plug_and_play.working_api import app, socketio
+    print("✅ Successfully imported working_api")
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    # Create minimal fallback app
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def hello():
+        return "Fallback app running - import failed"
+    
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'healthy', 'mode': 'fallback'})
+    
+    @app.route('/api/plugplay/start-installation', methods=['POST'])
+    def install():
+        return jsonify({'success': False, 'error': 'Backend import failed'})
+    
+    socketio = None
 
 # For Railway compatibility
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print(f"Starting Tune Robotics full backend on port {port}")
+    print(f"Starting Tune Robotics backend on port {port}")
     
-    # Use socketio.run for full SocketIO + Flask functionality
-    socketio.run(
-        app, 
-        host='0.0.0.0', 
-        port=port,
-        debug=False,
-        use_reloader=False
-    )
+    if socketio:
+        # Use socketio.run for full SocketIO + Flask functionality
+        socketio.run(
+            app, 
+            host='0.0.0.0', 
+            port=port,
+            debug=False,
+            use_reloader=False
+        )
+    else:
+        # Fallback to basic Flask
+        app.run(host='0.0.0.0', port=port, debug=False)
