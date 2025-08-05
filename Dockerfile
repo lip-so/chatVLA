@@ -45,4 +45,4 @@ ENV PORT=5000
 ENV PYTHONPATH=/app
 
 # Run the application with Gunicorn for production
-CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:app
+CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT cloud_deploy:app
