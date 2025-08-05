@@ -1,13 +1,17 @@
-# Disable GitHub Pages
-name: Disable Pages
+# Skip GitHub Pages deployment
+name: Skip Pages
 
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
-  disable:
+  skip-pages:
     runs-on: ubuntu-latest
     steps:
-      - name: Skip Pages Build
-        run: echo "GitHub Pages is disabled for this repository"
+      - name: Skip Pages Deployment
+        run: |
+          echo "GitHub Pages deployment is disabled for this repository"
+          echo "This repository uses Railway for deployment instead"
+          exit 0

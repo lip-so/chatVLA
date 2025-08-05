@@ -80,3 +80,12 @@ instance/
 
 # pyenv
 .python-version
+
+# Problematic files for GitHub Pages deployment
+*.mdx
+ref/lerobot/robots/*/README.md
+ref/lerobot/policies/*/README.md
+
+# GitHub Pages artifacts
+_site/
+.jekyll-cache/
