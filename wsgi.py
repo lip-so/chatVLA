@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
 WSGI entry point for production deployment
+Uses comprehensive cloud backend with full DataBench and Plug & Play functionality
 """
 
-from simple_deploy import app, socketio
+from cloud_deploy import app, socketio
 
 if __name__ == "__main__":
     # For development
