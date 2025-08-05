@@ -13,7 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from backend.plug_and_play.working_api import app, socketio
 
 # Create the application instance for WSGI servers
-application = app
+application = socketio
 
 if __name__ == "__main__":
     # This is only for development

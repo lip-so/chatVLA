@@ -23,11 +23,15 @@ except ImportError:
 
 # Import our secure command execution system
 try:
-    from system_commands import safe_commands, SystemCommandError
+    from .system_commands import safe_commands, SystemCommandError
     SECURE_COMMANDS_AVAILABLE = True
 except ImportError:
-    SECURE_COMMANDS_AVAILABLE = False
-    print("Warning: Secure command system not available. Using direct subprocess calls.")
+    try:
+        from system_commands import safe_commands, SystemCommandError
+        SECURE_COMMANDS_AVAILABLE = True
+    except ImportError:
+        SECURE_COMMANDS_AVAILABLE = False
+        print("Warning: Secure command system not available. Using direct subprocess calls.")
 
 app = Flask(__name__)
 CORS(app)
@@ -767,6 +771,8 @@ def test_connection():
         'message': 'Backend is running successfully',
         'timestamp': time.time()
     })
+
+
 
 @app.route('/api/finish_port_detection', methods=['POST'])
 def finish_port_detection():
