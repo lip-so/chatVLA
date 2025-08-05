@@ -148,7 +148,7 @@ class AppTester:
             ("/js/app.js", "JavaScript file"),
             ("/assets/logo.png", "Logo image"),
             ("/pages/databench.html", "DataBench page"),
-            ("/pages/plug-and-play.html", "Plug & Play page")
+            ("/pages/plug-and-play-databench-style.html", "Plug & Play page")
         ]
         
         for endpoint, description in frontend_tests:

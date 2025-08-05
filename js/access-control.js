@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentPage = window.location.pathname;
   
   // Define restricted pages
-  const restrictedPages = ['/pages/databench.html', '/pages/plug-and-play.html'];
+  const restrictedPages = ['/pages/databench.html', '/pages/plug-and-play-databench-style.html'];
   const isRestrictedPage = restrictedPages.some(page => currentPage.includes(page.replace('/pages/', '')));
   
   if (demoMode === 'vision-only' && isRestrictedPage) {

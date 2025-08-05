@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Check authentication on protected pages (less strict for now)
   function checkPageProtection() {
-    const protectedPages = ['/pages/databench.html', '/pages/plug-and-play.html', '/pages/port-detection.html'];
+    const protectedPages = ['/pages/databench.html', '/pages/plug-and-play-databench-style.html', '/pages/port-detection.html'];
     const currentPath = window.location.pathname;
     
     // Check if current page is protected

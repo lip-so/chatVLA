@@ -19,7 +19,7 @@ def test_server():
         ("/", "Main page"),
         ("/pages/vision.html", "Vision page"),
         ("/pages/databench.html", "DataBench page"), 
-        ("/pages/plug-and-play.html", "Plug & Play page"),
+        ("/pages/plug-and-play-databench-style.html", "Plug & Play page"),
         ("/pages/port-detection.html", "Port Detection page"),
         ("/assets/logo.png", "Logo file"),
         ("/css/styles.css", "CSS file"),
