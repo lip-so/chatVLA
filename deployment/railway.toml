@@ -10,6 +10,6 @@ healthcheckPath = "/health"
 healthcheckTimeout = 300
 
 [env]
-PYTHONPATH = "/app"
+PYTHONPATH = "/app:/app/backend"
 FLASK_ENV = "production"
 PYTHON_VERSION = "3.11"
