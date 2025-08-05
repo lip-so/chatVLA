@@ -12,82 +12,82 @@ from flask import Flask, Blueprint, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 
-def main():
-    """Simple deployment entry point without problematic imports"""
-    
-    # Set environment variables for production
-    os.environ.setdefault('FLASK_ENV', 'production')
-    
-    # Add backend to path
-    backend_path = Path(__file__).parent / 'backend'
-    sys.path.insert(0, str(backend_path))
-    
-    # Initialize Flask app
-    app = Flask(__name__, 
-                static_folder='frontend',
-                static_url_path='')
-    
-    # App configuration
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-    
-    # Initialize extensions
-    CORS(app, origins=["*"])
-    socketio = SocketIO(app, cors_allowed_origins="*")
-    
-    # Global state for plug & play installation
-    current_installation = {
-        'running': False,
-        'path': None,
-        'robot': None,
-        'step': None,
-        'progress': 0
-    }
-    
-    def emit_log(message, level='info'):
-        """Send log message to frontend via SocketIO"""
-        socketio.emit('install_log', {
+# Global state for plug & play installation
+current_installation = {
+    'running': False,
+    'path': None,
+    'robot': None,
+    'step': None,
+    'progress': 0
+}
+
+# Global socketio instance for emit_log function
+socketio_instance = None
+
+def emit_log(message, level='info'):
+    """Send log message to frontend via SocketIO"""
+    if socketio_instance:
+        socketio_instance.emit('install_log', {
             'message': message,
             'level': level,
             'timestamp': time.time()
         })
+
+def run_installation(path, robot, use_existing=False):
+    """Run a simplified installation process for deployment"""
+    global current_installation
+    current_installation['running'] = True
+    current_installation['path'] = str(path)
+    current_installation['robot'] = robot
     
-    def run_installation(path, robot, use_existing=False):
-        """Run a simplified installation process for deployment"""
-        global current_installation
-        current_installation['running'] = True
-        current_installation['path'] = str(path)
-        current_installation['robot'] = robot
+    try:
+        emit_log(f"Starting installation for {robot} robot...")
+        emit_log(f"Installation path: {path}")
         
-        try:
-            emit_log(f"Starting installation for {robot} robot...")
-            emit_log(f"Installation path: {path}")
-            
-            # Simulate installation steps for deployment
-            time.sleep(1)
-            emit_log("Checking system requirements...")
-            
-            time.sleep(2)
-            emit_log("Setting up robot configuration...")
-            
-            time.sleep(2)
-            emit_log("Configuring USB port detection...")
-            
-            time.sleep(1)
-            emit_log("Installation completed successfully!", level='success')
-            emit_log(f"Robot type: {robot}", level='success')
-            emit_log(f"Installation path: {path}", level='success')
-            
-            # Trigger next step
-            socketio.emit('installation_complete', {
+        # Simplified for production deployment
+        emit_log("Installation simulation for demonstration purposes")
+        time.sleep(1)
+        emit_log("Installation completed successfully!", level='success')
+        emit_log(f"Robot type: {robot}", level='success')
+        emit_log(f"Installation path: {path}", level='success')
+        
+        # Trigger next step
+        if socketio_instance:
+            socketio_instance.emit('installation_complete', {
                 'path': str(path),
                 'robot': robot,
                 'next_step': 'usb_detection'
             })
-            
-        except Exception as e:
-            emit_log(f"ERROR: {str(e)}", level='error')
-        finally:
-            current_installation['running'] = False
+        
+    except Exception as e:
+        emit_log(f"ERROR: {str(e)}", level='error')
+    finally:
+        current_installation['running'] = False
+
+# Set environment variables for production
+os.environ.setdefault('FLASK_ENV', 'production')
+
+# Add backend to path
+backend_path = Path(__file__).parent / 'backend'
+sys.path.insert(0, str(backend_path))
+
+# Initialize Flask app
+app = Flask(__name__, 
+            static_folder='frontend',
+            static_url_path='')
+
+# App configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Initialize extensions
+CORS(app, origins=["*"])
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Set the global socketio instance
+socketio_instance = socketio
+
+def setup_routes():
+    """Setup all routes and blueprints"""
     
     # Create blueprints
     plugplay_bp = Blueprint('plugplay', __name__, url_prefix='/api/plugplay')
@@ -95,6 +95,7 @@ def main():
     @plugplay_bp.route('/start-installation', methods=['POST'])
     def start_installation():
         """Start LeRobot installation"""
+        global current_installation
         try:
             data = request.get_json()
             
@@ -132,6 +133,7 @@ def main():
     @plugplay_bp.route('/installation-status', methods=['GET'])
     def installation_status():
         """Get installation status"""
+        global current_installation
         return jsonify(current_installation)
     
     @plugplay_bp.route('/cancel-installation', methods=['POST'])
@@ -159,12 +161,10 @@ def main():
     
     @plugplay_bp.route('/list-ports', methods=['GET'])
     def list_ports():
-        """List available USB ports - simplified version"""
+        """List available USB ports - simplified version for production"""
         return jsonify({
-            "ports": [
-                {"device": "/dev/ttyUSB0", "description": "USB Serial Port"},
-                {"device": "/dev/ttyUSB1", "description": "USB Serial Port"}
-            ]
+            "ports": [],
+            "message": "Port detection available after installation"
         })
     
     # Static file routes
@@ -204,26 +204,14 @@ def main():
     @socketio.on('disconnect')
     def handle_disconnect():
         """Handle client disconnection"""
-        print('Client disconnected')
-    
-    port = int(os.environ.get('PORT', 5000))
-    
-    print(f"""
-    ========================================
-    Tune Robotics Simple Deployment
-    ========================================
-    Environment: {os.environ.get('FLASK_ENV', 'production')}
-    Port: {port}
-    
-    Services Available:
-    - Plug & Play API: /api/plugplay/*
-    - Static Files: /css/*, /js/*, /assets/*, /pages/*
-    - WebSocket: Enabled for real-time updates
-    ========================================
-    """)
-    
-    # Use SocketIO for WebSocket support
-    socketio.run(app, host='0.0.0.0', port=port, debug=False)
+        pass  # Logging disabled for production
 
+# Setup all routes
+setup_routes()
+
+# This allows gunicorn to import the app
 if __name__ == '__main__':
-    main()
+    # Only run directly for local testing
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Running in development mode on port {port}")
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)

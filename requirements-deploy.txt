@@ -4,6 +4,10 @@ flask-cors>=4.0.0
 flask-socketio>=5.3.6
 python-dotenv>=1.0.0
 
+# Production server with WebSocket support
+gunicorn>=21.2.0
+eventlet>=0.33.3
+
 # Authentication dependencies (optional - will gracefully fail if not available)
 PyJWT>=2.8.0
 bcrypt>=4.1.2

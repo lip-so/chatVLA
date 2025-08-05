@@ -3,7 +3,7 @@ services:
     name: tune-robotics
     env: python
     buildCommand: "pip install -r requirements-deploy.txt"
-    startCommand: "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT backend.plug_and_play.wsgi:application"
+    startCommand: "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT simple_deploy:app"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

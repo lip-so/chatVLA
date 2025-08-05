@@ -43,5 +43,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run the simple deployment application
-CMD python simple_deploy.py
+# Run the application with Gunicorn for production
+CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT simple_deploy:app
