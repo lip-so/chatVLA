@@ -28,6 +28,9 @@ from plug_and_play.api import (
 # Import Firebase authentication module
 from auth.firebase_auth import firebase_bp, requires_firebase_auth
 
+# Import Firestore service
+from auth.firestore_service import get_firestore_service
+
 # Initialize Flask app
 app = Flask(__name__, 
             static_folder='../../frontend',
@@ -236,7 +239,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     
     print(f"""
-    🚀 Tune Robotics Unified API Server (Firebase Auth)
+    Tune Robotics Unified API Server (Firebase Auth)
     ===================================================
     Services:
     - DataBench: {'Available' if DATABENCH_AVAILABLE else 'Unavailable'} (Firebase Protected)

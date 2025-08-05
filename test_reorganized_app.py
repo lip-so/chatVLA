@@ -21,15 +21,15 @@ class AppTester:
         self.tests_failed = 0
         
     def log_success(self, message):
-        print(f"✅ {message}")
+        print(f"[PASS] {message}")
         self.tests_passed += 1
         
     def log_error(self, message):
-        print(f"❌ {message}")
+        print(f"[FAIL] {message}")
         self.tests_failed += 1
         
     def log_info(self, message):
-        print(f"ℹ️  {message}")
+        print(f"[INFO] {message}")
         
     def start_server(self):
         """Start the server for testing"""
@@ -231,23 +231,23 @@ class AppTester:
             
         # Summary
         print("\n" + "=" * 60)
-        print("📊 TEST SUMMARY")
+        print("TEST SUMMARY")
         print("=" * 60)
         
         total_tests = self.tests_passed + self.tests_failed
         print(f"Total tests: {total_tests}")
-        print(f"✅ Passed: {self.tests_passed}")
-        print(f"❌ Failed: {self.tests_failed}")
+        print(f"Passed: {self.tests_passed}")
+        print(f"Failed: {self.tests_failed}")
         
         if self.tests_failed == 0:
-            print("\n🎉 All tests passed! The reorganized application is working correctly.")
+            print("\nAll tests passed! The reorganized application is working correctly.")
             print("\nTo start the application:")
             print("  python start.py")
             print("  # or")
             print("  python backend/api/main.py")
             print("\nThen visit http://localhost:5000")
         else:
-            print(f"\n⚠️  {self.tests_failed} tests failed. Please fix the issues.")
+            print(f"\nWARNING: {self.tests_failed} tests failed. Please fix the issues.")
             
         return self.tests_failed == 0
 

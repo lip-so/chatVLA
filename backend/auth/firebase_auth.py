@@ -27,7 +27,7 @@ def initialize_firebase():
                 firebase_admin.initialize_app(cred)
                 return True
             except Exception as e:
-                print(f"❌ Error initializing Firebase with environment config: {e}")
+                print(f"Error initializing Firebase with environment config: {e}")
                 return False
         else:
             # Use service account file (for development)
@@ -39,7 +39,7 @@ def initialize_firebase():
                     return True
                 except Exception as e:
                     print(f"""
-❌ Firebase initialization failed!
+Firebase initialization failed!
 
 The service account file '{service_account_path}' contains placeholder values.
 
@@ -59,7 +59,7 @@ Error details: {e}
                     return False
             else:
                 print(f"""
-❌ Firebase service account file not found!
+Firebase service account file not found!
 
 Please create '{service_account_path}' with your Firebase service account credentials.
 

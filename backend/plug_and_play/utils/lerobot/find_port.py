@@ -92,7 +92,7 @@ class USBPortDetector:
     
     def detect_leader_arm_port(self) -> Optional[str]:
         """Interactive process to detect leader arm port."""
-        print("🔍 STEP 1: Detecting Leader Arm Port")
+        print("STEP 1: Detecting Leader Arm Port")
         print("-" * 40)
         print()
         
@@ -121,9 +121,9 @@ class USBPortDetector:
         
         if disconnected_ports:
             suspected_leader_port = list(disconnected_ports)[0]
-            print(f"✅ Detected disconnection: {suspected_leader_port}")
+            print(f"Detected disconnection: {suspected_leader_port}")
         else:
-            print("⚠️  No port disconnection detected. Please try again.")
+            print("WARNING: No port disconnection detected. Please try again.")
             return None
         
         # Instruct user to reconnect leader arm
@@ -139,15 +139,15 @@ class USBPortDetector:
         final_port_names = {port['device'] for port in final_ports}
         
         if suspected_leader_port in final_port_names:
-            print(f"✅ LEADER ARM PORT CONFIRMED: {suspected_leader_port}")
+            print(f"LEADER ARM PORT CONFIRMED: {suspected_leader_port}")
             return suspected_leader_port
         else:
-            print("⚠️  Port confirmation failed. Please try the process again.")
+            print("WARNING: Port confirmation failed. Please try the process again.")
             return None
     
     def detect_follower_arm_port(self) -> Optional[str]:
         """Interactive process to detect follower arm port."""
-        print("\n🔍 STEP 2: Detecting Follower Arm Port")
+        print("\nSTEP 2: Detecting Follower Arm Port")
         print("-" * 40)
         print()
         
@@ -175,9 +175,9 @@ class USBPortDetector:
         
         if disconnected_ports:
             suspected_follower_port = list(disconnected_ports)[0]
-            print(f"✅ Detected disconnection: {suspected_follower_port}")
+            print(f"Detected disconnection: {suspected_follower_port}")
         else:
-            print("⚠️  No port disconnection detected. Please try again.")
+            print("WARNING: No port disconnection detected. Please try again.")
             return None
         
         # Instruct user to reconnect follower arm
@@ -193,10 +193,10 @@ class USBPortDetector:
         final_port_names = {port['device'] for port in final_ports}
         
         if suspected_follower_port in final_port_names:
-            print(f"✅ FOLLOWER ARM PORT CONFIRMED: {suspected_follower_port}")
+            print(f"FOLLOWER ARM PORT CONFIRMED: {suspected_follower_port}")
             return suspected_follower_port
         else:
-            print("⚠️  Port confirmation failed. Please try the process again.")
+            print("WARNING: Port confirmation failed. Please try the process again.")
             return None
     
     def save_port_configuration(self, leader_port: str, follower_port: str) -> None:
@@ -217,9 +217,9 @@ FOLLOWER_ARM_PORT = "{follower_port}"
         try:
             with open(config_file, 'w') as f:
                 f.write(config_content)
-            print(f"✅ Port configuration saved to: {config_file}")
+            print(f"Port configuration saved to: {config_file}")
         except Exception as e:
-            print(f"⚠️  Failed to save configuration: {e}")
+            print(f"WARNING: Failed to save configuration: {e}")
     
     def display_final_results(self, leader_port: str, follower_port: str) -> None:
         """Display final detection results."""
@@ -227,14 +227,14 @@ FOLLOWER_ARM_PORT = "{follower_port}"
         print("                    PORT DETECTION COMPLETE")
         print("=" * 70)
         print()
-        print("🎉 SUCCESS! Robotic arm ports have been identified:")
+        print("SUCCESS! Robotic arm ports have been identified:")
         print()
         print(f"🦾 LEADER ARM PORT:   {leader_port}")
         print(f"🤖 FOLLOWER ARM PORT: {follower_port}")
         print()
-        print("💾 Configuration has been saved to 'lerobot_ports.py'")
+        print("Configuration has been saved to 'lerobot_ports.py'")
         print()
-        print("📝 You can now use these ports in your LeRobot applications:")
+        print("You can now use these ports in your LeRobot applications:")
         print(f"   - Leader:   serial.Serial('{leader_port}')")
         print(f"   - Follower: serial.Serial('{follower_port}')")
         print()
@@ -250,14 +250,14 @@ FOLLOWER_ARM_PORT = "{follower_port}"
                 import serial
                 import serial.tools.list_ports
             except ImportError:
-                print("❌ ERROR: pyserial library is not installed.")
+                print("ERROR: pyserial library is not installed.")
                 print("Please install it using: pip install pyserial")
                 return False
             
             # Check if any serial ports are available
             initial_ports = self.get_available_ports()
             if not initial_ports:
-                print("❌ ERROR: No serial ports detected.")
+                print("ERROR: No serial ports detected.")
                 print("Please ensure your robotic arms are connected via USB.")
                 return False
             

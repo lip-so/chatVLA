@@ -272,10 +272,10 @@ class LeRobotInstaller:
             if source_dir.exists() and (source_dir / "find_port.py").exists():
                 target_dir.mkdir(exist_ok=True)
                 shutil.copy2(source_dir / "find_port.py", target_dir / "find_port.py")
-                self.log_message("✅ Port detection tool copied to installation directory")
+                self.log_message("Port detection tool copied to installation directory")
                 self.log_message("   Run interactive detection with: python lerobot/find_port.py")
             else:
-                self.log_message("⚠️  Port detection tool not found in source directory")
+                self.log_message("WARNING: Port detection tool not found in source directory")
             
             # Try to detect available ports
             try:
@@ -325,8 +325,8 @@ FOLLOWER_ARM_PORT = "{ports[1].device}"
         try:
             with open(config_file, 'w') as f:
                 f.write(config_content)
-            self.log_message(f"✅ Auto-generated port configuration saved to: lerobot_ports.py")
-            self.log_message("⚠️  IMPORTANT: Please verify these port assignments are correct!")
+            self.log_message(f"Auto-generated port configuration saved to: lerobot_ports.py")
+            self.log_message("IMPORTANT: Please verify these port assignments are correct!")
             self.log_message("   If incorrect, run: python lerobot/find_port.py")
         except Exception as e:
             self.log_message(f"Failed to save auto-configuration: {e}")

@@ -13,7 +13,7 @@ try:
     SERIAL_AVAILABLE = True
 except ImportError:
     SERIAL_AVAILABLE = False
-    print("⚠️  pyserial not available - using simulation mode")
+    print("WARNING: pyserial not available - using simulation mode")
 
 def get_available_ports():
     """Get all available serial ports"""
@@ -97,7 +97,7 @@ def demo_port_detection():
                 baseline_devices.update(new_ports)
             
             if removed_ports:
-                print(f"❌ PORT DISCONNECTED: {list(removed_ports)}")
+                print(f"PORT DISCONNECTED: {list(removed_ports)}")
                 # Remove from assignments if they were assigned
                 for arm_type, port in list(detected_robot_ports.items()):
                     if port in removed_ports:
@@ -115,7 +115,7 @@ def demo_port_detection():
                     print(f" {arm_type.upper()}={port}", end="")
                 print(" " * 20, end="")  # Clear line
             else:
-                print("\r🔍 Waiting for robot connections..." + " " * 30, end="")
+                print("\rWaiting for robot connections..." + " " * 30, end="")
             
             time.sleep(1)
             
@@ -129,16 +129,16 @@ def demo_port_detection():
                 print(f"  {arm_type.upper()}: {port}")
             
             # Simulate saving to config
-            print(f"\n💾 Configuration would be saved to robot_config.json:")
+            print(f"\nConfiguration would be saved to robot_config.json:")
             print(f"{{")
             for arm_type, port in detected_robot_ports.items():
                 print(f'  "{arm_type}_port": "{port}",')
             print(f'  "robot_type": "your_robot"')
             print(f"}}")
         else:
-            print("\n❌ No robot ports were detected")
+            print("\nERROR: No robot ports were detected")
         
-        print("\n✅ Demo complete!")
+        print("\nDemo complete!")
 
 if __name__ == "__main__":
     demo_port_detection()

@@ -35,13 +35,13 @@ def check_and_install_dependencies():
             subprocess.run([
                 sys.executable, '-m', 'pip', 'install'
             ] + missing, check=True)
-            print("✅ Dependencies installed successfully!")
+            print("Dependencies installed successfully!")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to install dependencies: {e}")
+            print(f"ERROR: Failed to install dependencies: {e}")
             return False
     else:
-        print("✅ All dependencies are available")
+        print("All dependencies are available")
         return True
 
 def start_backend():
@@ -50,7 +50,7 @@ def start_backend():
     app_path = backend_dir / 'app.py'
     
     if not app_path.exists():
-        print(f"❌ Backend not found at {app_path}")
+        print(f"ERROR: Backend not found at {app_path}")
         return None
     
     print("🚀 Starting Flask backend...")
@@ -71,7 +71,7 @@ def start_backend():
         return process
         
     except Exception as e:
-        print(f"❌ Failed to start backend: {e}")
+        print(f"ERROR: Failed to start backend: {e}")
         return None
 
 def check_server_ready(max_attempts=30):
@@ -92,14 +92,14 @@ def open_browser():
     url = 'http://127.0.0.1:5000'
     
     if check_server_ready():
-        print(f"✅ Server ready! Opening {url}")
+                    print(f"Server ready! Opening {url}")
         try:
             webbrowser.open(url)
         except Exception as e:
-            print(f"⚠️ Could not open browser automatically: {e}")
+                            print(f"WARNING: Could not open browser automatically: {e}")
             print(f"Please manually open: {url}")
     else:
-        print(f"⚠️ Server not ready. Please try opening: {url}")
+                    print(f"WARNING: Server not ready. Please try opening: {url}")
 
 def main():
     """Main entry point."""
@@ -108,12 +108,12 @@ def main():
     
     # Check Python version
     if sys.version_info < (3, 7):
-        print("❌ Python 3.7+ required")
+        print("ERROR: Python 3.7+ required")
         return 1
     
     # Check and install dependencies
     if not check_and_install_dependencies():
-        print("❌ Failed to set up dependencies")
+        print("ERROR: Failed to set up dependencies")
         print("Please install manually:")
         print("pip install 'flask>=3.0.3' 'flask-socketio>=5.0.0' 'flask-cors>=4.0.0'")
         return 1
@@ -121,7 +121,7 @@ def main():
     # Start backend server
     server_process = start_backend()
     if not server_process:
-        print("❌ Failed to start server")
+        print("ERROR: Failed to start server")
         return 1
     
     # Open browser in separate thread
@@ -129,9 +129,9 @@ def main():
     browser_thread.daemon = True
     browser_thread.start()
     
-    print(f"✅ Server started successfully!")
-    print(f"🌐 Web interface: http://127.0.0.1:5000")
-    print(f"📱 For port detection: http://127.0.0.1:5000/port-detection.html")
+            print(f"Server started successfully!")
+            print(f"Web interface: http://127.0.0.1:5000")
+            print(f"For port detection: http://127.0.0.1:5000/port-detection.html")
     print()
     print("Press Ctrl+C to stop the server")
     

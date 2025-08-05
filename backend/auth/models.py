@@ -43,4 +43,8 @@ class User(db.Model):
         }
     
     def __repr__(self):
-        return f'<User {self.username}>' 
+        return f'<User {self.username}>'
+
+
+# Robot port configurations are now stored in Firebase Firestore
+# See auth/firestore_service.py for the new implementation 

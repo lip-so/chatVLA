@@ -42,7 +42,7 @@ def start_backend(port=5003):
     
     # Kill any existing processes on this port
     if not check_port(port):
-        print(f"⚠️  Port {port} is in use, cleaning up...")
+        print(f"WARNING: Port {port} is in use, cleaning up...")
         kill_port_process(port)
         time.sleep(2)
     
@@ -79,16 +79,16 @@ def start_backend(port=5003):
         print("⏳ Waiting for backend to start...")
         for i in range(10):
             if not check_port(port):
-                print("✅ Backend started successfully!")
+                print("Backend started successfully!")
                 return process
             time.sleep(1)
         
-        print("❌ Backend failed to start within 10 seconds")
+        print("ERROR: Backend failed to start within 10 seconds")
         cleanup()
         return None
         
     except Exception as e:
-        print(f"❌ Failed to start backend: {e}")
+        print(f"ERROR: Failed to start backend: {e}")
         return None
 
 def open_frontend():
@@ -123,14 +123,14 @@ def main():
     open_frontend()
     
     print("\n📋 System Status:")
-    print("✅ Backend: Running on http://localhost:5003")
-    print("✅ Main page: Available at http://localhost:5003")
-    print("✅ Plug & Play: Available at http://localhost:5003/pages/plug-and-play-databench-style.html")
+    print("Backend: Running on http://localhost:5003")
+    print("Main page: Available at http://localhost:5003")
+    print("Plug & Play: Available at http://localhost:5003/pages/plug-and-play-databench-style.html")
     print("\n🎯 Instructions:")
     print("1. Select your robot in the browser")
     print("2. Choose installation type (fresh or existing)")
     print("3. Follow the 3-step setup process")
-    print("\n⏹️  Press Ctrl+C to stop the system")
+    print("\nPress Ctrl+C to stop the system")
     
     try:
         # Keep the process alive and show output
@@ -147,7 +147,7 @@ def main():
             time.sleep(1)
             if process.poll() is None:
                 process.kill()
-        print("✅ System stopped")
+        print("System stopped")
 
 if __name__ == '__main__':
     main()

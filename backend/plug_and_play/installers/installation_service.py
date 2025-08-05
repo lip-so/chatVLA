@@ -123,7 +123,7 @@ class InstallationService:
                 
         # Add final USB port detection instructions
         self._log("\n" + "="*60)
-        self._log("🎉 LeRobot Installation Complete!")
+        self._log("LeRobot Installation Complete!")
         self._log("="*60)
         self._log("")
         self._log("🔌 NEXT STEPS - USB Port Setup:")
@@ -132,7 +132,7 @@ class InstallationService:
         self._log("3. Navigate to your LeRobot directory")
         self._log("4. Run port detection: python lerobot/find_port.py")
         self._log("")
-        self._log("💡 Alternative methods:")
+        self._log("Alternative methods:")
         self._log("• Use the web interface for guided setup")
         self._log("• Run: python post_install_setup.py for status check")
         self._log("• Run: python activate_lerobot.py for activation help")
@@ -372,8 +372,8 @@ FOLLOWER_ARM_PORT = "{ports[1]['device']}"
         try:
             with open(config_file, 'w') as f:
                 f.write(config_content)
-            self._log(f"✅ Auto-generated port configuration saved to: {config_file}")
-            self._log("⚠️  IMPORTANT: Please verify these port assignments are correct!")
+            self._log(f"Auto-generated port configuration saved to: {config_file}")
+            self._log("IMPORTANT: Please verify these port assignments are correct!")
             self._log("   If incorrect, run: python lerobot/find_port.py")
         except Exception as e:
             self._log(f"Failed to save auto-configuration: {e}")
@@ -388,10 +388,10 @@ FOLLOWER_ARM_PORT = "{ports[1]['device']}"
             if source_file.exists():
                 target_dir.mkdir(exist_ok=True)
                 shutil.copy2(source_file, target_dir / "find_port.py")
-                self._log("✅ Port detection tool copied to installation directory")
+                self._log("Port detection tool copied to installation directory")
                 self._log("   Run interactive detection with: python lerobot/find_port.py")
             else:
-                self._log("⚠️  Port detection tool not found in utils directory")
+                self._log("WARNING: Port detection tool not found in utils directory")
                 
         except Exception as e:
             self._log(f"Failed to copy port detection tool: {e}")
@@ -407,7 +407,7 @@ LeRobot Installation Complete!
 Your LeRobot environment is ready to use.
 """
 
-print("🎉 LeRobot Installation Complete!")
+            print("LeRobot Installation Complete!")
 print()
 print("Next steps:")
 print("1. conda activate lerobot")
@@ -419,7 +419,7 @@ print("3. Start building with LeRobot!")
             with open(setup_file, 'w') as f:
                 f.write(setup_content)
             
-            self._log("✅ Setup completion script created")
+            self._log("Setup completion script created")
             self._log("   Run: python setup_complete.py for next steps")
                 
         except Exception as e:

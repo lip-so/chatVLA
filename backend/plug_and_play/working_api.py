@@ -13,6 +13,18 @@ import sys
 from pathlib import Path
 import time
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Add auth module to path for database imports
+backend_path = Path(__file__).parent.parent
+sys.path.insert(0, str(backend_path))
+
+# Import Firebase services and authentication
+from auth.firestore_service import get_firestore_service
+from auth.firebase_auth import requires_firebase_auth
 
 try:
     import serial
@@ -31,11 +43,13 @@ except ImportError:
         SECURE_COMMANDS_AVAILABLE = True
     except ImportError:
         SECURE_COMMANDS_AVAILABLE = False
-        print("Warning: Secure command system not available. Using direct subprocess calls.")
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# App configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Global state
 current_installation = {
@@ -301,8 +315,8 @@ def run_installation(path, robot, use_existing=False):
                 emit_log("Looking for: setup.py, pyproject.toml, lerobot/, or Python files with 'lerobot' references", level='error')
                 return
             
-            emit_log("✅ Verified existing installation!")
-            emit_log("⏭️ Skipping download - using your existing LeRobot installation")
+            emit_log("Verified existing installation!")
+            emit_log("Skipping download - using your existing LeRobot installation")
             
         else:
             # Step 1: Create directory
@@ -437,8 +451,8 @@ def run_installation(path, robot, use_existing=False):
         emit_log("Creating robot configuration...")
         create_robot_config(path, robot)
         
-        emit_log("✅ Installation completed successfully!", level='success')
-        emit_log(f"📁 Using: {path}", level='success')
+        emit_log("Installation completed successfully!", level='success')
+        emit_log(f"Using: {path}", level='success')
         
         # Trigger next step
         socketio.emit('installation_complete', {
@@ -463,7 +477,7 @@ def run_with_output(cmd):
 
 def emit_log(message, level='info'):
     """Send log message to frontend"""
-    print(f"[{level.upper()}] {message}")  # Also print to console for debugging
+    # Log to socket only, not to console
     socketio.emit('install_log', {
         'message': message,
         'level': level,
@@ -506,7 +520,7 @@ def create_robot_config(path, robot, leader_port=None, follower_port=None):
     with open(run_script, 'w') as f:
         f.write(f'''#!/bin/bash
 # LeRobot launcher for {robot}
-echo "🤖 LeRobot - {robot}"
+echo "LeRobot - {robot}"
 conda activate lerobot
 
 echo "1) Calibrate"
@@ -719,6 +733,13 @@ def stop_port_detection():
                 except Exception as e:
                     print(f"Failed to update robot config: {e}")
         
+        # Also try to save to database if user is authenticated
+        try:
+            if hasattr(request, 'user_info') and request.user_info:
+                save_to_database(request.user_info, leader_port, follower_port)
+        except Exception as db_error:
+            print(f"Failed to save to database: {db_error}")
+        
         socketio.emit('ports_saved', {
             'leader': leader_port,
             'follower': follower_port
@@ -793,11 +814,11 @@ def finish_port_detection():
             path = current_installation.get('path', '~/lerobot')
             create_robot_config(Path(path), robot, leader_port, follower_port)
             
-            emit_log(f"✅ Port configuration saved successfully!", level='success')
+            emit_log(f"Port configuration saved successfully!", level='success')
             emit_log(f"Leader port: {leader_port or 'Not assigned'}", level='info')
             emit_log(f"Follower port: {follower_port or 'Not assigned'}", level='info')
         else:
-            emit_log("⚠️ No ports were assigned during detection", level='warning')
+            emit_log("WARNING: No ports were assigned during detection", level='warning')
         
         # Stop port detection
         port_monitor['active'] = False
@@ -847,8 +868,7 @@ def save_detected_ports():
             robot = current_installation['robot']
             path = current_installation['path']
             create_robot_config(Path(path), robot, leader_port, follower_port)
-        
-        emit_log(f"✅ Port configuration saved: Leader={leader_port}, Follower={follower_port}", level='success')
+            emit_log(f"Port configuration saved: Leader={leader_port}, Follower={follower_port}", level='success')
         
         return jsonify({
             'success': True,
@@ -865,7 +885,107 @@ def save_detected_ports():
 def handle_connect():
     emit('connected', {'status': 'Connected to LeRobot installer'})
 
+def save_to_database(user_info, leader_port, follower_port, robot_type=None):
+    """Helper function to save port configuration to Firestore"""
+    user_email = user_info.get('email')
+    if not user_email:
+        return
+    
+    if not robot_type:
+        robot_type = current_installation.get('robot', 'Unknown')
+    
+    try:
+        firestore_service = get_firestore_service()
+        firestore_service.save_robot_configuration(
+            user_email=user_email,
+            robot_type=robot_type,
+            leader_port=leader_port,
+            follower_port=follower_port
+        )
+    except Exception as e:
+        print(f"Error saving to Firestore: {e}")
+        raise
+
+
+@app.route('/api/save_robot_configuration', methods=['POST'])
+@requires_firebase_auth
+def save_robot_configuration():
+    """Save robot port configuration to Firestore for authenticated user"""
+    try:
+        # Get authenticated user info from Firebase token
+        user_info = request.user_info  # Set by requires_firebase_auth decorator
+        user_email = user_info.get('email')
+        
+        if not user_email:
+            return jsonify({'error': 'User email not found in token'}), 400
+        
+        # Get request data
+        data = request.get_json()
+        robot_type = data.get('robot_type', 'Unknown')
+        leader_port = data.get('leader_port')
+        follower_port = data.get('follower_port')
+        
+        if not leader_port and not follower_port:
+            return jsonify({'error': 'At least one port (leader or follower) must be provided'}), 400
+        
+        # Save to Firestore
+        firestore_service = get_firestore_service()
+        config = firestore_service.save_robot_configuration(
+            user_email=user_email,
+            robot_type=robot_type,
+            leader_port=leader_port,
+            follower_port=follower_port
+        )
+        
+        # Also save to file system for backwards compatibility
+        global current_installation
+        current_installation['leader_port'] = leader_port
+        current_installation['follower_port'] = follower_port
+        current_installation['robot'] = robot_type
+        
+        # Emit socket event
+        socketio.emit('robot_configuration_saved', {
+            'robot_type': robot_type,
+            'leader_port': leader_port,
+            'follower_port': follower_port,
+            'user_email': user_email
+        })
+        
+        return jsonify({
+            'success': True,
+            'message': f'Robot type: {robot_type}, Leader\'s port: {leader_port}, Follower\'s port: {follower_port}',
+            'configuration': config
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to save configuration: {str(e)}'}), 500
+
+
+@app.route('/api/get_user_configurations', methods=['GET'])
+@requires_firebase_auth
+def get_user_configurations():
+    """Get all robot configurations for the authenticated user from Firestore"""
+    try:
+        # Get authenticated user info
+        user_info = request.user_info
+        user_email = user_info.get('email')
+        
+        if not user_email:
+            return jsonify({'error': 'User email not found in token'}), 400
+        
+        # Get configurations from Firestore
+        firestore_service = get_firestore_service()
+        configurations = firestore_service.get_user_configurations(user_email)
+        
+        return jsonify({
+            'configurations': configurations
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to get configurations: {str(e)}'}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5003))
-    print(f"Starting Working LeRobot API on port {port}")
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    # Start server
+    socketio.run(app, host='0.0.0.0', port=port)
