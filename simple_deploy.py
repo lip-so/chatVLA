@@ -86,128 +86,122 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Set the global socketio instance
 socketio_instance = socketio
 
-def setup_routes():
-    """Setup all routes and blueprints"""
+# Create blueprints
+plugplay_bp = Blueprint('plugplay', __name__, url_prefix='/api/plugplay')
     
-    # Create blueprints
-    plugplay_bp = Blueprint('plugplay', __name__, url_prefix='/api/plugplay')
-    
-    @plugplay_bp.route('/start-installation', methods=['POST'])
-    def start_installation():
-        """Start LeRobot installation"""
-        global current_installation
-        try:
-            data = request.get_json()
-            
-            if not data:
-                return jsonify({"success": False, "error": "No data provided"}), 400
-            
-            path = Path(data.get('installation_path', './lerobot')).expanduser()
-            robot = data.get('selected_robot', 'koch')
-            use_existing = data.get('use_existing', False)
-            
-            if current_installation['running']:
-                return jsonify({
-                    'success': False, 
-                    'error': 'Installation already running'
-                }), 400
-            
-            # Start installation in background thread
-            thread = threading.Thread(target=run_installation, args=(path, robot, use_existing))
-            thread.daemon = True
-            thread.start()
-            
+@plugplay_bp.route('/start-installation', methods=['POST'])
+def start_installation():
+    """Start LeRobot installation"""
+    global current_installation
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+        
+        path = Path(data.get('installation_path', './lerobot')).expanduser()
+        robot = data.get('selected_robot', 'koch')
+        use_existing = data.get('use_existing', False)
+        
+        if current_installation['running']:
             return jsonify({
-                'success': True, 
-                'status': 'started', 
-                'path': str(path), 
-                'robot': robot
-            })
-            
-        except Exception as e:
-            return jsonify({
-                "success": False,
-                "error": str(e)
-            }), 500
-    
-    @plugplay_bp.route('/installation-status', methods=['GET'])
-    def installation_status():
-        """Get installation status"""
-        global current_installation
-        return jsonify(current_installation)
-    
-    @plugplay_bp.route('/cancel-installation', methods=['POST'])
-    def cancel_installation():
-        """Cancel running installation"""
-        global current_installation
-        current_installation['running'] = False
-        emit_log("Installation cancelled by user", level='warning')
+                'success': False, 
+                'error': 'Installation already running'
+            }), 400
+        
+        # Start installation in background thread
+        thread = threading.Thread(target=run_installation, args=(path, robot, use_existing))
+        thread.daemon = True
+        thread.start()
+        
         return jsonify({
             'success': True, 
-            'message': 'Installation cancelled'
+            'status': 'started', 
+            'path': str(path), 
+            'robot': robot
         })
-    
-    @plugplay_bp.route('/system-info', methods=['GET'])
-    def system_info():
-        """Get system information"""
+        
+    except Exception as e:
         return jsonify({
-            "os": sys.platform,
-            "python_version": sys.version,
-            "capabilities": {
-                "usb_detection": True,
-                "installation": True
-            }
-        })
-    
-    @plugplay_bp.route('/list-ports', methods=['GET'])
-    def list_ports():
-        """List available USB ports - simplified version for production"""
-        return jsonify({
-            "ports": [],
-            "message": "Port detection available after installation"
-        })
-    
-    # Static file routes
-    @app.route('/')
-    def index():
-        return send_from_directory('.', 'index.html')
-    
-    @app.route('/pages/<path:filename>')
-    def serve_page(filename):
-        return send_from_directory('pages', filename)
-    
-    @app.route('/css/<path:filename>')
-    def serve_css(filename):
-        return send_from_directory('css', filename)
-    
-    @app.route('/js/<path:filename>')
-    def serve_js(filename):
-        return send_from_directory('js', filename)
-    
-    @app.route('/assets/<path:filename>')
-    def serve_assets(filename):
-        return send_from_directory('assets', filename)
-    
-    @app.route('/health')
-    def health():
-        return jsonify({'status': 'healthy', 'mode': 'simple_deploy'})
-    
-    # Register blueprints
-    app.register_blueprint(plugplay_bp)
-    
-    # SocketIO Event Handlers
-    @socketio.on('connect')
-    def handle_connect():
-        """Handle client connection"""
-        emit('status', {'message': 'Connected to server'})
-    
-    @socketio.on('disconnect')
-    def handle_disconnect():
-        """Handle client disconnection"""
-        pass  # Logging disabled for production
+            "success": False,
+            "error": str(e)
+        }), 500
 
-# Setup all routes
-setup_routes()
+@plugplay_bp.route('/installation-status', methods=['GET'])
+def installation_status():
+    """Get installation status"""
+    global current_installation
+    return jsonify(current_installation)
+
+@plugplay_bp.route('/cancel-installation', methods=['POST'])
+def cancel_installation():
+    """Cancel running installation"""
+    global current_installation
+    current_installation['running'] = False
+    emit_log("Installation cancelled by user", level='warning')
+    return jsonify({
+        'success': True, 
+        'message': 'Installation cancelled'
+    })
+
+@plugplay_bp.route('/system-info', methods=['GET'])
+def system_info():
+    """Get system information"""
+    return jsonify({
+        "os": sys.platform,
+        "python_version": sys.version,
+        "capabilities": {
+            "usb_detection": True,
+            "installation": True
+        }
+    })
+
+@plugplay_bp.route('/list-ports', methods=['GET'])
+def list_ports():
+    """List available USB ports - simplified version for production"""
+    return jsonify({
+        "ports": [],
+        "message": "Port detection available after installation"
+    })
+
+# Static file routes
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/pages/<path:filename>')
+def serve_page(filename):
+    return send_from_directory('pages', filename)
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory('css', filename)
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    return send_from_directory('js', filename)
+
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory('assets', filename)
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy', 'mode': 'simple_deploy'})
+
+# Register blueprints
+app.register_blueprint(plugplay_bp)
+
+# SocketIO Event Handlers
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    emit('status', {'message': 'Connected to server'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    pass  # Logging disabled for production
 
 # This allows gunicorn to import the app
 if __name__ == '__main__':
