@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only necessary files first
-COPY requirements-simple.txt .
-RUN pip install --no-cache-dir -r requirements-simple.txt
+COPY requirements-deploy.txt .
+RUN pip install --no-cache-dir -r requirements-deploy.txt
 
 # Copy backend code
 COPY backend/ ./backend/
@@ -20,6 +20,8 @@ COPY railway_debug.py .
 COPY minimal_app.py .
 COPY ultra_minimal.py .
 COPY app.py .
+COPY deploy.py .
+COPY simple_deploy.py .
 COPY Procfile .
 
 # Copy static files for Flask to serve
@@ -41,5 +43,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run the full backend application
-CMD python app.py
+# Run the simple deployment application
+CMD python simple_deploy.py

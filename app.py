@@ -15,28 +15,36 @@ print(f"Current dir: {os.getcwd()}")
 print(f"Files in current dir: {os.listdir('.')[:10]}")
 
 try:
-    # Import the full working API
-    from backend.plug_and_play.working_api import app, socketio
-    print("✅ Successfully imported working_api")
+    # Use the main unified API instead of working_api to avoid import issues
+    print("Importing unified backend API...")
+    from backend.api.main import app, socketio
+    print("✅ Successfully imported main API")
 except ImportError as e:
-    print(f"❌ Import error: {e}")
-    # Create minimal fallback app
-    from flask import Flask, jsonify
-    app = Flask(__name__)
-    
-    @app.route('/')
-    def hello():
-        return "Fallback app running - import failed"
-    
-    @app.route('/health')
-    def health():
-        return jsonify({'status': 'healthy', 'mode': 'fallback'})
-    
-    @app.route('/api/plugplay/start-installation', methods=['POST'])
-    def install():
-        return jsonify({'success': False, 'error': 'Backend import failed'})
-    
-    socketio = None
+    print(f"❌ Main API import error: {e}")
+    try:
+        # Fallback to working API
+        print("Trying working API fallback...")
+        from backend.plug_and_play.working_api import app, socketio
+        print("✅ Successfully imported working_api")
+    except ImportError as e2:
+        print(f"❌ Working API import error: {e2}")
+        # Create minimal fallback app
+        from flask import Flask, jsonify
+        app = Flask(__name__)
+        
+        @app.route('/')
+        def hello():
+            return "Fallback app running - import failed"
+        
+        @app.route('/health')
+        def health():
+            return jsonify({'status': 'healthy', 'mode': 'fallback'})
+        
+        @app.route('/api/plugplay/start-installation', methods=['POST'])
+        def install():
+            return jsonify({'success': False, 'error': 'Backend import failed'})
+        
+        socketio = None
 
 # For Railway compatibility
 if __name__ == '__main__':

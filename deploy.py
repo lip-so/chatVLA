@@ -18,6 +18,21 @@ def main():
     backend_path = Path(__file__).parent / 'backend'
     sys.path.insert(0, str(backend_path))
     
+    # Ensure all dependencies are available before importing
+    try:
+        # Check if databench dependencies are available
+        import backend.databench.api
+        print("✅ DataBench API available")
+    except ImportError as e:
+        print(f"⚠️  DataBench API not available: {e}")
+    
+    try:
+        # Check if plug_and_play dependencies are available  
+        import backend.plug_and_play.api
+        print("✅ Plug & Play API available")
+    except ImportError as e:
+        print(f"⚠️  Plug & Play API not available: {e}")
+    
     # Import and run the main app
     from api.main import app, socketio
     
