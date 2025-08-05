@@ -1,0 +1,16 @@
+# Koch Follower (6-DOF leader-follower arm) Configuration
+robot_type: koch
+dof: 6
+communication:
+  type: serial
+  baud_rate: 1000000
+  port_pattern: "/dev/ttyUSB*"
+  timeout: 1.0
+
+deployment_mode: comprehensive
+installation_date: 2025-08-05T20:52:31.052484
+cloud_deployment: true
+features:
+  usb_detection: True
+  databench: true
+  real_hardware: true

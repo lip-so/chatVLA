@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 WSGI entry point for production deployment
-Uses comprehensive cloud backend with full DataBench and Plug & Play functionality
+Uses comprehensive force_railway_fix backend with full functionality
 """
 
-from cloud_deploy import app, socketio
+from force_railway_fix import app, socketio
 
 if __name__ == "__main__":
     # For development

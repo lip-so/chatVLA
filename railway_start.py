@@ -16,7 +16,7 @@ os.environ['PYTHONPATH'] = str(PROJECT_ROOT)
 os.environ['FLASK_ENV'] = 'production'
 
 # Import and run the application
-from cloud_deploy import app, socketio
+from force_railway_fix import app, socketio
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
