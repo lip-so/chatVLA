@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY start.py .
 COPY railway_start.py .
+COPY railway_debug.py .
 
 # Copy static files for Flask to serve
 COPY index.html .
@@ -36,5 +37,5 @@ ENV FLASK_ENV=production
 ENV PORT=5000
 ENV PYTHONPATH=/app
 
-# Run the application using the Railway startup script
-CMD python railway_start.py
+# Run the application using the Railway debug script
+CMD python railway_debug.py
