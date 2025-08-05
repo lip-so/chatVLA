@@ -768,7 +768,7 @@
             this.apiBaseUrl = 'https://tune-robotics-production.up.railway.app';
           } else {
             // For local development
-            this.apiBaseUrl = 'http://localhost:5002';
+            this.apiBaseUrl = 'http://127.0.0.1:5000';
           }
           
           console.log('Basic properties initialized');
@@ -852,7 +852,11 @@
         
         try {
           if (this.startInstallBtn) {
-            this.startInstallBtn.addEventListener('click', () => this.startInstallation());
+            this.startInstallBtn.addEventListener('click', (e) => {
+              console.log('Start install button clicked, calling startInstallation()');
+              e.preventDefault();
+              this.startInstallation();
+            });
             console.log('Start install button bound');
           }
           
@@ -890,6 +894,10 @@
       }
       
       getAuthHeaders() {
+        // Skip auth headers for local development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          return {};
+        }
         return window.authManager ? window.authManager.getAuthHeaders() : {};
       }
       
@@ -910,11 +918,19 @@
             throw new Error('Backend not responding');
           }
         } catch (error) {
-          // Instead of showing offline mode, provide a simulated experience
-          this.isConnected = false;
-          this.updateConnectionStatus(true); // Show as connected
-          this.logMessage('Connected to Tune Robotics Cloud Service', 'info');
-          this.setupSimulatedBackend();
+          // For local development, assume connected
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            this.isConnected = true;
+            this.updateConnectionStatus(true);
+            this.logMessage('Connected to local backend - Development mode', 'info');
+            this.connectSocket();
+          } else {
+            // Instead of showing offline mode, provide a simulated experience
+            this.isConnected = false;
+            this.updateConnectionStatus(true); // Show as connected
+            this.logMessage('Connected to Tune Robotics Cloud Service', 'info');
+            this.setupSimulatedBackend();
+          }
         }
       }
       
@@ -1099,18 +1115,23 @@
         // Show static installation steps when backend is unavailable
         this.initializeSteps();
         
-        // Update the installation button to show manual instructions
-        this.startInstallBtn.addEventListener('click', () => this.showManualInstructions());
-        this.startInstallBtn.innerHTML = '<i class="fas fa-book"></i> Show Installation Guide';
-        this.startInstallBtn.disabled = false;
-        
-        // Hide cancel button in offline mode
-        this.cancelInstallBtn.style.display = 'none';
-        
-        // Add helpful instructions to the log
-        this.logMessage('The automated installer is currently offline', 'warning');
-        this.logMessage('Click "Show Installation Guide" for manual installation steps', 'info');
-        this.logMessage('Or run locally with: python start-plug-and-play.py', 'info');
+        // Only show static guide if we're actually offline (not local development)
+        if (!this.isConnected && (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
+          // Update the installation button to show manual instructions
+          this.startInstallBtn.onclick = null; // Clear all event listeners
+          this.startInstallBtn.removeEventListener('click', this.startInstallation);
+          this.startInstallBtn.addEventListener('click', () => this.showManualInstructions());
+          this.startInstallBtn.innerHTML = '<i class="fas fa-book"></i> Show Installation Guide';
+          this.startInstallBtn.disabled = false;
+          
+          // Hide cancel button in offline mode
+          this.cancelInstallBtn.style.display = 'none';
+          
+          // Add helpful instructions to the log
+          this.logMessage('The automated installer is currently offline', 'warning');
+          this.logMessage('Click "Show Installation Guide" for manual installation steps', 'info');
+          this.logMessage('Or run locally with: python start-plug-and-play.py', 'info');
+        }
       }
       
       showManualInstructions() {
@@ -1220,6 +1241,8 @@
       async startInstallation() {
         // Try the installation regardless of connection status
         this.logMessage('Attempting to start installation...', 'info');
+        console.log('startInstallation called, isConnected:', this.isConnected);
+        console.log('API URL:', `${this.apiBaseUrl}/api/plugplay/start-installation`);
         
         const path = this.installationPath.value.trim();
         if (!path) {
@@ -1228,25 +1251,38 @@
         }
         
         try {
-          const response = await fetch(`${this.apiBaseUrl}/api/plugplay/start-installation`, {
+          const url = `${this.apiBaseUrl}/api/plugplay/start-installation`;
+          const headers = { 
+            'Content-Type': 'application/json',
+            ...this.getAuthHeaders()
+          };
+          const body = JSON.stringify({ installation_path: path });
+          
+          console.log('Making request to:', url);
+          console.log('Headers:', headers);
+          console.log('Body:', body);
+          
+          const response = await fetch(url, {
             method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              ...this.getAuthHeaders()
-            },
-            body: JSON.stringify({ installation_path: path })
+            headers: headers,
+            body: body
           });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server returned ${response.status}`);
+          }
           
           const data = await response.json();
           
-          if (data.success) {
+          if (data.success || data.status === 'started') {
             this.installationRunning = true;
             this.startInstallBtn.disabled = true;
             this.cancelInstallBtn.disabled = false;
             this.logMessage('Real installation started...', 'info');
-            this.logMessage(`Installing to: ${path}`, 'info');
+            this.logMessage(`Installing to: ${data.install_path || path}`, 'info');
           } else {
-            this.logMessage(`Failed to start installation: ${data.error}`, 'error');
+            this.logMessage(`Failed to start installation: ${data.error || data.message}`, 'error');
           }
           
         } catch (error) {

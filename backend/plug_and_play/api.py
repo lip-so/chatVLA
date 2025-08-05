@@ -303,23 +303,252 @@ class PlugPlayInstallationManager:
         self.status = "idle"
         self.progress = 0
         self.message = "Ready to start installation"
+        self.is_running = False
+        self.install_path = None
+        self.socketio = None  # Will be set by main.py after initialization
         
     def start_installation(self, install_path="./lerobot", selected_port=None):
-        """Start the installation process"""
+        """Start the REAL installation process"""
+        if self.is_running:
+            return {
+                "success": False,
+                "error": "Installation already running",
+                "status": "running"
+            }
+        
+        import threading
+        from pathlib import Path
+        
+        # Expand path
+        install_path = str(Path(install_path).expanduser().resolve())
+        self.install_path = install_path
+        
+        # Start real installation in background thread
+        self.is_running = True
+        self.status = "running"
+        self.progress = 0
+        self.message = "Starting real LeRobot installation..."
+        
+        thread = threading.Thread(target=self._run_real_installation, args=(install_path,))
+        thread.daemon = True
+        thread.start()
+        
         return {
             "success": True,
             "status": "started",
-            "message": "Installation guidance started",
+            "message": "Real LeRobot installation started",
             "install_path": install_path,
             "selected_port": selected_port
         }
+    
+    def _run_real_installation(self, install_path):
+        """Actually install LeRobot"""
+        import subprocess
+        import os
+        from pathlib import Path
+        
+        print(f"🚀 STARTING REAL INSTALLATION to {install_path}")
+        
+        try:
+            install_dir = Path(install_path)
+            
+            # Step 1: Check prerequisites
+            self.progress = 10
+            self.message = "Checking prerequisites..."
+            self._emit_progress()
+            
+            # Check git
+            try:
+                result = subprocess.run(['git', '--version'], check=True, capture_output=True, text=True, timeout=30)
+                self.message = f"✓ Git found: {result.stdout.strip()}"
+                self._emit_progress()
+                print(f"✓ Git check passed: {result.stdout.strip()}")
+            except subprocess.TimeoutExpired:
+                self._set_error("Git command timed out")
+                return
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                self._set_error(f"Git not found. Error: {str(e)}")
+                return
+            
+            # Check conda
+            try:
+                result = subprocess.run(['conda', '--version'], check=True, capture_output=True, text=True, timeout=30)
+                self.message = f"✓ Conda found: {result.stdout.strip()}"
+                self._emit_progress()
+                print(f"✓ Conda check passed: {result.stdout.strip()}")
+            except subprocess.TimeoutExpired:
+                self._set_error("Conda command timed out")
+                return
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                self._set_error(f"Conda not found. Error: {str(e)}")
+                return
+            
+            # Step 2: Clone repository
+            self.progress = 30
+            self.message = "Cloning LeRobot repository from GitHub..."
+            self._emit_progress()
+            print(f"📥 Cloning repository to {install_dir}")
+            
+            # Remove existing directory if it exists
+            if install_dir.exists():
+                import shutil
+                print(f"🗑️ Removing existing directory: {install_dir}")
+                shutil.rmtree(install_dir)
+            
+            # Clone the repository
+            print("🔄 Running git clone command...")
+            result = subprocess.run([
+                'git', 'clone', 
+                'https://github.com/huggingface/lerobot.git', 
+                str(install_dir)
+            ], capture_output=True, text=True, timeout=300)
+            
+            print(f"Git clone exit code: {result.returncode}")
+            if result.stdout:
+                print(f"Git clone stdout: {result.stdout}")
+            if result.stderr:
+                print(f"Git clone stderr: {result.stderr}")
+            
+            if result.returncode != 0:
+                self._set_error(f"Failed to clone repository: {result.stderr}")
+                return
+            
+            self.message = f"✓ Repository cloned to {install_path}"
+            self._emit_progress()
+            print(f"✅ Repository successfully cloned to {install_path}")
+            
+            # Step 3: Create conda environment
+            self.progress = 50
+            self.message = "Creating conda environment 'lerobot' with Python 3.10..."
+            self._emit_progress()
+            
+            result = subprocess.run([
+                'conda', 'create', '-y', '-n', 'lerobot', 'python=3.10'
+            ], capture_output=True, text=True, timeout=600)
+            
+            if result.returncode != 0:
+                self._set_error(f"Failed to create conda environment: {result.stderr}")
+                return
+            
+            self.message = "✓ Conda environment 'lerobot' created"
+            self._emit_progress()
+            
+            # Step 4: Install FFmpeg
+            self.progress = 70
+            self.message = "Installing FFmpeg from conda-forge (conda install ffmpeg -c conda-forge)..."
+            self._emit_progress()
+            print("📹 Running: conda install ffmpeg -c conda-forge -n lerobot...")
+            
+            result = subprocess.run([
+                'conda', 'install', '-y', 'ffmpeg', '-c', 'conda-forge', '-n', 'lerobot'
+            ], capture_output=True, text=True, timeout=600)
+            
+            if result.returncode != 0:
+                self._set_error(f"Failed to install FFmpeg: {result.stderr}")
+                return
+            
+            self.message = "✓ FFmpeg installed"
+            self._emit_progress()
+            
+            # Step 5: Install LeRobot
+            self.progress = 90
+            self.message = "Installing LeRobot package with pip install -e . (this may take several minutes)..."
+            self._emit_progress()
+            print("📦 Running: pip install -e . in the lerobot directory...")
+            
+            result = subprocess.run([
+                'conda', 'run', '-n', 'lerobot', 'pip', 'install', '-e', '.'
+            ], cwd=install_dir, capture_output=True, text=True, timeout=1200)
+            
+            print(f"pip install exit code: {result.returncode}")
+            if result.stdout:
+                print(f"pip install stdout (last 500 chars): {result.stdout[-500:]}")
+            if result.stderr:
+                print(f"pip install stderr: {result.stderr}")
+            
+            if result.returncode != 0:
+                self._set_error(f"Failed to install LeRobot: {result.stderr}")
+                return
+            
+            self.message = "✓ LeRobot package installed successfully"
+            self._emit_progress()
+            print("✅ LeRobot package installed!")
+            
+            # Step 6: Install pyserial for USB detection
+            self.progress = 95
+            self.message = "Installing pyserial for USB port detection..."
+            self._emit_progress()
+            print("🔌 Installing pyserial...")
+            
+            result = subprocess.run([
+                'conda', 'run', '-n', 'lerobot', 'pip', 'install', 'pyserial'
+            ], capture_output=True, text=True, timeout=300)
+            
+            if result.returncode != 0:
+                print(f"Warning: pyserial installation failed: {result.stderr}")
+            else:
+                print("✅ pyserial installed!")
+            
+            # Installation complete
+            self.progress = 100
+            self.message = f"🎉 LeRobot successfully installed to {install_path}!"
+            self.status = "completed"
+            self.is_running = False
+            self._emit_progress()
+            
+            # Print summary of what was done
+            print("\n" + "="*60)
+            print("✅ INSTALLATION COMPLETED SUCCESSFULLY!")
+            print("="*60)
+            print("Commands executed:")
+            print(f"1. git clone https://github.com/huggingface/lerobot.git {install_path}")
+            print("2. conda create -y -n lerobot python=3.10")
+            print("3. conda install -y ffmpeg -c conda-forge -n lerobot")
+            print(f"4. cd {install_path} && pip install -e .")
+            print("5. pip install pyserial")
+            print("\n📍 LeRobot is now installed and ready to use!")
+            print(f"📁 Installation location: {install_path}")
+            print("🐍 Conda environment: lerobot")
+            print("\nTo use LeRobot:")
+            print("  conda activate lerobot")
+            print(f"  cd {install_path}")
+            print("="*60 + "\n")
+            
+        except subprocess.TimeoutExpired:
+            self._set_error("Installation timed out. Please try again.")
+        except Exception as e:
+            self._set_error(f"Installation failed: {str(e)}")
+    
+    def _set_error(self, error_message):
+        """Set error state"""
+        self.status = "failed"
+        self.message = error_message
+        self.is_running = False
+        self._emit_progress()
+        print(f"Installation Error: {error_message}")
+    
+    def _emit_progress(self):
+        """Emit progress update via WebSocket and console"""
+        status = self.get_status()
+        print(f"Progress: {status['progress']}% - {status['message']}")
+        
+        # Emit WebSocket event if socketio is available
+        if self.socketio:
+            self.socketio.emit('installation_progress', {
+                'progress': status['progress'],
+                'message': status['message'],
+                'status': status['status'],
+                'install_path': status['install_path']
+            })
     
     def get_status(self):
         """Get current installation status"""
         return {
             "status": self.status,
             "progress": self.progress,
-            "message": self.message
+            "message": self.message,
+            "is_running": self.is_running,
+            "install_path": self.install_path
         }
 
 class USBPortDetector:

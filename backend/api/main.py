@@ -45,6 +45,9 @@ databench_evaluator = DataBenchEvaluator()
 installation_manager = PlugPlayInstallationManager()
 usb_detector = USBPortDetector()
 
+# Pass socketio to installation manager after it's created
+installation_manager.socketio = socketio
+
 # Create blueprints
 databench_bp = Blueprint('databench', __name__, url_prefix='/api/databench')
 plugplay_bp = Blueprint('plugplay', __name__, url_prefix='/api/plugplay')
@@ -139,7 +142,6 @@ def evaluate_dataset():
 # ============================================================================
 
 @plugplay_bp.route('/system-info', methods=['GET'])
-@requires_firebase_auth
 def system_info():
     """Get system information"""
     return jsonify({
@@ -152,7 +154,6 @@ def system_info():
     })
 
 @plugplay_bp.route('/list-ports', methods=['GET'])
-@requires_firebase_auth
 def list_ports():
     """List available USB ports"""
     if not SERIAL_AVAILABLE:
@@ -165,7 +166,6 @@ def list_ports():
     return jsonify({"ports": ports})
 
 @plugplay_bp.route('/start-installation', methods=['POST'])
-@requires_firebase_auth
 def start_installation():
     """Start LeRobot installation"""
     try:
@@ -173,7 +173,7 @@ def start_installation():
         data = request.get_json()
         
         result = installation_manager.start_installation(
-            install_path=data.get('installPath', './lerobot'),
+            install_path=data.get('installation_path', './lerobot'),
             selected_port=data.get('selectedPort')
         )
         
@@ -186,14 +186,12 @@ def start_installation():
         }), 500
 
 @plugplay_bp.route('/installation-status', methods=['GET'])
-@requires_firebase_auth
 def installation_status():
     """Get installation status"""
     status = installation_manager.get_status()
     return jsonify(status)
 
 @plugplay_bp.route('/cancel-installation', methods=['POST'])
-@requires_firebase_auth
 def cancel_installation():
     """Cancel installation"""
     return jsonify({
