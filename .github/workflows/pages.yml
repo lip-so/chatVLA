@@ -1,17 +1,50 @@
-# Skip GitHub Pages deployment
-name: Skip Pages
+# Simple GitHub Pages deployment
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  skip-pages:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Skip Pages Deployment
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Create simple site
         run: |
-          echo "GitHub Pages deployment is disabled for this repository"
-          echo "This repository uses Railway for deployment instead"
-          exit 0
+          mkdir -p _site
+          echo "<!DOCTYPE html>
+          <html>
+          <head>
+            <title>Tune Robotics</title>
+            <meta http-equiv='refresh' content='0; url=https://chatvla-production.up.railway.app/'>
+          </head>
+          <body>
+            <p>Redirecting to <a href='https://chatvla-production.up.railway.app/'>Railway deployment</a>...</p>
+          </body>
+          </html>" > _site/index.html
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
