@@ -5,8 +5,11 @@ Simple start script for Railway that will definitely work
 
 import os
 import logging
+import time
+import random
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from threading import Timer
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +18,14 @@ logger = logging.getLogger(__name__)
 # Create a simple Flask app
 app = Flask(__name__)
 CORS(app, origins=["*"])
+
+# Store installation status
+installation_status = {
+    "active": False,
+    "progress": 0,
+    "current_step": "",
+    "logs": []
+}
 
 @app.route('/')
 def index():

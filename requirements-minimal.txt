@@ -1,4 +1,4 @@
-# Absolute minimal requirements for deployment
+# Minimal requirements for REAL LeRobot installation backend
 Flask==2.3.3
 flask-cors==4.0.0
 flask-socketio==5.3.6
@@ -12,3 +12,5 @@ requests==2.31.0
 PyJWT==2.8.0
 bcrypt==4.1.2
 Werkzeug==2.3.7
+pyserial==3.5  # For USB port detection
+python-socketio==5.10.0  # For real-time updates
