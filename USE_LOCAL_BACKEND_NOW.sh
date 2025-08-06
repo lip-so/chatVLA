@@ -1,3 +1,13 @@
+#!/bin/bash
+
+echo "🔧 QUICK FIX: Using Local Backend Temporarily"
+echo "=============================================="
+echo ""
+echo "Since Railway is giving you trouble, let's use a local backend for now..."
+echo ""
+
+# Update config.js to use localhost
+cat > frontend/js/config.js << 'EOF'
 // API Configuration for ChatVLA
 const AppConfig = {
   // Get the appropriate API URL based on environment
@@ -105,3 +115,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other scripts
 window.AppConfig = AppConfig;
+EOF
+
+echo "✅ Updated frontend to use local backend"
+echo ""
+
+# Kill any existing backend processes
+echo "Stopping any existing backend processes..."
+pkill -f "python start.py" 2>/dev/null
+pkill -f "python backend_server.py" 2>/dev/null
+pkill -f "python wsgi.py" 2>/dev/null
+sleep 1
+
+# Start local backend
+echo "Starting local backend on port 8080..."
+cd /Users/sofiia/chatVLA
+python start.py &
+BACKEND_PID=$!
+
+sleep 2
+
+# Test the backend
+echo ""
+echo "Testing local backend..."
+if curl -s http://localhost:8080/health | grep -q "healthy"; then
+    echo "✅ Local backend is running!"
+    echo ""
+    echo "=========================================="
+    echo "✅ SUCCESS! Your app is now working locally!"
+    echo "=========================================="
+    echo ""
+    echo "1. Open: http://localhost:8080/health (to verify backend)"
+    echo "2. Open: file:///Users/sofiia/chatVLA/index.html"
+    echo "3. Navigate to DataBench and test it!"
+    echo ""
+    echo "The backend is running in background (PID: $BACKEND_PID)"
+    echo "To stop it later: kill $BACKEND_PID"
+    echo ""
+    echo "=========================================="
+    echo "TO FIX RAILWAY DEPLOYMENT LATER:"
+    echo "=========================================="
+    echo "1. Get your Railway URL from dashboard"
+    echo "2. Run: ./update_backend_url.sh https://YOUR-RAILWAY-URL.up.railway.app"
+    echo "3. Push to GitHub"
+    echo "4. Site will work at https://tunerobotics.xyz"
+else
+    echo "❌ Backend failed to start"
+    echo "Try manually: cd /Users/sofiia/chatVLA && python start.py"
+fi
