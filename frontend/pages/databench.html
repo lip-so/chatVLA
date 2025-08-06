@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/frontend/css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="/frontend/js/config.js"></script>
   <script src="/frontend/js/access-control.js"></script>
   <style>
     .databench-hero {
@@ -1157,19 +1158,26 @@
           const progressText = document.getElementById('progressText');
           progressText.textContent = 'Connecting to DataBench server...';
           
-          // Use the Railway cloud API with full DataBench functionality
-          const apiUrl = window.location.origin;
+          // Use the configuration to get API URL
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const evaluateEndpoint = window.AppConfig 
+            ? window.AppConfig.getEndpoint('databench', 'evaluate')
+            : `${apiUrl}/api/databench/evaluate`;
+          
           progressText.textContent = 'Connecting to DataBench cloud service...';
+          
+          console.log('DataBench API URL:', evaluateEndpoint);
 
           // Call the actual Flask API with authentication
           const authHeaders = window.authManager ? window.authManager.getAuthHeaders() : {};
-          const response = await fetch(`${apiUrl}/api/databench/evaluate`, {
+          const response = await fetch(evaluateEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               ...authHeaders
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            mode: 'cors'
           });
           
           if (!response.ok) {
