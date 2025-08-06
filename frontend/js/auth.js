@@ -70,7 +70,7 @@ class AuthManager {
   }
 
   redirectToLogin() {
-    window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+          window.location.href = '/frontend/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
   }
 
   redirectAfterLogin() {
