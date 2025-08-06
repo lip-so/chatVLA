@@ -22,7 +22,7 @@ def main():
     try:
         subprocess.run([
             sys.executable,
-            "backend/api/main.py"
+            "force_railway_fix.py"
         ], check=True)
     except KeyboardInterrupt:
         print("\nServer stopped")

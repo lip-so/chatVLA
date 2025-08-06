@@ -15,19 +15,19 @@ print(f"Current dir: {os.getcwd()}")
 print(f"Files in current dir: {os.listdir('.')[:10]}")
 
 try:
-    # Use the main unified API instead of working_api to avoid import issues
-    print("Importing unified backend API...")
-    from backend.api.main import app, socketio
-    print("✅ Successfully imported main API")
+    # Use the comprehensive force_railway_fix backend
+    print("Importing comprehensive Railway backend...")
+    from force_railway_fix import app, socketio
+    print("✅ Successfully imported comprehensive backend")
 except ImportError as e:
-    print(f"❌ Main API import error: {e}")
+    print(f"❌ Comprehensive backend import error: {e}")
     try:
-        # Fallback to working API
-        print("Trying working API fallback...")
-        from backend.plug_and_play.working_api import app, socketio
-        print("✅ Successfully imported working_api")
+        # Fallback to cloud_deploy
+        print("Trying cloud_deploy fallback...")
+        from cloud_deploy import app, socketio
+        print("✅ Successfully imported cloud_deploy")
     except ImportError as e2:
-        print(f"❌ Working API import error: {e2}")
+        print(f"❌ Cloud deploy import error: {e2}")
         # Create minimal fallback app
         from flask import Flask, jsonify
         app = Flask(__name__)

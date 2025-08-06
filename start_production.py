@@ -11,9 +11,8 @@ from pathlib import Path
 backend_path = Path(__file__).parent / 'backend'
 sys.path.insert(0, str(backend_path))
 
-# Import both apps
-from api.main import app as main_app
-from plug_and_play.working_api import app as working_app, socketio
+# Import comprehensive backend
+from force_railway_fix import app as comprehensive_app, socketio
 
 # Import required components
 from flask import Flask, Blueprint
@@ -31,63 +30,44 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-i
 # Initialize CORS
 CORS(app, origins=["*"])
 
-# Import all routes from main_app
-for rule in main_app.url_map.iter_rules():
+# Import all routes from comprehensive backend
+for rule in comprehensive_app.url_map.iter_rules():
     # Skip static and root routes as we'll handle them separately
     if not rule.rule.startswith('/static') and rule.rule != '/':
         app.add_url_rule(
             rule.rule,
             endpoint=rule.endpoint,
-            view_func=main_app.view_functions[rule.endpoint],
+            view_func=comprehensive_app.view_functions[rule.endpoint],
             methods=rule.methods
         )
 
-# Import all routes from working_app
-for rule in working_app.url_map.iter_rules():
-    # Skip routes that conflict with main_app
-    if rule.rule.startswith('/api/plugplay') or rule.rule.startswith('/api/install'):
-        # Check if endpoint already exists
-        if rule.endpoint not in app.view_functions:
-            app.add_url_rule(
-                rule.rule,
-                endpoint=rule.endpoint,
-                view_func=working_app.view_functions[rule.endpoint],
-                methods=rule.methods
-            )
-
 # Static file serving
+# Use comprehensive backend for static file serving
 @app.route('/')
 def index():
-    return working_app.send_static_file('index.html')
+    return comprehensive_app.view_functions['index']()
 
 @app.route('/pages/<path:filename>')
 def serve_page(filename):
-    return working_app.send_static_file(f'pages/{filename}')
+    return comprehensive_app.view_functions['serve_page'](filename)
 
 @app.route('/css/<path:filename>')
 def serve_css(filename):
-    return working_app.send_static_file(f'css/{filename}')
+    return comprehensive_app.view_functions['serve_css'](filename)
 
 @app.route('/js/<path:filename>')
 def serve_js(filename):
-    return working_app.send_static_file(f'js/{filename}')
+    return comprehensive_app.view_functions['serve_js'](filename)
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
-    return working_app.send_static_file(f'assets/{filename}')
+    return comprehensive_app.view_functions['serve_assets'](filename)
 
 # Initialize SocketIO with the combined app
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Copy socket event handlers from working_app
-working_socketio = getattr(working_app, '_socketio', None)
-if working_socketio:
-    for event in ['connect', 'disconnect', 'install_log']:
-        if hasattr(working_socketio, 'handlers'):
-            handlers = working_socketio.handlers.get(event, {})
-            for namespace, handler_list in handlers.items():
-                for handler in handler_list:
-                    socketio.on(event, namespace=namespace)(handler)
+# Use socketio from comprehensive backend directly
+socketio = getattr(comprehensive_app, 'socketio', socketio)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

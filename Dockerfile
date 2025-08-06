@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only necessary files first
-COPY requirements-deploy.txt .
-RUN pip install --no-cache-dir -r requirements-deploy.txt
+COPY requirements-comprehensive.txt .
+RUN pip install --no-cache-dir -r requirements-comprehensive.txt
 
 # Copy backend code
 COPY backend/ ./backend/
@@ -22,6 +22,9 @@ COPY ultra_minimal.py .
 COPY app.py .
 COPY deploy.py .
 COPY simple_deploy.py .
+COPY cloud_deploy.py .
+COPY railway_lightweight.py .
+COPY force_railway_fix.py .
 COPY wsgi.py .
 COPY Procfile .
 
@@ -45,4 +48,4 @@ ENV PORT=5000
 ENV PYTHONPATH=/app
 
 # Run the application with Gunicorn for production
-CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:app
+CMD python force_railway_fix.py

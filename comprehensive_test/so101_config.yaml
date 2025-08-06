@@ -1,0 +1,16 @@
+# SO-101 Follower (6-DOF precision arm) Configuration
+robot_type: so101
+dof: 6
+communication:
+  type: serial
+  baud_rate: 1000000
+  port_pattern: "/dev/ttyUSB*"
+  timeout: 1.0
+
+deployment_mode: comprehensive
+installation_date: 2025-08-05T20:44:55.764516
+cloud_deployment: true
+features:
+  usb_detection: True
+  databench: true
+  real_hardware: true
