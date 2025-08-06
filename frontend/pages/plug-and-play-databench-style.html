@@ -763,6 +763,18 @@
         font-size: 1.1rem;
       }
     }
+  
+  /* Banner animation */
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
   </style>
 </head>
 <body>
@@ -954,15 +966,123 @@
     let socket = null;
     let installPath = null;
 
-    // Backend URL
-    // Dynamically determine API URL based on current location
-    // Use the Railway backend URL for API calls
-  const API_URL = 'https://web-production-fdfaa.up.railway.app';
+      // Backend URL - Check for local installer first, then use Railway
+  let API_URL = 'https://web-production-fdfaa.up.railway.app';
+  let isLocalInstaller = false;
+  
+  // Check if local installer bridge is running
+  async function checkLocalInstaller() {
+    try {
+      const response = await fetch('http://localhost:7777/health', {
+        method: 'GET',
+        mode: 'cors'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.local && data.can_install) {
+          API_URL = 'http://localhost:7777';
+          isLocalInstaller = true;
+          console.log('✅ Local installer detected - REAL installation enabled!');
+          showLocalInstallerStatus(true);
+          return true;
+        }
+      }
+    } catch (e) {
+      console.log('Local installer not running');
+    }
+    showLocalInstallerStatus(false);
+    return false;
+  }
+  
+  // Show local installer status
+  function showLocalInstallerStatus(isRunning) {
+    const existingBanner = document.getElementById('installer-status-banner');
+    if (existingBanner) existingBanner.remove();
+    
+    const banner = document.createElement('div');
+    banner.id = 'installer-status-banner';
+    banner.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 15px;
+      text-align: center;
+      z-index: 10000;
+      font-family: monospace;
+      animation: slideDown 0.3s ease;
+    `;
+    
+    if (isRunning) {
+      banner.style.background = 'linear-gradient(90deg, #00c851 0%, #00a846 100%)';
+      banner.style.color = 'white';
+      banner.innerHTML = `
+        <strong>✅ REAL Installation Mode Active!</strong> 
+        LeRobot will be installed on YOUR computer
+      `;
+    } else {
+      banner.style.background = 'linear-gradient(90deg, #ff6b6b 0%, #ff5252 100%)';
+      banner.style.color = 'white';
+      banner.innerHTML = `
+        <strong>⚠️ Demo Mode Only</strong> - To enable REAL installation: 
+        <a href="#" onclick="showInstallInstructions()" style="color: yellow; text-decoration: underline;">
+          Click here for instructions
+        </a>
+      `;
+    }
+    
+    document.body.appendChild(banner);
+  }
+  
+  // Show instructions to enable real installation
+  window.showInstallInstructions = function() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+    `;
+    
+    modal.innerHTML = `
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; color: black;">
+        <h2 style="margin-top: 0;">🤖 Enable REAL LeRobot Installation</h2>
+        <p>To install LeRobot on YOUR computer from this website:</p>
+        <ol style="text-align: left;">
+          <li>Open Terminal</li>
+          <li>Run these commands:
+            <pre style="background: #f4f4f4; padding: 10px; border-radius: 5px;">
+cd ~/chatVLA
+python local_installer_bridge.py</pre>
+          </li>
+          <li>Keep the terminal open</li>
+          <li>Refresh this page</li>
+        </ol>
+        <p>The local bridge allows this website to install LeRobot on your computer!</p>
+        <button onclick="this.parentElement.parentElement.remove()" 
+                style="background: #007bff; color: white; border: none; padding: 10px 20px; 
+                       border-radius: 5px; cursor: pointer;">
+          Got it!
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  };
 
-    // Initialize
-    async function init() {
-      initRobotGrid();
-      initChoiceCards();
+      // Initialize
+  async function init() {
+    // Check for local installer first
+    await checkLocalInstaller();
+    
+    initRobotGrid();
+    initChoiceCards();
       await checkExistingInstallations();
     }
 
