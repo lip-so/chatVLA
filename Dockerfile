@@ -9,21 +9,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only necessary files first
-COPY requirements-comprehensive.txt .
-RUN pip install --no-cache-dir -r requirements-comprehensive.txt
+COPY requirements-deploy.txt .
+RUN pip install --no-cache-dir -r requirements-deploy.txt
 
 # Copy backend code
 COPY backend/ ./backend/
-COPY start.py .
-COPY railway_start.py .
-COPY railway_debug.py .
-COPY minimal_app.py .
-COPY ultra_minimal.py .
-COPY app.py .
-COPY deploy.py .
 COPY simple_deploy.py .
-COPY cloud_deploy.py .
-COPY railway_lightweight.py .
 
 COPY wsgi.py .
 COPY Procfile .

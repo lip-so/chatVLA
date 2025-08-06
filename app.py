@@ -20,31 +20,24 @@ try:
     from simple_deploy import app, socketio
     print("✅ Successfully imported simple backend")
 except ImportError as e:
-    print(f"❌ Comprehensive backend import error: {e}")
-    try:
-        # Fallback to cloud_deploy
-        print("Trying cloud_deploy fallback...")
-        from cloud_deploy import app, socketio
-        print("✅ Successfully imported cloud_deploy")
-    except ImportError as e2:
-        print(f"❌ Cloud deploy import error: {e2}")
-        # Create minimal fallback app
-        from flask import Flask, jsonify
-        app = Flask(__name__)
-        
-        @app.route('/')
-        def hello():
-            return "Fallback app running - import failed"
-        
-        @app.route('/health')
-        def health():
-            return jsonify({'status': 'healthy', 'mode': 'fallback'})
-        
-        @app.route('/api/plugplay/start-installation', methods=['POST'])
-        def install():
-            return jsonify({'success': False, 'error': 'Backend import failed'})
-        
-        socketio = None
+    print(f"❌ Backend import error: {e}")
+    # Create minimal fallback app
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def hello():
+        return "Fallback app running - import failed"
+    
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'healthy', 'mode': 'fallback'})
+    
+    @app.route('/api/plugplay/start-installation', methods=['POST'])
+    def install():
+        return jsonify({'success': False, 'error': 'Backend import failed'})
+    
+    socketio = None
 
 # For Railway compatibility
 if __name__ == '__main__':

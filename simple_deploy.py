@@ -180,7 +180,18 @@ def index():
 
 @app.route('/pages/<path:filename>')
 def serve_page(filename):
-    return send_from_directory('pages', filename)
+    # Try pages directory first
+    pages_path = Path('pages') / filename
+    if pages_path.exists():
+        return send_from_directory('pages', filename)
+    
+    # Try frontend/pages directory as fallback
+    frontend_pages_path = Path('frontend/pages') / filename
+    if frontend_pages_path.exists():
+        return send_from_directory('frontend/pages', filename)
+    
+    # Return 404 if not found
+    return jsonify({'error': 'Page not found', 'path': f'/pages/{filename}'}), 404
 
 @app.route('/css/<path:filename>')
 def serve_css(filename):
