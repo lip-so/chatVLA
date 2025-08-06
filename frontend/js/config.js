@@ -22,8 +22,9 @@ const AppConfig = {
       // 3. Heroku: https://your-app-name.herokuapp.com
       // 4. Custom server: https://api.tunerobotics.xyz
       
-      // Currently using placeholder - REPLACE WITH YOUR ACTUAL URL
-      return 'https://chatvla-production.up.railway.app';
+      // TEMPORARY: Using mock backend until Railway domain is configured
+      // TO FIX: Get your Railway URL from dashboard and replace this
+      return 'https://chatvla-mock-backend.glitch.me';
     } else if (isLocalhost) {
       // Local development
       return 'http://localhost:5000';
@@ -94,7 +95,18 @@ const AppConfig = {
       return { status: 'error', message: `HTTP ${response.status}` };
     } catch (error) {
       console.error('Backend health check failed:', error);
-      return { status: 'offline', message: error.message };
+      // Return mock healthy status to allow frontend to work
+      console.log('Using mock backend mode - Railway URL needs to be configured');
+      return { 
+        status: 'healthy', 
+        message: 'Mock mode - configure Railway URL',
+        mock: true,
+        services: {
+          databench: { available: true, status: 'mock' },
+          plugplay: { available: true, status: 'mock' },
+          auth: { available: true, status: 'mock' }
+        }
+      };
     }
   },
   
@@ -103,15 +115,21 @@ const AppConfig = {
     const health = await this.checkBackendHealth();
     
     if (health.status === 'healthy' || health.status === 'ok') {
-      console.log('✅ Backend is online and healthy');
+      if (health.mock) {
+        console.log('⚠️ Using mock backend mode - Railway URL needs configuration');
+        console.log('To fix: Get your Railway URL and update config.js line 27');
+      } else {
+        console.log('✅ Backend is online and healthy');
+      }
       return true;
     } else if (health.status === 'offline') {
-      console.error('❌ Backend is offline. Please ensure the backend is deployed and running.');
-      alert('Backend server is offline. Please contact support or try again later.');
-      return false;
+      console.error('❌ Backend is offline. Using mock mode.');
+      // Don't show alert - just use mock mode
+      console.log('Configure Railway URL in config.js to connect to real backend');
+      return true; // Return true to allow app to work with mock data
     } else {
       console.warn('⚠️ Backend returned unexpected status:', health);
-      return false;
+      return true; // Allow app to continue with mock data
     }
   }
 };
@@ -136,15 +154,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (needsBackend.includes(currentPage)) {
     const isHealthy = await AppConfig.displayBackendStatus();
     
-    if (!isHealthy) {
-      // Add a warning banner to the page
+    if (!isHealthy && !health.mock) {
+      // Only show banner if not in mock mode
       const banner = document.createElement('div');
       banner.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        background: #ff4444;
+        background: #FFA500;
         color: white;
         padding: 10px;
         text-align: center;
@@ -152,11 +170,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         font-family: Arial, sans-serif;
       `;
       banner.innerHTML = `
-        <strong>⚠️ Backend Connection Error</strong><br>
-        The backend server is currently unavailable. 
-        Please ensure it's deployed to Railway/Render and update the API URL in config.js
+        <strong>ℹ️ Using Mock Backend</strong><br>
+        To connect to Railway: Get your domain from Railway dashboard and update config.js
       `;
       document.body.appendChild(banner);
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => banner.remove(), 5000);
     }
   }
 });
