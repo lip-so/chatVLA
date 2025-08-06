@@ -1,0 +1,28 @@
+# Ultra-minimal Dockerfile - guaranteed to work
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy and install only the absolute essentials
+COPY requirements-minimal.txt .
+RUN pip install --no-cache-dir -r requirements-minimal.txt
+
+# Copy only the essential files
+COPY backend/ ./backend/
+COPY simple_deploy.py .
+COPY wsgi.py .
+COPY index.html .
+COPY 404.html .
+
+# Copy frontend directory
+COPY frontend/ ./frontend/
+
+# Set minimal environment
+ENV PORT=5000
+ENV PYTHONPATH=/app
+
+# Expose port
+EXPOSE 5000
+
+# Run with simple command
+CMD gunicorn --bind 0.0.0.0:$PORT wsgi:app
