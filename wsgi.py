@@ -6,25 +6,54 @@ This file is referenced by Gunicorn in Procfile and deployment configurations
 
 import os
 import sys
+import logging
 
-# Import the initialized app and socketio from simple_deploy
-from simple_deploy import app, socketio, application
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Ensure the application is properly exported for WSGI servers
-# Gunicorn expects 'app' or 'application' as the callable
-if socketio:
-    # Use SocketIO's WSGI app for WebSocket support
-    app = application
-else:
-    # Fallback to regular Flask app if SocketIO isn't available
-    app = app if app else application
+try:
+    # Import the application from simple_deploy
+    from simple_deploy import app as flask_app, socketio
+    
+    # Create the WSGI application
+    # For Gunicorn with eventlet, we just need the Flask app
+    # The eventlet worker will handle WebSocket support
+    logger.info("Imported Flask application successfully")
+    app = flask_app
+    
+    # Ensure app is callable
+    if not callable(app):
+        logger.error("App is not callable, creating fallback")
+        from flask import Flask
+        app = Flask(__name__)
+        
+        @app.route('/')
+        def index():
+            return "Application is running in minimal mode", 200
+        
+        @app.route('/health')
+        def health():
+            return {"status": "ok", "mode": "minimal"}, 200
+            
+except Exception as e:
+    logger.error(f"Failed to import application: {e}")
+    # Create minimal fallback app
+    from flask import Flask
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def error():
+        return f"Application failed to start: {str(e)}", 500
+    
+    @app.route('/health')
+    def health():
+        return {"status": "error", "message": str(e)}, 500
+
+# Make sure app is the exported WSGI callable
+application = app
 
 # Development server (not used in production)
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    if socketio:
-        # Run with SocketIO for WebSocket support
-        socketio.run(app, host='0.0.0.0', port=port, debug=False)
-    else:
-        # Run standard Flask app
-        app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)

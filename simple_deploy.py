@@ -183,10 +183,8 @@ except Exception as e:
     socketio = None
 
 # Export for WSGI servers
-if socketio:
-    application = socketio
-else:
-    application = app
+# IMPORTANT: Gunicorn needs the Flask app object, not the SocketIO object
+application = app
 
 # Development server runner
 if __name__ == "__main__":
