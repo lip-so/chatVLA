@@ -22,7 +22,7 @@ def main():
     try:
         subprocess.run([
             sys.executable,
-            "force_railway_fix.py"
+            "simple_deploy.py"
         ], check=True)
     except KeyboardInterrupt:
         print("\nServer stopped")

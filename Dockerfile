@@ -24,7 +24,7 @@ COPY deploy.py .
 COPY simple_deploy.py .
 COPY cloud_deploy.py .
 COPY railway_lightweight.py .
-COPY force_railway_fix.py .
+
 COPY wsgi.py .
 COPY Procfile .
 
@@ -48,4 +48,4 @@ ENV PORT=5000
 ENV PYTHONPATH=/app
 
 # Run the application with Gunicorn for production
-CMD python force_railway_fix.py
+CMD gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:app

@@ -12,7 +12,7 @@ backend_path = Path(__file__).parent / 'backend'
 sys.path.insert(0, str(backend_path))
 
 # Import comprehensive backend
-from force_railway_fix import app as comprehensive_app, socketio
+from simple_deploy import app as comprehensive_app, socketio
 
 # Import required components
 from flask import Flask, Blueprint

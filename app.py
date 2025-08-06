@@ -15,10 +15,10 @@ print(f"Current dir: {os.getcwd()}")
 print(f"Files in current dir: {os.listdir('.')[:10]}")
 
 try:
-    # Use the comprehensive force_railway_fix backend
-    print("Importing comprehensive Railway backend...")
-    from force_railway_fix import app, socketio
-    print("✅ Successfully imported comprehensive backend")
+    # Use the simple_deploy backend
+    print("Importing simple deployment backend...")
+    from simple_deploy import app, socketio
+    print("✅ Successfully imported simple backend")
 except ImportError as e:
     print(f"❌ Comprehensive backend import error: {e}")
     try:
