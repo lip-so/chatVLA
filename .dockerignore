@@ -1,17 +1,100 @@
-__pycache__/
-*.pyc
-.env
-.venv/
-venv/
-.git/
+# Git
+.git
 .gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 *.log
-results/
-tmp/
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-*.pt
-*.pth
-tests/
+
+# Project specific
+*.db
+*.sqlite
+*.sqlite3
+instance/
+.env
+.env.*
+firebase-service-account.json
+credentials/
+secrets/
+
+# Documentation
+*.md
 docs/
-REORGANIZATION_LOG.md
-VERIFICATION_REPORT.md
+README.md
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Large ML models (if any)
+models/
+*.pth
+*.pt
+*.onnx
+*.h5
+*.pkl
+*.joblib
+
+# Datasets
+data/
+datasets/
+*.csv
+*.json
+*.parquet
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Reference files
+ref/
+
+# Development files
+*_old.*
+*.bak
+*.backup
+
+# Deployment alternatives
+Dockerfile.simple
+requirements-deploy-light.txt
