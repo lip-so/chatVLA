@@ -2,9 +2,9 @@
 const AppConfig = {
   // Get the appropriate API URL based on environment
   getApiUrl() {
-    // TEMPORARY: Using localhost until Railway is fixed
-    // TO FIX: Get Railway URL and replace the line below
-    return 'http://localhost:8080';
+    // Railway backend URL - PRODUCTION
+    // Your Railway deployment: web-production-fdfaa.up.railway.app
+    return 'https://web-production-fdfaa.up.railway.app';
   },
   
   // API endpoints mapping
@@ -77,8 +77,8 @@ const AppConfig = {
       banner.className = 'alert alert-warning';
       banner.style.cssText = 'position: fixed; top: 60px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 10px 20px; border-radius: 5px;';
       banner.innerHTML = `
-        <strong>⚠️ Using Local Backend</strong><br>
-        Make sure backend is running: <code>cd /Users/sofiia/chatVLA && python start.py</code>
+        <strong>⚠️ Backend Connection Issue</strong><br>
+        Railway backend may be starting up. Please wait a moment and refresh.
       `;
       document.body.appendChild(banner);
       
