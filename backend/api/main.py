@@ -292,6 +292,122 @@ def cancel_installation():
         'message': 'Installation cancelled'
     })
 
+@plugplay_bp.route('/calibrate', methods=['POST'])
+def start_calibration():
+    """Start robot calibration (hosted mode simulation)"""
+    data = request.get_json()
+    role = data.get('role', 'follower')
+    port = data.get('port', '/dev/ttyUSB0')
+    
+    # In hosted mode, simulate calibration
+    socketio.emit('calibration_log', {
+        'message': f'[HOSTED] Starting {role} calibration on port {port}',
+        'level': 'info'
+    })
+    
+    return jsonify({
+        'success': True,
+        'message': f'Calibration started for {role}',
+        'status': 'running'
+    })
+
+@plugplay_bp.route('/calibration-status', methods=['GET'])
+def get_calibration_status():
+    """Get calibration status"""
+    return jsonify({
+        'status': 'idle',
+        'message': 'No active calibration'
+    })
+
+@plugplay_bp.route('/stop-calibration', methods=['POST'])
+def stop_calibration():
+    """Stop calibration"""
+    return jsonify({
+        'success': True,
+        'message': 'Calibration stopped'
+    })
+
+@plugplay_bp.route('/start-teleop', methods=['POST'])
+def start_teleoperation():
+    """Start teleoperation (hosted mode simulation)"""
+    data = request.get_json()
+    leader_type = data.get('leader_type', 'so101')
+    follower_type = data.get('follower_type', 'so101')
+    
+    socketio.emit('teleoperation_log', {
+        'message': f'[HOSTED] Starting teleoperation: {leader_type} -> {follower_type}',
+        'level': 'info'
+    })
+    
+    return jsonify({
+        'success': True,
+        'message': 'Teleoperation started',
+        'status': 'running'
+    })
+
+@plugplay_bp.route('/teleop-status', methods=['GET'])
+def get_teleop_status():
+    """Get teleoperation status"""
+    return jsonify({
+        'status': 'idle',
+        'message': 'No active teleoperation'
+    })
+
+@plugplay_bp.route('/stop-teleop', methods=['POST'])
+def stop_teleoperation():
+    """Stop teleoperation"""
+    return jsonify({
+        'success': True,
+        'message': 'Teleoperation stopped'
+    })
+
+@plugplay_bp.route('/start-recording', methods=['POST'])
+def start_recording():
+    """Start dataset recording (hosted mode simulation)"""
+    data = request.get_json()
+    repo_id = data.get('repo_id', 'user/dataset')
+    episodes = data.get('episodes', 5)
+    
+    socketio.emit('recording_log', {
+        'message': f'[HOSTED] Starting recording: {episodes} episodes to {repo_id}',
+        'level': 'info'
+    })
+    
+    return jsonify({
+        'success': True,
+        'message': 'Recording started',
+        'status': 'running'
+    })
+
+@plugplay_bp.route('/recording-status', methods=['GET'])
+def get_recording_status():
+    """Get recording status"""
+    return jsonify({
+        'status': 'idle',
+        'message': 'No active recording'
+    })
+
+@plugplay_bp.route('/stop-recording', methods=['POST'])
+def stop_recording():
+    """Stop recording"""
+    return jsonify({
+        'success': True,
+        'message': 'Recording stopped'
+    })
+
+@plugplay_bp.route('/save-port-config', methods=['POST'])
+def save_port_config():
+    """Save port configuration"""
+    data = request.get_json()
+    leader_port = data.get('leader_port')
+    follower_port = data.get('follower_port')
+    
+    # In hosted mode, just acknowledge the save
+    return jsonify({
+        'success': True,
+        'message': f'Port configuration saved: Leader={leader_port}, Follower={follower_port}'
+    })
+
 # Register blueprints
 app.register_blueprint(firebase_bp)  # Firebase auth blueprint
 app.register_blueprint(databench_bp)

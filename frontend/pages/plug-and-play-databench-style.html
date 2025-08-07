@@ -872,23 +872,17 @@
 
       <!-- Installation Progress -->
       <div id="installationSection" class="installation-section">
-        <div class="step-card active" id="step1">
+        <div class="step-card" id="step1">
           <div class="step-header">
-            <div id="step1Number" class="step-number active">1</div>
+            <div id="step1Number" class="step-number completed">1</div>
             <h3 class="step-title">LeRobot Installation</h3>
           </div>
           
           <div id="installStatus" class="install-status">
             <div class="status-message">
-              <i class="fas fa-rocket"></i>
-              <span id="statusText">Ready to proceed with installation...</span>
+              <i class="fas fa-check-circle"></i>
+              <span id="statusText">✅ LeRobot is pre-installed on Tune Robotics servers</span>
             </div>
-          </div>
-          
-          <div id="installControls" style="margin: 1.5rem 0;">
-            <button id="installBtn" class="btn-primary" onclick="startInstall()">
-              <i class="fas fa-download"></i> Start Installation
-            </button>
           </div>
           
           <div id="terminal" class="terminal hidden">
@@ -897,12 +891,12 @@
         </div>
 
         <!-- Step 2: USB Detection -->
-        <div class="step-card disabled" id="step2">
+        <div class="step-card active" id="step2">
           <div class="step-header">
-            <div id="step2Number" class="step-number">2</div>
+            <div id="step2Number" class="step-number active">2</div>
             <h3 class="step-title">USB Port Detection</h3>
           </div>
-          <div id="usbContent" class="hidden">
+          <div id="usbContent">
             <p>Connect your robot arms using Web Serial (Chrome over HTTPS). Then proceed to Pipeline.</p>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
               <button class="btn-secondary" onclick="connectSerial('leader')"><i class="fas fa-plug"></i> Connect Leader</button>
@@ -1050,7 +1044,11 @@
       // Initialize
   async function init() {
     initRobotGrid();
-    initChoiceCards();
+    // Connect socket for runtime logs
+    socket = io(API_URL);
+    socket.on('calibration_log', (data) => addLog('terminal', data.message, 'info'));
+    socket.on('teleoperation_log', (data) => addLog('terminal', data.message, 'info'));
+    socket.on('recording_log', (data) => addLog('terminal', data.message, 'info'));
   }
 
     // Initialize robot grid
@@ -1089,21 +1087,7 @@
     }
 
     // Initialize choice cards
-    function initChoiceCards() {
-      document.querySelectorAll('.choice-card').forEach(card => {
-        card.onclick = () => selectChoice(card.dataset.choice);
-      });
-      // Auto-select defaults and advance to hardware step for smoother UX
-      selectChoice('existing');
-      const installPathInput = document.getElementById('installPath');
-      if (installPathInput) installPathInput.value = '~/lerobot';
-      updateContinueButton();
-      // Proceed automatically
-      setTimeout(() => {
-        const btn = document.getElementById('continueBtn');
-        if (btn && !btn.disabled) btn.click();
-      }, 50);
-    }
+
 
     // Check for existing installations
     async function checkExistingInstallations() { /* hosted mode: skip */ }
@@ -1123,7 +1107,7 @@
           selectChoice('existing');
         }
         
-        updateContinueButton();
+        // Hosted mode: updateContinueButton removed
       }
     }
 
@@ -1155,27 +1139,9 @@
       });
       document.querySelector(`[data-robot="${robotKey}"]`).classList.add('selected');
       selectedRobot = robotKey;
-      updateContinueButton();
     }
 
-    // Select installation choice
-    function selectChoice(choice) {
-      document.querySelectorAll('.choice-card').forEach(card => {
-        card.classList.remove('selected');
-      });
-      document.querySelector(`[data-choice="${choice}"]`).classList.add('selected');
-      selectedChoice = choice;
-      
-      const existingDiv = document.getElementById('existingInstallations');
-      if (choice === 'existing') {
-        existingDiv.classList.remove('hidden');
-      } else {
-        existingDiv.classList.add('hidden');
-        selectedInstallation = null;
-      }
-      
-      updateContinueButton();
-    }
+    // Hosted mode: installation choice functions removed
 
     // Select installation
     function selectInstallation(path) {
@@ -1185,87 +1151,14 @@
       document.querySelector(`[data-path="${path}"]`).classList.add('selected');
       selectedInstallation = path;
       document.getElementById('installPath').value = path;
-      updateContinueButton();
+      // Hosted mode: updateContinueButton removed
     }
 
-    // Update continue button
-    function updateContinueButton() {
-      const btn = document.getElementById('continueBtn');
-      const installPath = document.getElementById('installPath').value.trim();
-      
-      const canContinue = selectedRobot && selectedChoice && 
-        (selectedChoice === 'new' || 
-         (selectedChoice === 'existing' && (selectedInstallation || installPath)));
-      
-      btn.disabled = !canContinue;
-      
-      if (canContinue) {
-        btn.style.background = '#28a745';
-        btn.innerHTML = '<i class="fas fa-rocket"></i> Continue with Setup';
-      } else {
-        btn.style.background = '';
-        btn.innerHTML = 'Continue with Setup';
-      }
-    }
+    // Hosted mode: updateContinueButton function removed
 
-    // Continue to hosted hardware setup
-    document.getElementById('continueBtn').onclick = () => {
-      document.getElementById('robotSelection').style.display = 'none';
-      document.getElementById('installationSection').style.display = 'none';
-      document.getElementById('step1').style.display = 'none';
-      document.getElementById('step2').classList.remove('disabled');
-      document.getElementById('step2').classList.add('active');
-      document.getElementById('step2Number').classList.add('active');
-      document.getElementById('usbContent').classList.remove('hidden');
-      // Connect socket for runtime logs only
-      socket = io(API_URL);
-      socket.on('calibration_log', (data) => addLog('terminal', data.message, 'info'));
-      socket.on('teleoperation_log', (data) => addLog('terminal', data.message, 'info'));
-      socket.on('recording_log', (data) => addLog('terminal', data.message, 'info'));
-      document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
+    // Hosted mode: continue button handler removed
 
-    // Start installation
-    async function startInstall() {
-      document.getElementById('installControls').style.display = 'none';
-      document.getElementById('terminal').classList.remove('hidden');
-      
-      updateInstallStatus('Starting installation...');
-      
-      try {
-        const response = await fetch(`${API_URL}/api/plugplay/start-installation`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            installation_path: installPath,
-            selected_robot: selectedRobot,
-            use_existing: selectedChoice === 'existing'
-          })
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `Server returned ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success || result.status === 'started') {
-          addLog('terminal', 'Installation started successfully!', 'success');
-          addLog('terminal', `Installing to: ${result.install_path || installPath}`, 'info');
-        } else {
-          addLog('terminal', 'Installation failed: ' + (result.error || result.message), 'error');
-        }
-        
-      } catch (error) {
-        addLog('terminal', 'Failed to start installation: ' + error.message, 'error');
-      }
-    }
-
-    // Update installation status
-    function updateInstallStatus(message) {
-      document.getElementById('statusText').textContent = message;
-    }
+    // Hosted mode: installation functions removed
 
     // Add log to terminal
     function addLog(terminalId, message, level = 'info') {
@@ -1515,7 +1408,7 @@
         if (path) {
           selectedInstallation = path;
         }
-        updateContinueButton();
+        // Hosted mode: updateContinueButton removed
       }
     });
 
