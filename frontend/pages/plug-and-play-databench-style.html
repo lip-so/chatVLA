@@ -966,33 +966,9 @@
     let socket = null;
     let installPath = null;
 
-      // Backend URL - Check for local installer first, then use Railway
+  // Hosted mode: always use Railway backend
   let API_URL = 'https://web-production-fdfaa.up.railway.app';
   let isLocalInstaller = false;
-  
-  // Check if local installer bridge is running
-  async function checkLocalInstaller() {
-    try {
-      const response = await fetch('http://localhost:7777/health', {
-        method: 'GET',
-        mode: 'cors'
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.local && data.can_install) {
-          API_URL = 'http://localhost:7777';
-          isLocalInstaller = true;
-          console.log('✅ Local installer detected - REAL installation enabled!');
-          showLocalInstallerStatus(true);
-          return true;
-        }
-      }
-    } catch (e) {
-      console.log('Local installer not running');
-    }
-    showLocalInstallerStatus(false);
-    return false;
-  }
   
   // Copy install command to clipboard
   function copyInstallCommand() {
@@ -1002,51 +978,17 @@
     });
   }
   
-  // Show local installer status
-  function showLocalInstallerStatus(isRunning) {
-    const existingBanner = document.getElementById('installer-status-banner');
-    if (existingBanner) existingBanner.remove();
-    
+  // Hosted banner
+  (function showHostedBanner(){
     const banner = document.createElement('div');
     banner.id = 'installer-status-banner';
     banner.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 15px;
-      text-align: center;
-      z-index: 10000;
-      font-family: monospace;
-      animation: slideDown 0.3s ease;
-    `;
-    
-    if (isRunning) {
-      banner.style.background = 'linear-gradient(90deg, #00c851 0%, #00a846 100%)';
-      banner.style.color = 'white';
-      banner.style.fontSize = '14px';
-      banner.style.padding = '10px';
-      banner.innerHTML = `✅ Connected to local installer - Ready for real installation`;
-    } else {
-      // Show simple command to enable real installation
-      banner.style.background = 'linear-gradient(90deg, #ff9800 0%, #f57c00 100%)';
-      banner.style.color = 'white';
-      banner.style.fontSize = '14px';
-      banner.style.padding = '10px';
-      banner.innerHTML = `
-        ⚠️ Local installer not detected · Run: 
-        <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 13px;">
-          cd ~/chatVLA && python3 local_installer_bridge.py
-        </code>
-        <button onclick="copyInstallCommand()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 3px 8px; 
-                border-radius: 5px; cursor: pointer; margin-left: 8px; font-size: 12px;">Copy</button>
-        <button onclick="window.location.reload()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); 
-                padding: 3px 8px; border-radius: 5px; cursor: pointer; margin-left: 4px; font-size: 12px;">Retry</button>
-      `;
-    }
-    
+      position: fixed; top: 0; left: 0; right: 0; padding: 12px; text-align: center; 
+      z-index: 10000; font-family: monospace; animation: slideDown 0.3s ease;
+      background: linear-gradient(90deg, #212121 0%, #000 100%); color: #fff; font-size: 13px;`;
+    banner.textContent = 'Hosted mode: compute runs on Tune Robotics servers. Connect your local USB ports and camera below.';
     document.body.appendChild(banner);
-  }
+  })();
   
   // Show instructions to enable real installation
   window.showInstallInstructions = function() {
@@ -1100,27 +1042,14 @@
     document.body.appendChild(modal);
   };
   
-  // Auto-retry connection
-  window.retryConnection = async function() {
-    const result = await checkLocalInstaller();
-    if (result) {
-      // Reload the page to reinitialize with local installer
-      window.location.reload();
-    } else {
-      // Try again in 2 seconds
-      setTimeout(retryConnection, 2000);
-    }
-  };
+  // No-op in hosted mode
+  window.retryConnection = async function() {};
 
       // Initialize
   async function init() {
-    // Check for local installer first
-    await checkLocalInstaller();
-    
     initRobotGrid();
     initChoiceCards();
-      await checkExistingInstallations();
-    }
+  }
 
     // Initialize robot grid
     function initRobotGrid() {
@@ -1165,24 +1094,7 @@
     }
 
     // Check for existing installations
-    async function checkExistingInstallations() {
-      try {
-        const response = await fetch(`${API_URL}/api/plugplay/system-info`);
-        const data = await response.json();
-        existingInstallations = data.found_installations || [];
-        
-        if (existingInstallations.length > 0) {
-          populateExistingInstallations();
-        } else {
-          const list = document.getElementById('installationList');
-          list.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">No LeRobot installations detected automatically.</p>';
-        }
-      } catch (error) {
-        console.error('Failed to check existing installations:', error);
-        const list = document.getElementById('installationList');
-        list.innerHTML = '<p style="color: var(--text-secondary); font-style: italic;">Unable to check for existing installations.</p>';
-      }
-    }
+    async function checkExistingInstallations() { /* hosted mode: skip */ }
 
     // Handle folder selection
     function handleFolderSelect(event) {
@@ -1284,108 +1196,21 @@
       }
     }
 
-    // Continue to installation
+    // Continue to hosted hardware setup
     document.getElementById('continueBtn').onclick = () => {
       document.getElementById('robotSelection').style.display = 'none';
-      document.getElementById('installationSection').style.display = 'block';
-      
-      installPath = document.getElementById('installPath').value;
-      
-      // Update install status
-      if (selectedChoice === 'existing') {
-        updateInstallStatus(`Using existing installation: ${installPath}`);
-      } else {
-        updateInstallStatus(`Fresh installation to: ${installPath}`);
-      }
-      
-      // Connect WebSocket
+      document.getElementById('installationSection').style.display = 'none';
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').classList.remove('disabled');
+      document.getElementById('step2').classList.add('active');
+      document.getElementById('step2Number').classList.add('active');
+      document.getElementById('usbContent').classList.remove('hidden');
+      // Connect socket for runtime logs only
       socket = io(API_URL);
-      
-      socket.on('connect', () => {
-        console.log('Connected to backend');
-        addLog('terminal', 'Connected to backend...', 'info');
-      });
-      
-      socket.on('installation_progress', (data) => {
-        console.log('Installation progress:', data);
-        // Update progress bar
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-          progressBar.style.width = data.progress + '%';
-          progressBar.setAttribute('aria-valuenow', data.progress);
-        }
-        // Add log message
-        addLog('terminal', `[${data.progress}%] ${data.message}`, 'info');
-        
-        // Check if installation is complete
-        if (data.status === 'completed' && data.progress === 100) {
-          // Mark step 1 complete and activate step 2
-          document.getElementById('step1Number').classList.remove('active');
-          document.getElementById('step1Number').classList.add('completed');
-          document.getElementById('step1').classList.remove('active');
-          
-          document.getElementById('step2').classList.remove('disabled');
-          document.getElementById('step2').classList.add('active');
-          document.getElementById('step2Number').classList.add('active');
-          document.getElementById('usbContent').classList.remove('hidden');
-          
-          // Auto-scroll to port detection section
-          setTimeout(() => {
-            document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 500);
-          
-          // Update status
-          updateInstallStatus('✅ LeRobot installed! Preparing port detection...');
-          
-          // Start port detection automatically
-          setTimeout(() => {
-            detectPorts();
-          }, 1500);
-        }
-      });
-      
-      socket.on('install_log', (data) => {
-        addLog('terminal', data.message, data.level);
-      });
-
-      // Runtime streams
-      socket.on('calibration_log', (data) => {
-        const el = document.getElementById('calibrationLog');
-        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
-      });
-      socket.on('teleoperation_log', (data) => {
-        const el = document.getElementById('teleopLog');
-        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
-      });
-      socket.on('recording_log', (data) => {
-        const el = document.getElementById('recordingLog');
-        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
-      });
-      
-      socket.on('installation_complete', (data) => {
-        console.log('Installation complete:', data);
-        
-        // Mark step 1 complete and activate step 2
-        document.getElementById('step1Number').classList.remove('active');
-        document.getElementById('step1Number').classList.add('completed');
-        document.getElementById('step1').classList.remove('active');
-        
-        document.getElementById('step2').classList.remove('disabled');
-        document.getElementById('step2').classList.add('active');
-        document.getElementById('step2Number').classList.add('active');
-        document.getElementById('usbContent').classList.remove('hidden');
-        
-        // Auto-scroll to port detection section
-        document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Update status
-        updateInstallStatus('✅ LeRobot installed! Now detecting robot ports...');
-        
-        // Start port detection automatically
-        setTimeout(() => {
-          detectPorts();
-        }, 1000);
-      });
+      socket.on('calibration_log', (data) => addLog('terminal', data.message, 'info'));
+      socket.on('teleoperation_log', (data) => addLog('terminal', data.message, 'info'));
+      socket.on('recording_log', (data) => addLog('terminal', data.message, 'info'));
+      document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     // Start installation
