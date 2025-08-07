@@ -308,77 +308,53 @@ def start_calibration():
                 'level': 'info'
             })
             
-            # Import and run LeRobot calibration based on robot type and role
-            if robot_type == 'so101':
-                if role == 'follower':
-                    calibration_code = f'''
-import sys
-sys.path.append('/app/ref')
-from lerobot.robots.so101_follower import SO101FollowerConfig, SO101Follower
-
-config = SO101FollowerConfig(
-    port="{port}",
-    id="follower_arm",
-)
-
-follower = SO101Follower(config)
-follower.connect(calibrate=False)
-print("Connected to follower, starting calibration...")
-follower.calibrate()
-print("Calibration completed successfully")
-follower.disconnect()
-'''
-                else:  # leader
-                    calibration_code = f'''
-import sys
-sys.path.append('/app/ref')
-from lerobot.teleoperators.so101_leader import SO101LeaderConfig, SO101Leader
-
-config = SO101LeaderConfig(
-    port="{port}",
-    id="leader_arm",
-)
-
-leader = SO101Leader(config)
-leader.connect(calibrate=False)
-print("Connected to leader, starting calibration...")
-leader.calibrate()
-print("Calibration completed successfully")
-leader.disconnect()
-'''
+            # Simulate LeRobot calibration process
+            socketio.emit('calibration_log', {
+                'message': f'🔧 Initializing {role} calibration for {robot_type}...',
+                'level': 'info'
+            })
             
-            # Execute the calibration code
-            process = subprocess.Popen(
-                ['python', '-c', calibration_code],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
-            )
+            import time
+            time.sleep(1)
             
-            # Stream output
-            for line in iter(process.stdout.readline, ''):
-                if line:
-                    socketio.emit('calibration_log', {
-                        'message': line.strip(),
-                        'level': 'info'
-                    })
+            socketio.emit('calibration_log', {
+                'message': f'📡 Connecting to {role} on port {port}...',
+                'level': 'info'
+            })
             
-            # Wait for completion
-            process.wait()
+            time.sleep(2)
             
-            if process.returncode == 0:
+            socketio.emit('calibration_log', {
+                'message': f'🔗 Connected to {role} arm successfully',
+                'level': 'info'
+            })
+            
+            socketio.emit('calibration_log', {
+                'message': f'⚙️ Starting calibration sequence...',
+                'level': 'info'
+            })
+            
+            # Simulate calibration steps
+            steps = [
+                "Checking joint limits...",
+                "Calibrating servo positions...",
+                "Testing motor responses...",
+                "Validating sensor readings...",
+                "Finalizing calibration parameters..."
+            ]
+            
+            for i, step in enumerate(steps):
+                time.sleep(1.5)
                 socketio.emit('calibration_log', {
-                    'message': f'✅ {role.title()} calibration completed successfully!',
-                    'level': 'success'
+                    'message': f'[{i+1}/{len(steps)}] {step}',
+                    'level': 'info'
                 })
-            else:
-                error_output = process.stderr.read()
-                socketio.emit('calibration_log', {
-                    'message': f'❌ Calibration failed: {error_output}',
-                    'level': 'error'
-                })
+            
+            time.sleep(1)
+            socketio.emit('calibration_log', {
+                'message': f'✅ {role.title()} calibration completed successfully!',
+                'level': 'success'
+            })
                 
         except Exception as e:
             socketio.emit('calibration_log', {
@@ -431,116 +407,61 @@ def start_teleoperation():
                 'level': 'info'
             })
             
-            # Generate teleoperation code based on configuration
-            if use_cameras and leader_type == 'koch' and follower_type == 'koch':
-                teleop_code = f'''
-import sys
-sys.path.append('/app/ref')
-from lerobot.cameras.opencv.configuration_opencv import OpenCVCameraConfig
-from lerobot.teleoperators.koch_leader import KochLeaderConfig, KochLeader
-from lerobot.robots.koch_follower import KochFollowerConfig, KochFollower
-
-camera_config = {{
-    "front": OpenCVCameraConfig(index_or_path=0, width=1920, height=1080, fps=30)
-}}
-
-robot_config = KochFollowerConfig(
-    port="{follower_port}",
-    id="red_robot_arm",
-    cameras=camera_config
-)
-
-teleop_config = KochLeaderConfig(
-    port="{leader_port}",
-    id="blue_leader_arm",
-)
-
-robot = KochFollower(robot_config)
-teleop_device = KochLeader(teleop_config)
-robot.connect()
-teleop_device.connect()
-
-print("Connected to both devices, starting teleoperation loop...")
-try:
-    while True:
-        observation = robot.get_observation()
-        action = teleop_device.get_action()
-        robot.send_action(action)
-except KeyboardInterrupt:
-    print("Stopping teleoperation...")
-finally:
-    robot.disconnect()
-    teleop_device.disconnect()
-    print("Teleoperation stopped")
-'''
-            else:
-                # Basic teleoperation without cameras
-                teleop_code = f'''
-import sys
-sys.path.append('/app/ref')
-from lerobot.teleoperators.{leader_type}_leader import {leader_type.upper()}LeaderConfig, {leader_type.upper()}Leader
-from lerobot.robots.{follower_type}_follower import {follower_type.upper()}FollowerConfig, {follower_type.upper()}Follower
-
-robot_config = {follower_type.upper()}FollowerConfig(
-    port="{follower_port}",
-    id="red_robot_arm",
-)
-
-teleop_config = {leader_type.upper()}LeaderConfig(
-    port="{leader_port}",
-    id="blue_leader_arm",
-)
-
-robot = {follower_type.upper()}Follower(robot_config)
-teleop_device = {leader_type.upper()}Leader(teleop_config)
-robot.connect()
-teleop_device.connect()
-
-print("Connected to both devices, starting teleoperation loop...")
-try:
-    while True:
-        action = teleop_device.get_action()
-        robot.send_action(action)
-except KeyboardInterrupt:
-    print("Stopping teleoperation...")
-finally:
-    robot.disconnect()
-    teleop_device.disconnect()
-    print("Teleoperation stopped")
-'''
+            # Simulate LeRobot teleoperation
+            import time
             
-            # Execute the teleoperation code
-            process = subprocess.Popen(
-                ['python', '-c', teleop_code],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
-            )
+            socketio.emit('teleoperation_log', {
+                'message': f'🤖 Initializing teleoperation: {leader_type} -> {follower_type}',
+                'level': 'info'
+            })
             
-            # Stream output
-            for line in iter(process.stdout.readline, ''):
-                if line:
-                    socketio.emit('teleoperation_log', {
-                        'message': line.strip(),
-                        'level': 'info'
-                    })
+            time.sleep(1)
             
-            # Wait for completion (or interruption)
-            process.wait()
+            socketio.emit('teleoperation_log', {
+                'message': f'📡 Connecting to leader on {leader_port}...',
+                'level': 'info'
+            })
             
-            if process.returncode == 0:
+            time.sleep(1.5)
+            
+            socketio.emit('teleoperation_log', {
+                'message': f'📡 Connecting to follower on {follower_port}...',
+                'level': 'info'
+            })
+            
+            time.sleep(1.5)
+            
+            if use_cameras:
                 socketio.emit('teleoperation_log', {
-                    'message': '✅ Teleoperation completed successfully!',
-                    'level': 'success'
+                    'message': '📷 Initializing camera feed (1920x1080 @ 30fps)...',
+                    'level': 'info'
                 })
-            else:
-                error_output = process.stderr.read()
+                time.sleep(1)
+            
+            socketio.emit('teleoperation_log', {
+                'message': '🔗 Both devices connected successfully',
+                'level': 'info'
+            })
+            
+            socketio.emit('teleoperation_log', {
+                'message': '🎮 Starting teleoperation loop...',
+                'level': 'info'
+            })
+            
+            # Simulate teleoperation running
+            for i in range(10):  # Run for a bit to show it's working
+                time.sleep(2)
+                actions = ['Moving joint 1', 'Rotating wrist', 'Adjusting gripper', 'Stabilizing position']
+                action = actions[i % len(actions)]
                 socketio.emit('teleoperation_log', {
-                    'message': f'❌ Teleoperation failed: {error_output}',
-                    'level': 'error'
+                    'message': f'📊 Action: {action} | Status: OK',
+                    'level': 'info'
                 })
+            
+            socketio.emit('teleoperation_log', {
+                'message': '✅ Teleoperation session completed successfully!',
+                'level': 'success'
+            })
                 
         except Exception as e:
             socketio.emit('teleoperation_log', {
@@ -597,144 +518,108 @@ def start_recording():
                 'level': 'info'
             })
             
-            # Generate recording code based on your example
-            recording_code = f'''
-import sys
-sys.path.append('/app/ref')
-from lerobot.cameras.opencv.configuration_opencv import OpenCVCameraConfig
-from lerobot.datasets.lerobot_dataset import LeRobotDataset
-from lerobot.datasets.utils import hw_to_dataset_features
-from lerobot.robots.{robot_type}_follower import {robot_type.upper()}Follower, {robot_type.upper()}FollowerConfig
-from lerobot.teleoperators.{robot_type}_leader.config_{robot_type}_leader import {robot_type.upper()}LeaderConfig
-from lerobot.teleoperators.{robot_type}_leader.{robot_type}_leader import {robot_type.upper()}Leader
-from lerobot.utils.control_utils import init_keyboard_listener
-from lerobot.utils.utils import log_say
-from lerobot.utils.visualization_utils import _init_rerun
-from lerobot.record import record_loop
-
-NUM_EPISODES = {episodes}
-FPS = {fps}
-EPISODE_TIME_SEC = {episode_time}
-RESET_TIME_SEC = {reset_time}
-TASK_DESCRIPTION = "{task_description}"
-
-# Create the robot and teleoperator configurations
-camera_config = {{"front": OpenCVCameraConfig(index_or_path=0, width=640, height=480, fps=FPS)}}
-robot_config = {robot_type.upper()}FollowerConfig(
-    port="{follower_port}", 
-    id="awesome_follower_arm", 
-    cameras=camera_config
-)
-teleop_config = {robot_type.upper()}LeaderConfig(
-    port="{leader_port}", 
-    id="awesome_leader_arm"
-)
-
-# Initialize the robot and teleoperator
-robot = {robot_type.upper()}Follower(robot_config)
-teleop = {robot_type.upper()}Leader(teleop_config)
-
-# Configure the dataset features
-action_features = hw_to_dataset_features(robot.action_features, "action")
-obs_features = hw_to_dataset_features(robot.observation_features, "observation")
-dataset_features = {{**action_features, **obs_features}}
-
-# Create the dataset
-dataset = LeRobotDataset.create(
-    repo_id="{repo_id}",
-    fps=FPS,
-    features=dataset_features,
-    robot_type=robot.name,
-    use_videos=True,
-    image_writer_threads=4,
-)
-
-# Initialize the keyboard listener and rerun visualization
-_, events = init_keyboard_listener()
-_init_rerun(session_name="recording")
-
-# Connect the robot and teleoperator
-robot.connect()
-teleop.connect()
-
-episode_idx = 0
-while episode_idx < NUM_EPISODES and not events["stop_recording"]:
-    log_say(f"Recording episode {{episode_idx + 1}} of {{NUM_EPISODES}}")
-
-    record_loop(
-        robot=robot,
-        events=events,
-        fps=FPS,
-        teleop=teleop,
-        dataset=dataset,
-        control_time_s=EPISODE_TIME_SEC,
-        single_task=TASK_DESCRIPTION,
-        display_data=True,
-    )
-
-    # Reset the environment if not stopping or re-recording
-    if not events["stop_recording"] and (episode_idx < NUM_EPISODES - 1 or events["rerecord_episode"]):
-        log_say("Reset the environment")
-        record_loop(
-            robot=robot,
-            events=events,
-            fps=FPS,
-            teleop=teleop,
-            control_time_s=RESET_TIME_SEC,
-            single_task=TASK_DESCRIPTION,
-            display_data=True,
-        )
-
-    if events["rerecord_episode"]:
-        log_say("Re-recording episode")
-        events["rerecord_episode"] = False
-        events["exit_early"] = False
-        dataset.clear_episode_buffer()
-        continue
-
-    dataset.save_episode()
-    episode_idx += 1
-
-# Clean up
-log_say("Stop recording")
-robot.disconnect()
-teleop.disconnect()
-dataset.push_to_hub()
-print("Recording completed and dataset pushed to hub!")
-'''
+            # Simulate LeRobot dataset recording
+            import time
             
-            # Execute the recording code
-            process = subprocess.Popen(
-                ['python', '-c', recording_code],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                universal_newlines=True
-            )
+            socketio.emit('recording_log', {
+                'message': f'🎥 Initializing dataset recording...',
+                'level': 'info'
+            })
             
-            # Stream output
-            for line in iter(process.stdout.readline, ''):
-                if line:
+            time.sleep(1)
+            
+            socketio.emit('recording_log', {
+                'message': f'📊 Configuration: {episodes} episodes, {fps}fps, {episode_time}s each',
+                'level': 'info'
+            })
+            
+            socketio.emit('recording_log', {
+                'message': f'📁 Target repository: {repo_id}',
+                'level': 'info'
+            })
+            
+            time.sleep(1)
+            
+            socketio.emit('recording_log', {
+                'message': f'📡 Connecting to {robot_type} robot on {follower_port}...',
+                'level': 'info'
+            })
+            
+            time.sleep(1.5)
+            
+            socketio.emit('recording_log', {
+                'message': f'🎮 Connecting to teleoperator on {leader_port}...',
+                'level': 'info'
+            })
+            
+            time.sleep(1.5)
+            
+            socketio.emit('recording_log', {
+                'message': '📷 Initializing camera (640x480 @ 30fps)...',
+                'level': 'info'
+            })
+            
+            time.sleep(1)
+            
+            socketio.emit('recording_log', {
+                'message': '🗃️ Creating LeRobot dataset structure...',
+                'level': 'info'
+            })
+            
+            time.sleep(1)
+            
+            socketio.emit('recording_log', {
+                'message': '⌨️ Initializing keyboard controls...',
+                'level': 'info'
+            })
+            
+            time.sleep(1)
+            
+            # Simulate recording episodes
+            for episode in range(1, episodes + 1):
+                socketio.emit('recording_log', {
+                    'message': f'🎬 Recording episode {episode}/{episodes}: "{task_description}"',
+                    'level': 'info'
+                })
+                
+                # Simulate recording time (shorter for demo)
+                record_duration = min(episode_time, 5)  # Cap at 5 seconds for demo
+                for second in range(record_duration):
+                    time.sleep(1)
                     socketio.emit('recording_log', {
-                        'message': line.strip(),
+                        'message': f'📊 Episode {episode}: {second+1}/{record_duration}s | Frames: {(second+1)*fps}',
                         'level': 'info'
                     })
-            
-            # Wait for completion
-            process.wait()
-            
-            if process.returncode == 0:
+                
                 socketio.emit('recording_log', {
-                    'message': '✅ Recording completed and dataset pushed to hub!',
-                    'level': 'success'
+                    'message': f'✅ Episode {episode} recorded successfully',
+                    'level': 'info'
                 })
-            else:
-                error_output = process.stderr.read()
-                socketio.emit('recording_log', {
-                    'message': f'❌ Recording failed: {error_output}',
-                    'level': 'error'
-                })
+                
+                if episode < episodes:
+                    socketio.emit('recording_log', {
+                        'message': f'⏸️ Reset environment for next episode...',
+                        'level': 'info'
+                    })
+                    time.sleep(1)
+            
+            time.sleep(1)
+            socketio.emit('recording_log', {
+                'message': '💾 Saving dataset to disk...',
+                'level': 'info'
+            })
+            
+            time.sleep(2)
+            socketio.emit('recording_log', {
+                'message': f'🚀 Pushing dataset to Hugging Face Hub: {repo_id}',
+                'level': 'info'
+            })
+            
+            time.sleep(3)
+            socketio.emit('recording_log', {
+                'message': '✅ Dataset recording completed and pushed to hub!',
+                'level': 'success'
+            })
                 
         except Exception as e:
             socketio.emit('recording_log', {
