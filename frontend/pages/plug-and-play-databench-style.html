@@ -1024,23 +1024,24 @@
     if (isRunning) {
       banner.style.background = 'linear-gradient(90deg, #00c851 0%, #00a846 100%)';
       banner.style.color = 'white';
-      banner.innerHTML = `
-        <strong>✅ REAL Installation Mode Active!</strong> 
-        LeRobot will be installed on YOUR computer
-      `;
+      banner.style.fontSize = '14px';
+      banner.style.padding = '10px';
+      banner.innerHTML = `✅ Connected to local installer - Ready for real installation`;
     } else {
       // Show simple command to enable real installation
-      banner.style.background = 'linear-gradient(90deg, #ff6b6b 0%, #ff5252 100%)';
+      banner.style.background = 'linear-gradient(90deg, #ff9800 0%, #f57c00 100%)';
       banner.style.color = 'white';
+      banner.style.fontSize = '14px';
+      banner.style.padding = '10px';
       banner.innerHTML = `
-        <strong>⚠️ Enable Real Installation:</strong> Run this in Terminal: 
-        <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 3px; font-family: monospace;">
+        ⚠️ Local installer not detected · Run: 
+        <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 13px;">
           cd ~/chatVLA && python3 local_installer_bridge.py
         </code>
-        <button onclick="copyInstallCommand()" style="background: white; color: #ff5252; border: none; padding: 5px 10px; 
-                border-radius: 10px; cursor: pointer; margin-left: 10px;">Copy</button>
-        <button onclick="window.location.reload()" style="background: transparent; color: white; border: 1px solid white; 
-                padding: 5px 10px; border-radius: 10px; cursor: pointer; margin-left: 5px;">Retry</button>
+        <button onclick="copyInstallCommand()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 3px 8px; 
+                border-radius: 5px; cursor: pointer; margin-left: 8px; font-size: 12px;">Copy</button>
+        <button onclick="window.location.reload()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); 
+                padding: 3px 8px; border-radius: 5px; cursor: pointer; margin-left: 4px; font-size: 12px;">Retry</button>
       `;
     }
     
@@ -1065,34 +1066,34 @@
     `;
     
     modal.innerHTML = `
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 20px; max-width: 600px; color: white; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-        <h2 style="margin-top: 0; font-size: 28px;">🚀 One-Click Installation Required</h2>
-        <p style="font-size: 18px; margin: 20px 0;">To install LeRobot directly from this website, you need our installer:</p>
+      <div style="background: white; padding: 35px; border-radius: 15px; max-width: 500px; color: #333; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <div style="font-size: 48px; margin-bottom: 15px;">🤖</div>
+          <div style="font-size: 20px; font-weight: 600;">Enable LeRobot Installation</div>
+        </div>
         
-        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
-          <h3 style="margin-top: 0;">Run this ONE command in Terminal:</h3>
-          <pre id="install-cmd" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; font-size: 16px; cursor: pointer; user-select: all;">
-cd ~/chatVLA && python3 local_installer_bridge.py</pre>
-          <button onclick="navigator.clipboard.writeText('cd ~/chatVLA && python3 local_installer_bridge.py').then(() => alert('Copied! Now paste in Terminal'))" 
-                  style="background: white; color: #764ba2; border: none; padding: 10px 20px; 
-                         border-radius: 20px; cursor: pointer; font-weight: bold;">
-            📋 Copy Command
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <div style="font-size: 13px; color: #666; margin-bottom: 8px;">Run this command in Terminal:</div>
+          <pre id="install-cmd" style="background: #2d2d2d; color: #fff; padding: 12px; border-radius: 5px; font-size: 14px; cursor: pointer; user-select: all; margin: 0; font-family: 'Courier New', monospace;">cd ~/chatVLA && python3 local_installer_bridge.py</pre>
+          <button onclick="navigator.clipboard.writeText('cd ~/chatVLA && python3 local_installer_bridge.py').then(() => { this.textContent = '✓ Copied'; setTimeout(() => this.textContent = 'Copy', 2000); })" 
+                  style="background: #007bff; color: white; border: none; padding: 8px 16px; 
+                         border-radius: 6px; cursor: pointer; margin-top: 10px; font-size: 13px;">
+            Copy
           </button>
         </div>
         
-        <p style="font-size: 14px; opacity: 0.8;">After running the installer, this page will automatically detect it and enable real installation!</p>
-        
-        <button onclick="this.parentElement.parentElement.remove(); retryConnection();" 
-                style="background: white; color: #764ba2; border: none; padding: 12px 25px; 
-                       border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px;
-                       box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
-          I've installed it - Check again
-        </button>
-        <button onclick="this.parentElement.parentElement.remove()" 
-                style="background: transparent; color: white; border: 2px solid white; padding: 12px 25px; 
-                       border-radius: 25px; cursor: pointer; margin-left: 10px; font-size: 16px;">
-          Cancel
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+          <button onclick="this.parentElement.parentElement.parentElement.remove(); window.location.reload();" 
+                  style="flex: 1; background: #28a745; color: white; border: none; padding: 10px 20px; 
+                         border-radius: 8px; cursor: pointer; font-size: 14px;">
+            I've run it - Refresh
+          </button>
+          <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                  style="flex: 1; background: #6c757d; color: white; border: none; padding: 10px 20px; 
+                         border-radius: 8px; cursor: pointer; font-size: 14px;">
+            Close
+          </button>
+        </div>
       </div>
     `;
     
