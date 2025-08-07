@@ -155,6 +155,8 @@ def health():
     """Unified health check endpoint"""
     return jsonify({
         "status": "healthy",
+        "message": "🚀 Tune Robotics LeRobot Backend is running!",
+        "version": "2.0.0-lerobot",
         "services": {
             "databench": {
                 "available": DATABENCH_AVAILABLE,
@@ -162,7 +164,9 @@ def health():
             },
             "plug_and_play": {
                 "available": True,
-                "serial_available": SERIAL_AVAILABLE
+                "status": "ready with LeRobot simulation",
+                "serial_available": SERIAL_AVAILABLE,
+                "features": ["calibration", "teleoperation", "recording"]
             },
             "firebase_authentication": {
                 "available": True,
@@ -170,6 +174,21 @@ def health():
             }
         },
         "timestamp": datetime.now().isoformat()
+    })
+
+@app.route('/api/test')
+def test_endpoint():
+    """Simple test endpoint"""
+    return jsonify({
+        "status": "success",
+        "message": "✅ Backend is working correctly!",
+        "timestamp": datetime.now().isoformat(),
+        "endpoints": {
+            "calibration": "/api/plugplay/calibrate",
+            "teleoperation": "/api/plugplay/start-teleop", 
+            "recording": "/api/plugplay/start-recording",
+            "port_detection": "/api/plugplay/list-ports"
+        }
     })
 
 # ============================================================================
