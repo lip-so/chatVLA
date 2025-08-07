@@ -903,13 +903,15 @@
             <h3 class="step-title">USB Port Detection</h3>
           </div>
           <div id="usbContent" class="hidden">
-            <p>Detect and configure USB ports for your robot arms.</p>
-            <button class="btn-primary" onclick="detectPorts()">
-              Detect Ports
-            </button>
-            <div id="portList" class="hidden">
-              <!-- Port detection results will appear here -->
+            <p>Connect your robot arms using Web Serial (Chrome over HTTPS). Then proceed to Pipeline.</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+              <button class="btn-secondary" onclick="connectSerial('leader')"><i class="fas fa-plug"></i> Connect Leader</button>
+              <button class="btn-secondary" onclick="connectSerial('follower')"><i class="fas fa-plug"></i> Connect Follower</button>
+              <button class="btn-primary" onclick="showCameraSetup()"><i class="fas fa-camera"></i> Setup Camera</button>
+              <button class="btn-primary" onclick="finishPortDetection()"><i class="fas fa-check"></i> Continue</button>
             </div>
+            <div id="serialStatus" class="detection-status">No ports connected</div>
+            <div id="cameraPreview" class="hidden" style="margin-top:10px;"><video id="previewVideo" autoplay playsinline style="max-width:100%; border-radius:8px; border:1px solid var(--border);"></video></div>
           </div>
         </div>
 
@@ -959,7 +961,7 @@
       'so101': { name: 'SO-101', icon: 'X' }
     };
 
-    let selectedRobot = null;
+    let selectedRobot = 'so101';
     let selectedChoice = null;
     let existingInstallations = [];
     let selectedInstallation = null;
@@ -1091,6 +1093,16 @@
       document.querySelectorAll('.choice-card').forEach(card => {
         card.onclick = () => selectChoice(card.dataset.choice);
       });
+      // Auto-select defaults and advance to hardware step for smoother UX
+      selectChoice('existing');
+      const installPathInput = document.getElementById('installPath');
+      if (installPathInput) installPathInput.value = '~/lerobot';
+      updateContinueButton();
+      // Proceed automatically
+      setTimeout(() => {
+        const btn = document.getElementById('continueBtn');
+        if (btn && !btn.disabled) btn.click();
+      }, 50);
     }
 
     // Check for existing installations
@@ -1277,216 +1289,15 @@
       monitoring_interval: null
     };
     
-    async function detectPorts() {
-      const button = event.target;
-      
-      if (portDetectionState.active) {
-        stopPortDetection();
-        return;
-      }
-      
-      try {
-        // Start the guided detection process
-        await startGuidedDetection();
-        
-      } catch (error) {
-        console.error('Port detection error:', error);
-        addLog('terminal', `Error: ${error.message}`, 'error');
-        button.disabled = false;
-        button.textContent = 'Detect Ports';
-      }
-    }
+    async function detectPorts() { /* deprecated in hosted mode */ }
     
-    async function startGuidedDetection() {
-      const button = document.querySelector('#usbContent button');
-      const portList = document.getElementById('portList');
-      
-      button.disabled = true;
-      button.textContent = 'Starting Detection...';
-      portList.classList.remove('hidden');
-      
-      portDetectionState.active = true;
-      portDetectionState.step = 'start';
-      
-      // Get initial ports
-      const response = await fetch(`${API_URL}/api/plugplay/list-ports`);
-      const data = await response.json();
-      portDetectionState.baseline_ports = data.ports || [];
-      
-      // Show initial instructions
-      displayDetectionStep();
-      
-      button.textContent = 'Stop Detection';
-      button.disabled = false;
-      
-      // No longer starting continuous monitoring
-      // Detection happens when user confirms unplugging
-    }
+    async function startGuidedDetection() { /* deprecated in hosted mode */ }
     
-    function displayDetectionStep() {
-      const portList = document.getElementById('portList');
-      let html = '';
-      
-      switch (portDetectionState.step) {
-        case 'start':
-          html = `
-            <div class="detection-step">
-              <h4>LeRobot Port Detection</h4>
-              <p>This will help you identify the USB ports for your robot arms through a simple disconnect/reconnect process.</p>
-              
-              <div class="current-ports">
-                <h5>Current Connected Ports:</h5>
-                ${portDetectionState.baseline_ports.map(port => 
-                  `<div class="port-info-simple">${port.device} - ${port.description}</div>`
-                ).join('')}
-              </div>
-              
-              <div class="instruction-box">
-                <h5>STEP 1: Detect Leader Arm</h5>
-                <p><strong>Instructions:</strong></p>
-                <ol>
-                  <li>Locate the USB cable connected to your <strong>LEADER ARM</strong></li>
-                  <li>UNPLUG the USB cable from the leader arm</li>
-                  <li>Wait for the system to detect the disconnection</li>
-                </ol>
-              </div>
-              
-              <button class="btn-primary" onclick="startLeaderDetection()">Start Leader Detection</button>
-            </div>
-          `;
-          break;
-          
-        case 'leader_disconnect':
-          html = `
-            <div class="detection-step">
-              <h4>Detecting Leader Arm...</h4>
-              <div class="instruction-box waiting">
-                <h5>Current USB Ports Detected:</h5>
-                <div class="port-list-mini">
-                  ${(portDetectionState.baseline_ports || []).map(p => 
-                    `<code>${p.device}</code>`
-                  ).join(', ') || 'No ports detected'}
-                </div>
-                <hr style="margin: 20px 0;">
-                <h5>Please UNPLUG your LEADER ARM</h5>
-                <p>Remove the USB cable from your leader arm, then click the button below.</p>
-                <button class="btn-primary" onclick="confirmLeaderUnplugged()">I've Unplugged the Leader Arm</button>
-              </div>
-            </div>
-          `;
-          break;
-          
-        case 'leader_reconnect':
-          html = `
-            <div class="detection-step">
-              <h4>Leader Port Detected!</h4>
-              <div class="detected-port">
-                <h5>Leader Arm Port: ${portDetectionState.detected_ports.leader}</h5>
-              </div>
-              
-              <div class="instruction-box">
-                <h5>Please RECONNECT your leader arm</h5>
-                <p>Plug the USB cable back into your leader arm to confirm the detection.</p>
-              </div>
-              
-              <button class="btn-primary" onclick="proceedToFollowerDetection()">Continue to Follower Detection</button>
-            </div>
-          `;
-          break;
-          
-        case 'follower_disconnect':
-          html = `
-            <div class="detection-step">
-              <h4>Detecting Follower Arm...</h4>
-              <div class="instruction-box waiting">
-                <h5>Current USB Ports (Including Leader):</h5>
-                <div class="port-list-mini">
-                  ${(portDetectionState.follower_baseline_ports || []).map(p => 
-                    `<code>${p.device}</code>`
-                  ).join(', ') || 'Loading ports...'}
-                </div>
-                <hr style="margin: 20px 0;">
-                <h5>Please UNPLUG your FOLLOWER ARM</h5>
-                <p>Remove the USB cable from your <strong>follower arm</strong> (not the leader), then click the button below.</p>
-                <button class="btn-primary" onclick="confirmFollowerUnplugged()">I've Unplugged the Follower Arm</button>
-              </div>
-            </div>
-          `;
-          break;
-          
-        case 'follower_reconnect':
-          html = `
-            <div class="detection-step">
-              <h4>Follower Port Detected!</h4>
-              <div class="detected-port">
-                <h5>Follower Arm Port: ${portDetectionState.detected_ports.follower}</h5>
-              </div>
-              
-              <div class="instruction-box">
-                <h5>Please RECONNECT your follower arm</h5>
-                <p>Plug the USB cable back into your follower arm to confirm the detection.</p>
-              </div>
-              
-              <button class="btn-primary" onclick="completeDetection()">Complete Detection</button>
-            </div>
-          `;
-          break;
-          
-        case 'complete':
-          html = `
-            <div class="detection-complete">
-              <h4>Port Detection Complete!</h4>
-              
-              <div class="detected-ports-summary">
-                <div class="port-assignment">
-                  <h5>Leader Arm:</h5>
-                  <code>${portDetectionState.detected_ports.leader}</code>
-                </div>
-                <div class="port-assignment">
-                  <h5>Follower Arm:</h5>
-                  <code>${portDetectionState.detected_ports.follower}</code>
-                </div>
-              </div>
-              
-              <p>Port configuration has been saved and will be used for all future robot operations.</p>
-              
-              <button class="btn-primary" onclick="finishPortDetection()">Continue to Next Step</button>
-            </div>
-          `;
-          break;
-      }
-      
-      portList.innerHTML = html;
-    }
+    function displayDetectionStep() { /* deprecated in hosted mode */ }
     
-    function startLeaderDetection() {
-      portDetectionState.step = 'leader_disconnect';
-      displayDetectionStep();
-      addLog('terminal', 'Starting leader arm detection - please unplug the leader arm USB cable', 'info');
-    }
+    function startLeaderDetection() { /* deprecated */ }
     
-    async function proceedToFollowerDetection() {
-      // Wait a moment to ensure leader arm is fully reconnected
-      addLog('terminal', 'Waiting for leader arm to fully connect...', 'info');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Capture baseline ports BEFORE asking user to unplug follower
-      try {
-        const response = await fetch(`${API_URL}/api/plugplay/list-ports`);
-        const data = await response.json();
-        portDetectionState.follower_baseline_ports = data.ports || [];
-        addLog('terminal', `Captured ${portDetectionState.follower_baseline_ports.length} ports as baseline for follower detection`, 'info');
-      } catch (error) {
-        addLog('terminal', `❌ Error getting baseline ports: ${error.message}`, 'error');
-        return;
-      }
-      
-      portDetectionState.step = 'follower_disconnect';
-      addLog('terminal', 'Starting follower arm detection - please unplug the follower arm USB cable', 'info');
-      
-      // Display the step after we have the baseline ports
-      displayDetectionStep();
-    }
+    async function proceedToFollowerDetection() { /* deprecated */ }
     
     async function completeDetection() {
       portDetectionState.step = 'complete';
@@ -1513,175 +1324,62 @@
       }
     }
     
-    async function confirmLeaderUnplugged() {
-      try {
-        // Get current ports after unplugging
-        const response = await fetch(`${API_URL}/api/plugplay/list-ports`);
-        const data = await response.json();
-        const currentPorts = new Set((data.ports || []).map(p => p.device));
-        const baselinePorts = new Set((portDetectionState.baseline_ports || []).map(p => p.device));
-        
-        // Find disconnected port
-        const disconnectedPort = [...baselinePorts].find(port => !currentPorts.has(port));
-        
-        if (disconnectedPort) {
-          portDetectionState.detected_ports.leader = disconnectedPort;
-          portDetectionState.step = 'leader_reconnect';
-          displayDetectionStep();
-          addLog('terminal', `Leader arm detected on port: ${disconnectedPort}`, 'success');
-          addLog('terminal', 'Please reconnect your leader arm now', 'info');
-        } else {
-          addLog('terminal', 'No port change detected. Please ensure the leader arm is unplugged and try again.', 'error');
-          
-          // Debug: Show port comparison
-          const baselineList = [...baselinePorts].sort();
-          const currentList = [...currentPorts].sort();
-          addLog('terminal', `Baseline: [${baselineList.join(', ')}]`, 'info');
-          addLog('terminal', `Current: [${currentList.join(', ')}]`, 'info');
-        }
-      } catch (error) {
-        addLog('terminal', `❌ Error detecting port: ${error.message}`, 'error');
-      }
-    }
+    async function confirmLeaderUnplugged() { /* deprecated */ }
     
-    async function confirmFollowerUnplugged() {
-      try {
-        // Use the baseline ports we captured when entering follower detection step
-        if (!portDetectionState.follower_baseline_ports || portDetectionState.follower_baseline_ports.length === 0) {
-          addLog('terminal', '❌ Error: No baseline ports captured. Please restart detection.', 'error');
-          return;
-        }
-        
-        const baselinePorts = new Set(portDetectionState.follower_baseline_ports.map(p => p.device));
-        addLog('terminal', `Comparing against baseline of ${baselinePorts.size} ports`, 'info');
-        
-        // Wait a moment for USB to register the disconnection
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Get current ports after unplugging
-        const response = await fetch(`${API_URL}/api/plugplay/list-ports`);
-        const data = await response.json();
-        const currentPorts = new Set((data.ports || []).map(p => p.device));
-        
-        addLog('terminal', `Current ports: ${currentPorts.size}, Baseline ports: ${baselinePorts.size}`, 'info');
-        
-        // Debug: Show actual port lists
-        const baselineList = [...baselinePorts].sort();
-        const currentList = [...currentPorts].sort();
-        addLog('terminal', `Baseline: [${baselineList.join(', ')}]`, 'info');
-        addLog('terminal', `Current: [${currentList.join(', ')}]`, 'info');
-        
-        // Find disconnected port
-        const disconnectedPort = [...baselinePorts].find(port => !currentPorts.has(port));
-        
-        if (disconnectedPort) {
-          portDetectionState.detected_ports.follower = disconnectedPort;
-          portDetectionState.step = 'follower_reconnect';
-          displayDetectionStep();
-          addLog('terminal', `Follower arm detected on port: ${disconnectedPort}`, 'success');
-          addLog('terminal', 'Please reconnect your follower arm now', 'info');
-        } else {
-          addLog('terminal', '⚠️ No port change detected. Please ensure the follower arm is unplugged and try again.', 'error');
-          
-          // Show which ports are missing/added for debugging
-          const missingPorts = [...baselinePorts].filter(port => !currentPorts.has(port));
-          const newPorts = [...currentPorts].filter(port => !baselinePorts.has(port));
-          
-          if (missingPorts.length > 0) {
-            addLog('terminal', `Missing ports: [${missingPorts.join(', ')}]`, 'info');
-          }
-          if (newPorts.length > 0) {
-            addLog('terminal', `New ports: [${newPorts.join(', ')}]`, 'info');
-          }
-        }
-      } catch (error) {
-        addLog('terminal', `❌ Error detecting port: ${error.message}`, 'error');
-      }
-    }
+    async function confirmFollowerUnplugged() { /* deprecated */ }
     
     function startPortChangeMonitoring() {
       // No longer using continuous monitoring
       // Port detection now happens only when user confirms unplugging
     }
     
-    function stopPortDetection() {
-      portDetectionState.active = false;
-      portDetectionState.step = 'idle';
-      
-      if (portDetectionState.monitoring_interval) {
-        clearInterval(portDetectionState.monitoring_interval);
-        portDetectionState.monitoring_interval = null;
-      }
-      
-      const button = document.querySelector('#usbContent button');
-      button.textContent = 'Detect Ports';
-      
-      const portList = document.getElementById('portList');
-      portList.classList.add('hidden');
-      
-      addLog('terminal', 'Port detection stopped', 'info');
-    }
+    function stopPortDetection() { portDetectionState.active = false; portDetectionState.step = 'idle'; }
     
     async function finishPortDetection() {
+      // Complete step and advance to pipeline
+      document.getElementById('step2Number').classList.remove('active');
+      document.getElementById('step2Number').classList.add('completed');
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step3').classList.remove('disabled');
+      document.getElementById('step3').classList.add('active');
+      document.getElementById('step3Number').classList.add('active');
+      document.getElementById('pipelineContent').classList.remove('hidden');
+    }
+
+    // Web Serial helpers (hosted mode)
+    window.serialPorts = { leader: null, follower: null };
+    async function connectSerial(role) {
+      if (!('serial' in navigator)) {
+        addLog('terminal', 'Web Serial API not available. Use Chrome over HTTPS.', 'error');
+        return;
+      }
       try {
-        // Save detected ports to database if user is authenticated
-        if (window.authManager && window.authManager.isAuthenticated()) {
-          const leaderPort = portDetectionState.detected_ports.leader;
-          const followerPort = portDetectionState.detected_ports.follower;
-          const robotType = currentRobot || 'Unknown';
-          
-          if (leaderPort || followerPort) {
-            addLog('terminal', 'Saving port configuration to database...', 'info');
-            
-            try {
-              const response = await fetch(`${API_URL}/api/save_robot_configuration`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  ...window.authManager.getAuthHeaders()
-                },
-                body: JSON.stringify({
-                  robot_type: robotType,
-                  leader_port: leaderPort,
-                  follower_port: followerPort
-                })
-              });
-              
-              if (response.ok) {
-                const result = await response.json();
-                addLog('terminal', `Configuration saved: ${result.message}`, 'success');
-              } else {
-                const error = await response.json();
-                addLog('terminal', `Failed to save to database: ${error.error || 'Unknown error'}`, 'warning');
-              }
-            } catch (dbError) {
-              console.error('Database save error:', dbError);
-              addLog('terminal', `Could not save to database: ${dbError.message}`, 'warning');
-            }
-          }
-        } else {
-          addLog('terminal', 'Not authenticated - configuration not saved to database', 'warning');
-        }
-        
-        // Mark the detection as complete locally
-        addLog('terminal', 'Port detection completed successfully!', 'success');
-      
-      // Mark step 2 complete and activate step 3
-        document.getElementById('step2Number').classList.remove('active');
-        document.getElementById('step2Number').classList.add('completed');
-        document.getElementById('step2').classList.remove('active');
-        
-        document.getElementById('step3').classList.remove('disabled');
-        document.getElementById('step3').classList.add('active');
-        document.getElementById('step3Number').classList.add('active');
-        document.getElementById('pipelineContent').classList.remove('hidden');
-          
-        stopPortDetection();
-        
-      } catch (error) {
-        console.error('Finish detection error:', error);
-        addLog('terminal', `Error: ${error.message}`, 'error');
-      }  
+        const port = await navigator.serial.requestPort({});
+        await port.open({ baudRate: 1000000 });
+        window.serialPorts[role] = port;
+        const info = port.getInfo ? port.getInfo() : {};
+        const label = `vendor:${info.usbVendorId || 'n/a'} product:${info.usbProductId || 'n/a'}`;
+        const status = document.getElementById('serialStatus');
+        const leaderSet = !!window.serialPorts.leader;
+        const followerSet = !!window.serialPorts.follower;
+        status.textContent = `Leader: ${leaderSet ? 'connected' : 'not set'} | Follower: ${followerSet ? 'connected' : 'not set'} (${label})`;
+        addLog('terminal', `${role} serial connected (${label})`, 'success');
+      } catch (e) {
+        addLog('terminal', `Serial connect error (${role}): ${e.message}`, 'error');
+      }
+    }
+
+    async function showCameraSetup() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        const video = document.getElementById('previewVideo');
+        const wrap = document.getElementById('cameraPreview');
+        if (video) { video.srcObject = stream; }
+        if (wrap) { wrap.classList.remove('hidden'); }
+        addLog('terminal', 'Camera preview enabled', 'info');
+      } catch (e) {
+        addLog('terminal', `Camera access error: ${e.message}`, 'error');
+      }
     }
 
     // Run pipeline command (uses local installer APIs when available)

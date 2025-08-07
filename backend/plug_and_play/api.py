@@ -71,27 +71,14 @@ def health():
 def system_info():
     """Provide system information and requirements"""
     return jsonify({
-        "git_available": True,  # Cloud service assumption
-        "git_version": "2.39+",
-        "conda_available": True,
-        "python_version": "3.10+",
-        "requirements": {
-            "git": {
-                "required": True,
-                "install_url": "https://git-scm.com/downloads",
-                "description": "Git is required to clone the LeRobot repository"
-            },
-            "conda": {
-                "required": True,
-                "install_url": "https://docs.conda.io/en/latest/miniconda.html",
-                "description": "Conda/Miniconda is required for environment management"
-            },
-            "python": {
-                "required": True,
-                "version": "3.8+",
-                "description": "Python 3.8 or higher is required"
-            }
-        }
+        "mode": "HOSTED",
+        "message": "Hosted mode: Compute runs on Tune Robotics servers.",
+        "capabilities": [
+            "Hosted compute",
+            "USB port information",
+            "Calibration/Teleop/Recording via backend",
+            "LeRobot setup instructions"
+        ]
     })
 
 @app.route('/api/installation_guide', methods=['GET'])

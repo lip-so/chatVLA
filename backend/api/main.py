@@ -212,41 +212,20 @@ def evaluate_dataset():
 
 @plugplay_bp.route('/system-info', methods=['GET'])
 def system_info():
-    """Get system information"""
-    # Check if running in production (Railway or other cloud platform)
-    is_production = os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT')
-    
-    if is_production:
-        # Production mode - can only simulate/guide
-        return jsonify({
-            "mode": "PRODUCTION_SIMULATION",
-            "can_install_locally": False,
-            "message": "⚠️ Production server provides UI only. For real installation, run: python3 local_installer_bridge.py",
-            "os": sys.platform,
-            "python_version": sys.version,
-            "capabilities": {
-                "usb_detection": False,
-                "installation": False,
-                "guidance": True
-            },
-            "instructions": {
-                "step1": "Clone this repo: git clone https://github.com/lip-so/chatVLA.git",
-                "step2": "Run: python3 local_installer_bridge.py",
-                "step3": "Visit this page - it will detect the local installer"
-            }
-        })
-    else:
-        # Local development mode
-        return jsonify({
-            "mode": "LOCAL_DEVELOPMENT",
-            "can_install_locally": True,
-            "os": sys.platform,
-            "python_version": sys.version,
-            "capabilities": {
-                "usb_detection": SERIAL_AVAILABLE,
-                "installation": True
-            }
-        })
+    """Get system information (hosted mode)."""
+    # Hosted mode: computation on server; UI facilitates hardware mapping
+    return jsonify({
+        "mode": "HOSTED",
+        "can_install_locally": False,
+        "message": "Hosted mode: Compute runs on Tune Robotics servers.",
+        "os": sys.platform,
+        "python_version": sys.version,
+        "capabilities": {
+            "usb_detection": SERIAL_AVAILABLE,
+            "installation": False,
+            "guidance": True
+        }
+    })
 
 @plugplay_bp.route('/list-ports', methods=['GET'])
 def list_ports():
