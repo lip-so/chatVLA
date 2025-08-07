@@ -1021,14 +1021,48 @@
         LeRobot will be installed on YOUR computer
       `;
     } else {
-      banner.style.background = 'linear-gradient(90deg, #ff6b6b 0%, #ff5252 100%)';
-      banner.style.color = 'white';
+      // Auto-download installer for true one-click experience
+      banner.style.background = 'linear-gradient(90deg, #ffd700 0%, #ffb700 100%)';
+      banner.style.color = 'black';
       banner.innerHTML = `
-        <strong>⚠️ Demo Mode Only</strong> - To enable REAL installation: 
-        <a href="#" onclick="showInstallInstructions()" style="color: yellow; text-decoration: underline;">
-          Click here for instructions
-        </a>
+        <strong>📥 Downloading Installer...</strong> Check your Downloads folder!
       `;
+      
+      // Detect platform and auto-download appropriate installer
+      const platform = navigator.platform.toLowerCase();
+      let installerUrl;
+      
+      if (platform.includes('mac')) {
+        installerUrl = 'https://github.com/lip-so/chatVLA/releases/download/v1.0/TuneRobotics-Mac.dmg';
+      } else if (platform.includes('win')) {
+        installerUrl = 'https://github.com/lip-so/chatVLA/releases/download/v1.0/TuneRobotics-Windows.exe';
+      } else {
+        installerUrl = 'https://github.com/lip-so/chatVLA/releases/download/v1.0/TuneRobotics-Linux.AppImage';
+      }
+      
+      // Create invisible download link and click it
+      const link = document.createElement('a');
+      link.href = installerUrl;
+      link.download = 'TuneRobotics-Installer';
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Update banner after download starts
+      setTimeout(() => {
+        banner.style.background = 'linear-gradient(90deg, #4CAF50 0%, #45a049 100%)';
+        banner.style.color = 'white';
+        banner.innerHTML = `
+          <strong>✅ Installer Downloaded!</strong> 
+          Run it from your Downloads folder, then 
+          <button onclick="window.location.reload()" 
+                  style="background: white; color: #4CAF50; border: none; padding: 5px 15px; 
+                         border-radius: 15px; cursor: pointer; margin-left: 10px;">
+            Refresh Page
+          </button>
+        `;
+      }, 2000);
     }
     
     document.body.appendChild(banner);
@@ -1043,37 +1077,70 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.9);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10001;
+      backdrop-filter: blur(10px);
     `;
     
     modal.innerHTML = `
-      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; color: black;">
-        <h2 style="margin-top: 0;">🤖 Enable REAL LeRobot Installation</h2>
-        <p>To install LeRobot on YOUR computer from this website:</p>
-        <ol style="text-align: left;">
-          <li>Open Terminal</li>
-          <li>Run these commands:
-            <pre style="background: #f4f4f4; padding: 10px; border-radius: 5px;">
-cd ~/chatVLA
-python local_installer_bridge.py</pre>
-          </li>
-          <li>Keep the terminal open</li>
-          <li>Refresh this page</li>
-        </ol>
-        <p>The local bridge allows this website to install LeRobot on your computer!</p>
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 20px; max-width: 600px; color: white; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <h2 style="margin-top: 0; font-size: 28px;">🚀 One-Click Installation Required</h2>
+        <p style="font-size: 18px; margin: 20px 0;">To install LeRobot directly from this website, you need our installer:</p>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Option 1: Download Installer (Recommended)</h3>
+          <a href="https://github.com/lip-so/chatVLA/releases/download/v1.0/TuneRobotics_Installer.exe" 
+             style="display: inline-block; background: white; color: #764ba2; padding: 15px 30px; 
+                    border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 18px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.2s;">
+            ⬇️ Download for Windows
+          </a>
+          <a href="https://github.com/lip-so/chatVLA/releases/download/v1.0/TuneRobotics_Installer.dmg" 
+             style="display: inline-block; background: white; color: #764ba2; padding: 15px 30px; 
+                    border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 18px;
+                    margin-left: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.2s;">
+            ⬇️ Download for Mac
+          </a>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Option 2: Run Command (Advanced)</h3>
+          <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; font-size: 14px;">
+curl -fsSL https://raw.githubusercontent.com/lip-so/chatVLA/main/quick_install.sh | bash</pre>
+        </div>
+        
+        <p style="font-size: 14px; opacity: 0.8;">After running the installer, this page will automatically detect it and enable real installation!</p>
+        
+        <button onclick="this.parentElement.parentElement.remove(); retryConnection();" 
+                style="background: white; color: #764ba2; border: none; padding: 12px 25px; 
+                       border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px;
+                       box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+          I've installed it - Check again
+        </button>
         <button onclick="this.parentElement.parentElement.remove()" 
-                style="background: #007bff; color: white; border: none; padding: 10px 20px; 
-                       border-radius: 5px; cursor: pointer;">
-          Got it!
+                style="background: transparent; color: white; border: 2px solid white; padding: 12px 25px; 
+                       border-radius: 25px; cursor: pointer; margin-left: 10px; font-size: 16px;">
+          Cancel
         </button>
       </div>
     `;
     
     document.body.appendChild(modal);
+  };
+  
+  // Auto-retry connection
+  window.retryConnection = async function() {
+    const result = await checkLocalInstaller();
+    if (result) {
+      // Reload the page to reinitialize with local installer
+      window.location.reload();
+    } else {
+      // Try again in 2 seconds
+      setTimeout(retryConnection, 2000);
+    }
   };
 
       // Initialize
