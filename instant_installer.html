@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tune Robotics - Instant Installer</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+        }
+        
+        h1 { font-size: 48px; margin-bottom: 20px; }
+        .logo { font-size: 100px; }
+        
+        .step {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .step h3 { margin-top: 0; }
+        
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            display: block;
+            margin: 10px 0;
+            font-size: 14px;
+            user-select: all;
+            cursor: copy;
+        }
+        
+        button {
+            background: white;
+            color: #764ba2;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover { transform: translateY(-2px); }
+        
+        .success {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Tune Robotics Installer</h1>
+        <p style="font-size: 20px;">Install LeRobot with just ONE command!</p>
+        
+        <div class="step">
+            <h3>Step 1: Copy this command</h3>
+            <code onclick="copyCommand()" id="command">
+                curl -fsSL https://raw.githubusercontent.com/lip-so/chatVLA/main/one_click_installer.py | python3
+            </code>
+            <button onclick="copyCommand()">📋 Copy Command</button>
+        </div>
+        
+        <div class="step">
+            <h3>Step 2: Open Terminal</h3>
+            <button onclick="openTerminal()">🖥️ Open Terminal</button>
+            <p style="font-size: 14px; opacity: 0.8;">
+                Mac: Cmd+Space, type "Terminal"<br>
+                Windows: Win+R, type "cmd"<br>
+                Linux: Ctrl+Alt+T
+            </p>
+        </div>
+        
+        <div class="step">
+            <h3>Step 3: Paste & Run</h3>
+            <p>Paste the command and press Enter</p>
+            <button onclick="checkInstallation()">✅ I've Run It</button>
+        </div>
+        
+        <div class="success" id="success">
+            🎉 Perfect! The installer is running.<br>
+            The website will open automatically and LeRobot will be installed!
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <script>
+        function copyCommand() {
+            const command = document.getElementById('command').textContent.trim();
+            navigator.clipboard.writeText(command).then(() => {
+                document.getElementById('status').innerHTML = '✅ Command copied to clipboard!';
+                setTimeout(() => {
+                    document.getElementById('status').innerHTML = '';
+                }, 3000);
+            });
+        }
+        
+        function openTerminal() {
+            // This won't actually open terminal due to browser restrictions
+            // But we can provide platform-specific instructions
+            const platform = navigator.platform.toLowerCase();
+            let instruction = '';
+            
+            if (platform.includes('mac')) {
+                instruction = 'Press Cmd+Space, type "Terminal" and press Enter';
+            } else if (platform.includes('win')) {
+                instruction = 'Press Win+R, type "cmd" and press Enter';
+            } else {
+                instruction = 'Press Ctrl+Alt+T to open Terminal';
+            }
+            
+            document.getElementById('status').innerHTML = `💡 ${instruction}`;
+        }
+        
+        async function checkInstallation() {
+            document.getElementById('status').innerHTML = '🔍 Checking for local installer...';
+            
+            try {
+                const response = await fetch('http://localhost:7777/health');
+                if (response.ok) {
+                    document.getElementById('success').style.display = 'block';
+                    document.getElementById('status').innerHTML = '✅ Installer detected! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'https://tunerobotics.xyz/frontend/pages/plug-and-play-databench-style.html';
+                    }, 2000);
+                }
+            } catch (e) {
+                document.getElementById('status').innerHTML = '⚠️ Installer not detected. Make sure you ran the command.';
+                // Keep checking
+                setTimeout(checkInstallation, 2000);
+            }
+        }
+        
+        // Auto-check on load
+        window.onload = () => {
+            checkInstallation();
+        };
+        
+        // Make command easily selectable
+        document.getElementById('command').onclick = function() {
+            const range = document.createRange();
+            range.selectNodeContents(this);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            copyCommand();
+        };
+    </script>
+</body>
+</html>
