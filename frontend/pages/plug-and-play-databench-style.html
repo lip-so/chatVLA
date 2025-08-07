@@ -966,13 +966,7 @@
   let API_URL = 'https://web-production-fdfaa.up.railway.app';
   let isLocalInstaller = false;
   
-  // Copy install command to clipboard
-  function copyInstallCommand() {
-    const command = 'cd ~/chatVLA && python3 local_installer_bridge.py';
-    navigator.clipboard.writeText(command).then(() => {
-      alert('Command copied! Now paste it in Terminal and press Enter.');
-    });
-  }
+  // Hosted mode: no local commands needed
   
   // Hosted banner
   (function showHostedBanner(){
@@ -986,56 +980,9 @@
     document.body.appendChild(banner);
   })();
   
-  // Show instructions to enable real installation
+  // Hosted mode: no local installation needed
   window.showInstallInstructions = function() {
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10001;
-      backdrop-filter: blur(10px);
-    `;
-    
-    modal.innerHTML = `
-      <div style="background: white; padding: 35px; border-radius: 15px; max-width: 500px; color: #333; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-        <div style="text-align: center; margin-bottom: 25px;">
-          <div style="font-size: 48px; margin-bottom: 15px;">🤖</div>
-          <div style="font-size: 20px; font-weight: 600;">Enable LeRobot Installation</div>
-        </div>
-        
-        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <div style="font-size: 13px; color: #666; margin-bottom: 8px;">Run this command in Terminal:</div>
-          <pre id="install-cmd" style="background: #2d2d2d; color: #fff; padding: 12px; border-radius: 5px; font-size: 14px; cursor: pointer; user-select: all; margin: 0; font-family: 'Courier New', monospace;">cd ~/chatVLA && python3 local_installer_bridge.py</pre>
-          <button onclick="navigator.clipboard.writeText('cd ~/chatVLA && python3 local_installer_bridge.py').then(() => { this.textContent = '✓ Copied'; setTimeout(() => this.textContent = 'Copy', 2000); })" 
-                  style="background: #007bff; color: white; border: none; padding: 8px 16px; 
-                         border-radius: 6px; cursor: pointer; margin-top: 10px; font-size: 13px;">
-            Copy
-          </button>
-        </div>
-        
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
-          <button onclick="this.parentElement.parentElement.parentElement.remove(); window.location.reload();" 
-                  style="flex: 1; background: #28a745; color: white; border: none; padding: 10px 20px; 
-                         border-radius: 8px; cursor: pointer; font-size: 14px;">
-            I've run it - Refresh
-          </button>
-          <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                  style="flex: 1; background: #6c757d; color: white; border: none; padding: 10px 20px; 
-                         border-radius: 8px; cursor: pointer; font-size: 14px;">
-            Close
-          </button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
+    console.log('ℹ️ Hosted mode: No local installation required');
   };
   
   // No-op in hosted mode
@@ -1311,24 +1258,10 @@
       }
     }
 
-    // Run pipeline command (uses local installer APIs when available)
+    // Run pipeline command (hosted mode - directly execute)
     function runCmd(cmd) {
-      if (!isLocalInstaller) {
-        const modal = document.createElement('div');
-        modal.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--surface); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 1000; max-width: 520px; border: 1px solid var(--border);`;
-        modal.innerHTML = `
-          <h3>Run ${cmd.charAt(0).toUpperCase() + cmd.slice(1)}</h3>
-          <p>Start the local installer for real hardware control:</p>
-          <pre style="background: var(--surface-hover); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: 'JetBrains Mono', monospace;">cd ~/chatVLA && python3 local_installer_bridge.py</pre>
-          <p>Or run manually from your LeRobot install:</p>
-          <pre style="background: var(--surface-hover); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: 'JetBrains Mono', monospace;">cd ${installPath}\nconda activate lerobot\n./run_lerobot.sh</pre>
-          <div style="display:flex; gap:10px; justify-content:flex-end;">
-            <button onclick="this.parentElement.parentElement.remove()" class="btn-secondary">Close</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        return;
-      }
+      console.log(`🚀 Running ${cmd} command in hosted mode`);
+      // In hosted mode, always execute directly - no local installer needed
 
       // Helpers
       const leaderPort = (portDetectionState.detected_ports || {}).leader;
