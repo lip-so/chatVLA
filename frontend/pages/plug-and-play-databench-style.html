@@ -1043,12 +1043,48 @@
 
       // Initialize
   async function init() {
+    console.log('🚀 Initializing Plug & Play...');
+    console.log('🔗 API URL:', API_URL);
+    
+    // Test backend connectivity
+    try {
+      const response = await fetch(`${API_URL}/health`);
+      const data = await response.json();
+      console.log('✅ Backend health check:', data);
+    } catch (error) {
+      console.error('❌ Backend connectivity issue:', error);
+    }
+    
     initRobotGrid();
+    
     // Connect socket for runtime logs
+    console.log('🔌 Connecting to SocketIO...');
     socket = io(API_URL);
-    socket.on('calibration_log', (data) => addLog('terminal', data.message, 'info'));
-    socket.on('teleoperation_log', (data) => addLog('terminal', data.message, 'info'));
-    socket.on('recording_log', (data) => addLog('terminal', data.message, 'info'));
+    
+    socket.on('connect', () => {
+      console.log('✅ SocketIO connected');
+      addLog('terminal', '🔗 Connected to Tune Robotics servers', 'success');
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('❌ SocketIO disconnected');
+      addLog('terminal', '⚠️ Disconnected from servers', 'warning');
+    });
+    
+    socket.on('calibration_log', (data) => {
+      console.log('📝 Calibration log:', data);
+      addLog('terminal', data.message, data.level || 'info');
+    });
+    
+    socket.on('teleoperation_log', (data) => {
+      console.log('📝 Teleoperation log:', data);
+      addLog('terminal', data.message, data.level || 'info');
+    });
+    
+    socket.on('recording_log', (data) => {
+      console.log('📝 Recording log:', data);
+      addLog('terminal', data.message, data.level || 'info');
+    });
   }
 
     // Initialize robot grid
