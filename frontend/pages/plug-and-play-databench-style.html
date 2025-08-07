@@ -1347,6 +1347,20 @@
       socket.on('install_log', (data) => {
         addLog('terminal', data.message, data.level);
       });
+
+      // Runtime streams
+      socket.on('calibration_log', (data) => {
+        const el = document.getElementById('calibrationLog');
+        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
+      });
+      socket.on('teleoperation_log', (data) => {
+        const el = document.getElementById('teleopLog');
+        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
+      });
+      socket.on('recording_log', (data) => {
+        const el = document.getElementById('recordingLog');
+        if (el) { el.textContent += `\n${data.message}`; el.scrollTop = el.scrollHeight; }
+      });
       
       socket.on('installation_complete', (data) => {
         console.log('Installation complete:', data);
@@ -1845,34 +1859,130 @@
       }  
     }
 
-    // Run pipeline command
+    // Run pipeline command (uses local installer APIs when available)
     function runCmd(cmd) {
-      const modal = document.createElement('div');
-      modal.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: var(--surface);
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: var(--shadow-lg);
-        z-index: 1000;
-        max-width: 500px;
-        border: 1px solid var(--border);
-      `;
-      
-      modal.innerHTML = `
-        <h3>Run ${cmd.charAt(0).toUpperCase() + cmd.slice(1)}</h3>
-        <p>To run this command, open your terminal and execute:</p>
-        <pre style="background: var(--surface-hover); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: 'JetBrains Mono', monospace;">cd ${installPath}
-conda activate lerobot
-./run_lerobot.sh</pre>
-        <p>Then select option for ${cmd} from the menu.</p>
-        <button onclick="this.parentElement.remove()" class="btn-primary">Close</button>
-      `;
-      
-      document.body.appendChild(modal);
+      if (!isLocalInstaller) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--surface); padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 1000; max-width: 520px; border: 1px solid var(--border);`;
+        modal.innerHTML = `
+          <h3>Run ${cmd.charAt(0).toUpperCase() + cmd.slice(1)}</h3>
+          <p>Start the local installer for real hardware control:</p>
+          <pre style="background: var(--surface-hover); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: 'JetBrains Mono', monospace;">cd ~/chatVLA && python3 local_installer_bridge.py</pre>
+          <p>Or run manually from your LeRobot install:</p>
+          <pre style="background: var(--surface-hover); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: 'JetBrains Mono', monospace;">cd ${installPath}\nconda activate lerobot\n./run_lerobot.sh</pre>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="this.parentElement.parentElement.remove()" class="btn-secondary">Close</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        return;
+      }
+
+      // Helpers
+      const leaderPort = (portDetectionState.detected_ports || {}).leader;
+      const followerPort = (portDetectionState.detected_ports || {}).follower;
+      const robotBase = selectedRobot || 'so101';
+
+      if (cmd === 'calibrate') {
+        const modal = document.createElement('div');
+        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+        modal.innerHTML = `
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 600px; max-width: 95vw; border: 1px solid var(--border);">
+            <h3 style="margin-top:0;">Calibration</h3>
+            <div style="display:flex; gap:8px; margin-bottom: 10px;">
+              <button id="btnCalibLeader" class="btn-secondary" ${!leaderPort ? 'disabled' : ''}><i class="fas fa-compass"></i> Calibrate Leader (${leaderPort || 'not detected'})</button>
+              <button id="btnCalibFollower" class="btn-secondary" ${!followerPort ? 'disabled' : ''}><i class="fas fa-cogs"></i> Calibrate Follower (${followerPort || 'not detected'})</button>
+              <button id="btnCloseCalib" class="btn-primary" style="margin-left:auto;">Close</button>
+            </div>
+            <textarea id="calibrationLog" style="width:100%; height: 300px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly></textarea>
+          </div>`;
+        document.body.appendChild(modal);
+
+        const start = async (role, port) => {
+          const resp = await fetch(`${API_URL}/api/plugplay/calibrate`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role, robot_type: robotBase, port })
+          });
+          const data = await resp.json();
+          addLog('terminal', `${role} calibration: ${data.success ? 'started' : ('failed: ' + (data.error||''))}`, data.success ? 'success' : 'error');
+        };
+        const close = () => modal.remove();
+        document.getElementById('btnCalibLeader')?.addEventListener('click', () => leaderPort && start('leader', leaderPort));
+        document.getElementById('btnCalibFollower')?.addEventListener('click', () => followerPort && start('follower', followerPort));
+        document.getElementById('btnCloseCalib')?.addEventListener('click', close);
+        return;
+      }
+
+      if (cmd === 'teleoperate') {
+        if (!leaderPort || !followerPort) {
+          addLog('terminal', 'Missing leader or follower port. Complete port detection first.', 'warning');
+          return;
+        }
+        const modal = document.createElement('div');
+        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+        modal.innerHTML = `
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 700px; max-width: 95vw; border: 1px solid var(--border);">
+            <h3 style="margin-top:0;">Teleoperation</h3>
+            <div style="display:flex; gap:8px; margin-bottom: 10px;">
+              <button id="btnStopTeleop" class="btn-secondary"><i class="fas fa-stop"></i> Stop</button>
+              <button id="btnCloseTeleop" class="btn-primary" style="margin-left:auto;">Close</button>
+            </div>
+            <textarea id="teleopLog" style="width:100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Starting teleop...</textarea>
+          </div>`;
+        document.body.appendChild(modal);
+
+        fetch(`${API_URL}/api/plugplay/start-teleop`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ robot_type: robotBase, leader_type: robotBase, follower_port: followerPort, leader_port: leaderPort })
+        }).then(r => r.json()).then(d => {
+          if (!d.success) addLog('terminal', 'Teleop failed to start: ' + (d.error || ''), 'error');
+        }).catch(err => addLog('terminal', 'Teleop start error: ' + err.message, 'error'));
+
+        document.getElementById('btnStopTeleop').addEventListener('click', async () => {
+          try { await fetch(`${API_URL}/api/plugplay/stop-teleop`, { method: 'POST' }); } catch (e) {}
+        });
+        document.getElementById('btnCloseTeleop').addEventListener('click', () => modal.remove());
+        return;
+      }
+
+      if (cmd === 'record') {
+        if (!leaderPort || !followerPort) {
+          addLog('terminal', 'Missing leader or follower port. Complete port detection first.', 'warning');
+          return;
+        }
+        const repoId = prompt('Enter Hugging Face repo_id (e.g., yourname/robot-dataset):');
+        if (!repoId) return;
+        const fps = parseInt(prompt('FPS (default 30):') || '30', 10);
+        const episodes = parseInt(prompt('Number of episodes (default 5):') || '5', 10);
+        const epTime = parseInt(prompt('Episode time seconds (default 60):') || '60', 10);
+        const resetTime = parseInt(prompt('Reset time seconds (default 10):') || '10', 10);
+
+        const modal = document.createElement('div');
+        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+        modal.innerHTML = `
+          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 700px; max-width: 95vw; border: 1px solid var(--border);">
+            <h3 style="margin-top:0;">Recording</h3>
+            <div style="display:flex; gap:8px; margin-bottom: 10px;">
+              <button id="btnStopRec" class="btn-secondary"><i class="fas fa-stop"></i> Stop</button>
+              <button id="btnCloseRec" class="btn-primary" style="margin-left:auto;">Close</button>
+            </div>
+            <textarea id="recordingLog" style="width:100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Starting recording...</textarea>
+          </div>`;
+        document.body.appendChild(modal);
+
+        fetch(`${API_URL}/api/plugplay/start-recording`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ robot_type: robotBase, leader_type: robotBase, follower_port: followerPort, leader_port: leaderPort, repo_id: repoId, fps, num_episodes: episodes, episode_time_sec: epTime, reset_time_sec: resetTime })
+        }).then(r => r.json()).then(d => {
+          if (!d.success) addLog('terminal', 'Recording failed to start: ' + (d.error || ''), 'error');
+        }).catch(err => addLog('terminal', 'Recording start error: ' + err.message, 'error'));
+
+        document.getElementById('btnStopRec').addEventListener('click', async () => {
+          try { await fetch(`${API_URL}/api/plugplay/stop-recording`, { method: 'POST' }); } catch (e) {}
+        });
+        document.getElementById('btnCloseRec').addEventListener('click', () => modal.remove());
+        return;
+      }
     }
 
     // Add event listener for manual path input
