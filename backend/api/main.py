@@ -5,6 +5,8 @@ import sys
 import threading
 import time
 import subprocess
+import platform
+import shutil
 from pathlib import Path
 from flask import Flask, Blueprint, jsonify, send_from_directory, request
 from flask_cors import CORS
@@ -72,30 +74,33 @@ def emit_log(message, level='info'):
     })
 
 def run_installation(path, robot, use_existing=False):
-    """Run a simplified installation process for deployment"""
+    """Run a SIMULATED installation process for deployment (production cannot install locally)"""
     global current_installation
     current_installation['running'] = True
     current_installation['path'] = str(path)
     current_installation['robot'] = robot
     
     try:
-        emit_log(f"Starting installation for {robot} robot...")
-        emit_log(f"Installation path: {path}")
+        emit_log("⚠️ SIMULATION MODE - Production server cannot install on your machine", level='warning')
+        emit_log("To perform REAL installation, run the local installer:", level='warning')
+        emit_log("python3 local_installer_bridge.py", level='info')
+        emit_log("", level='info')
+        emit_log(f"Simulating installation for {robot} robot...")
+        emit_log(f"Target path: {path}")
         
         # Simulate installation steps for deployment
         time.sleep(1)
-        emit_log("Checking system requirements...")
+        emit_log("[SIMULATION] Checking system requirements...")
         
         time.sleep(2)
-        emit_log("Setting up robot configuration...")
+        emit_log("[SIMULATION] Would clone LeRobot repository...")
         
         time.sleep(2)
-        emit_log("Configuring USB port detection...")
+        emit_log("[SIMULATION] Would create conda environment...")
         
         time.sleep(1)
-        emit_log("Installation completed successfully!", level='success')
-        emit_log(f"Robot type: {robot}", level='success')
-        emit_log(f"Installation path: {path}", level='success')
+        emit_log("[SIMULATION] Installation simulation complete", level='success')
+        emit_log("⚠️ This was a simulation. For real installation, use local installer bridge", level='warning')
         
         # Trigger next step
         socketio.emit('installation_complete', {
@@ -208,14 +213,40 @@ def evaluate_dataset():
 @plugplay_bp.route('/system-info', methods=['GET'])
 def system_info():
     """Get system information"""
-    return jsonify({
-        "os": sys.platform,
-        "python_version": sys.version,
-        "capabilities": {
-            "usb_detection": SERIAL_AVAILABLE,
-            "installation": True
-        }
-    })
+    # Check if running in production (Railway or other cloud platform)
+    is_production = os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT')
+    
+    if is_production:
+        # Production mode - can only simulate/guide
+        return jsonify({
+            "mode": "PRODUCTION_SIMULATION",
+            "can_install_locally": False,
+            "message": "⚠️ Production server provides UI only. For real installation, run: python3 local_installer_bridge.py",
+            "os": sys.platform,
+            "python_version": sys.version,
+            "capabilities": {
+                "usb_detection": False,
+                "installation": False,
+                "guidance": True
+            },
+            "instructions": {
+                "step1": "Clone this repo: git clone https://github.com/lip-so/chatVLA.git",
+                "step2": "Run: python3 local_installer_bridge.py",
+                "step3": "Visit this page - it will detect the local installer"
+            }
+        })
+    else:
+        # Local development mode
+        return jsonify({
+            "mode": "LOCAL_DEVELOPMENT",
+            "can_install_locally": True,
+            "os": sys.platform,
+            "python_version": sys.version,
+            "capabilities": {
+                "usb_detection": SERIAL_AVAILABLE,
+                "installation": True
+            }
+        })
 
 @plugplay_bp.route('/list-ports', methods=['GET'])
 def list_ports():
