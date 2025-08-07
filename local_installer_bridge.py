@@ -139,6 +139,38 @@ class LeRobotInstaller:
             # Expand path
             install_path = Path(install_path).expanduser()
             
+            # Quick check if already installed
+            env_check = subprocess.run(
+                ["conda", "env", "list"],
+                capture_output=True,
+                text=True
+            ).stdout
+            
+            if "lerobot" in env_check:
+                self.log("✅ LeRobot environment already exists!")
+                self.update_progress(90, "LeRobot is already installed, finalizing...")
+                
+                # Just emit completion
+                self.update_progress(100, "Installation complete!")
+                install_state["status"] = "completed"
+                install_state["active"] = False
+                
+                # Send completion events
+                socketio.emit('installation_complete', {
+                    'status': 'completed',
+                    'success': True,
+                    'install_path': str(install_path)
+                })
+                
+                socketio.emit('installation_progress', {
+                    'progress': 100,
+                    'message': 'Installation complete!',
+                    'status': 'completed'
+                })
+                
+                self.is_installing = False
+                return True
+            
             # Step 1: Prerequisites
             self.update_progress(10, "Checking prerequisites...")
             if not self.check_prerequisites():
@@ -155,11 +187,25 @@ class LeRobotInstaller:
                     self.log("Updating existing installation...")
                     if not self.run_command("git pull", cwd=str(install_path)):
                         self.log("Update failed, continuing anyway", "warning")
+                    self.update_progress(45, "Repository ready...")
                 else:
                     self.log(f"Directory exists: {install_path}", "warning")
+                    self.update_progress(45, "Using existing directory...")
             else:
-                if not self.run_command(f'git clone https://github.com/huggingface/lerobot.git "{install_path}"'):
-                    raise Exception("Failed to clone LeRobot repository")
+                # Try cloning without LFS first for better reliability
+                clone_result = self.run_command(f'GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/huggingface/lerobot.git "{install_path}"')
+                if not clone_result:
+                    # Try once more with regular clone
+                    clone_result = self.run_command(f'git clone --depth 1 https://github.com/huggingface/lerobot.git "{install_path}"')
+                    if not clone_result:
+                        # Check if partial clone succeeded
+                        if install_path.exists() and (install_path / "pyproject.toml").exists():
+                            self.log("Partial clone succeeded, continuing...", "warning")
+                            self.update_progress(45, "Repository partially downloaded...")
+                        else:
+                            raise Exception("Failed to clone LeRobot repository")
+                else:
+                    self.update_progress(45, "Repository downloaded...")
                     
             # Step 4: Create/update conda environment
             self.update_progress(50, "Setting up Python environment...")
@@ -170,10 +216,21 @@ class LeRobotInstaller:
             ).stdout
             
             if "lerobot" in env_exists:
-                self.log("LeRobot environment exists, updating...")
+                self.log("✅ LeRobot environment already exists, using it...")
+                self.update_progress(55, "Using existing conda environment...")
             else:
                 if not self.run_command("conda create -y -n lerobot python=3.10"):
-                    raise Exception("Failed to create conda environment")
+                    # Check if it failed because it already exists
+                    check_again = subprocess.run(
+                        ["conda", "env", "list"],
+                        capture_output=True,
+                        text=True
+                    ).stdout
+                    if "lerobot" not in check_again:
+                        raise Exception("Failed to create conda environment")
+                    else:
+                        self.log("Environment created during race condition, continuing...")
+                        self.update_progress(55, "Environment ready...")
                     
             # Step 5: Install ffmpeg
             self.update_progress(60, "Installing multimedia dependencies...")
