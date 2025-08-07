@@ -212,9 +212,17 @@ class LeRobotInstaller:
             install_state["active"] = False
             
             # Send completion event
-            socketio.emit('install_complete', {
+            socketio.emit('installation_complete', {
+                'status': 'completed',
                 'success': True,
                 'install_path': str(install_path)
+            })
+            
+            # Also emit final progress
+            socketio.emit('installation_progress', {
+                'progress': 100,
+                'message': 'Installation complete!',
+                'status': 'completed'
             })
             
             return True
@@ -223,7 +231,8 @@ class LeRobotInstaller:
             self.log(f"❌ Installation failed: {str(e)}", "error")
             install_state["status"] = "failed"
             install_state["active"] = False
-            socketio.emit('install_complete', {
+            socketio.emit('installation_complete', {
+                'status': 'failed',
                 'success': False,
                 'error': str(e)
             })

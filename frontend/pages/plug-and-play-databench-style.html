@@ -1328,6 +1328,19 @@
           document.getElementById('step2').classList.add('active');
           document.getElementById('step2Number').classList.add('active');
           document.getElementById('usbContent').classList.remove('hidden');
+          
+          // Auto-scroll to port detection section
+          setTimeout(() => {
+            document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 500);
+          
+          // Update status
+          updateInstallStatus('✅ LeRobot installed! Preparing port detection...');
+          
+          // Start port detection automatically
+          setTimeout(() => {
+            detectPorts();
+          }, 1500);
         }
       });
       
@@ -1347,6 +1360,17 @@
         document.getElementById('step2').classList.add('active');
         document.getElementById('step2Number').classList.add('active');
         document.getElementById('usbContent').classList.remove('hidden');
+        
+        // Auto-scroll to port detection section
+        document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Update status
+        updateInstallStatus('✅ LeRobot installed! Now detecting robot ports...');
+        
+        // Start port detection automatically
+        setTimeout(() => {
+          detectPorts();
+        }, 1000);
       });
     };
 
