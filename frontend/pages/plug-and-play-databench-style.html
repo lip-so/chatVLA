@@ -850,7 +850,7 @@
         <div class="step-card" id="step1">
           <div class="step-header">
             <div id="step1Number" class="step-number completed">1</div>
-            <h3 class="step-title">LeRobot Installation</h3>
+            <h3 class="step-title">LeRobot Backend</h3>
           </div>
           
           <div id="installStatus" class="install-status">
@@ -865,11 +865,11 @@
           </div>
         </div>
 
-        <!-- Step 2: USB Detection -->
+        <!-- Step 2: Hardware Connection -->
         <div class="step-card active" id="step2">
           <div class="step-header">
             <div id="step2Number" class="step-number active">2</div>
-            <h3 class="step-title">USB Port Detection</h3>
+            <h3 class="step-title">Hardware Connection</h3>
           </div>
           <div id="usbContent">
             <p>Connect your robot arms using Web Serial (Chrome over HTTPS). Then proceed to Pipeline.</p>
@@ -884,14 +884,14 @@
           </div>
         </div>
 
-        <!-- Step 3: Pipeline -->
+        <!-- Step 3: Robot Control -->
         <div class="step-card disabled" id="step3">
           <div class="step-header">
             <div id="step3Number" class="step-number">3</div>
-            <h3 class="step-title">LeRobot Pipeline</h3>
+            <h3 class="step-title">Robot Control</h3>
           </div>
           <div id="pipelineContent" class="hidden">
-            <p style="margin-bottom: 1.5rem;">Your LeRobot installation is complete! Use these tools to work with your robot:</p>
+            <p style="margin-bottom: 1.5rem;">Hardware connected! Use these LeRobot tools to control your robot:</p>
             <div class="pipeline-actions">
               <button class="pipeline-btn" onclick="startCalibration()">
                 <i class="fas fa-sliders-h"></i><br>Calibrate
@@ -1045,6 +1045,9 @@
         grid.appendChild(card);
         console.log(`Added card for ${key} to grid`);
       });
+      
+      // Auto-select SO101 as default
+      selectRobot('so101');
       
       console.log('Robot grid initialization complete. Grid children:', grid.children.length);
     }
@@ -1577,8 +1580,76 @@
     // Initialize on load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, initializing...');
-    init();
+      init();
+      
+      // Handle "Start Robot Control" button
+      const continueBtn = document.getElementById('continueBtn');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', function() {
+          console.log('🚀 Starting robot control interface');
+          
+          // Add visual feedback
+          const originalText = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Robot Control...';
+          this.disabled = true;
+          
+          // Small delay for visual feedback, then show interface
+          setTimeout(() => {
+            showRobotControlInterface();
+            this.innerHTML = originalText;
+            this.disabled = false;
+          }, 1000);
+        });
+      }
     });
+    
+    // Show robot control interface directly
+    function showRobotControlInterface() {
+      // Hide the robot selection form
+      const robotSelection = document.getElementById('robotSelection');
+      if (robotSelection) {
+        robotSelection.style.display = 'none';
+      }
+      
+      // Show the installation section (which is now the robot control section)
+      const installationSection = document.getElementById('installationSection');
+      if (installationSection) {
+        installationSection.style.display = 'block';
+        installationSection.classList.remove('installation-section');
+      }
+      
+      // Update step 1 to show "Ready"
+      const step1 = document.getElementById('step1');
+      const step1Number = document.getElementById('step1Number');
+      const statusText = document.getElementById('statusText');
+      
+      if (step1) step1.classList.remove('disabled');
+      if (step1Number) {
+        step1Number.classList.remove('active');
+        step1Number.classList.add('completed');
+      }
+      if (statusText) {
+        statusText.textContent = '✅ LeRobot ready on ChatVLA servers - connect your hardware below';
+      }
+      
+      // Activate step 2 (USB detection)
+      const step2 = document.getElementById('step2');
+      const step2Number = document.getElementById('step2Number');
+      
+      if (step2) step2.classList.add('active');
+      if (step2Number) step2Number.classList.add('active');
+      
+      // Update the USB content message
+      const usbContent = document.getElementById('usbContent');
+      if (usbContent) {
+        const firstParagraph = usbContent.querySelector('p');
+        if (firstParagraph) {
+          firstParagraph.textContent = 'Connect your robot hardware via USB and camera. LeRobot is running on our servers and will communicate with your local hardware.';
+        }
+      }
+      
+      console.log('✅ Robot control interface activated');
+    }
   </script>
 </body>
 </html>
