@@ -561,34 +561,34 @@ if FLASK_AVAILABLE and lerobot_bp is not None:
             
             if not leader_port or not follower_port:
                 return jsonify({"success": False, "error": "Both leader and follower ports are required"}), 400
-        
-        session_id = f"teleop_{int(time.time())}"
-        active_sessions['teleoperation'][session_id] = {
-            'leader_type': leader_type,
-            'follower_type': follower_type,
-            'leader_port': leader_port,
-            'follower_port': follower_port,
-            'use_cameras': use_cameras,
-            'started': time.time()
-        }
-        
-        # Start teleoperation in background thread
-        thread = threading.Thread(
-            target=lerobot_integration.start_teleoperation,
-            args=(session_id, leader_type, follower_type, leader_port, follower_port, use_cameras),
-            daemon=True
-        )
-        thread.start()
-        
-        return jsonify({
-            "success": True,
-            "message": "Teleoperation started",
-            "session_id": session_id
-        })
-        
-    except Exception as e:
-        logger.error(f"Teleoperation endpoint failed: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
+            
+            session_id = f"teleop_{int(time.time())}"
+            active_sessions['teleoperation'][session_id] = {
+                'leader_type': leader_type,
+                'follower_type': follower_type,
+                'leader_port': leader_port,
+                'follower_port': follower_port,
+                'use_cameras': use_cameras,
+                'started': time.time()
+            }
+            
+            # Start teleoperation in background thread
+            thread = threading.Thread(
+                target=lerobot_integration.start_teleoperation,
+                args=(session_id, leader_type, follower_type, leader_port, follower_port, use_cameras),
+                daemon=True
+            )
+            thread.start()
+            
+            return jsonify({
+                "success": True,
+                "message": "Teleoperation started",
+                "session_id": session_id
+            })
+            
+        except Exception as e:
+            logger.error(f"Teleoperation endpoint failed: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
 
 @lerobot_bp.route('/stop-teleop', methods=['POST'])
 def stop_teleop():

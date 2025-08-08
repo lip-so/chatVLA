@@ -28,35 +28,22 @@ try:
 except Exception as e:
     logger.error(f"Failed to import LeRobot backend: {e}")
     
-    try:
-        logger.info("Falling back to simple_deploy...")
-        from simple_deploy import app
-        logger.info("✅ Fallback successful")
+    # Last resort: minimal app
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def index():
+        return jsonify({
+            "status": "error",
+            "message": "Backend failed to load",
+            "error": str(e)
+        })
         
-        if __name__ == '__main__':
-            port = int(os.environ.get('PORT', 5000))
-            logger.info(f"Starting fallback backend on port {port}")
-            app.run(host='0.0.0.0', port=port, debug=False)
-            
-    except Exception as e2:
-        logger.error(f"Fallback also failed: {e2}")
+    @app.route('/health')
+    def health():
+        return jsonify({"status": "error", "message": "Backend failed to load"})
         
-        # Last resort: minimal app
-        from flask import Flask, jsonify
-        app = Flask(__name__)
-        
-        @app.route('/')
-        def index():
-            return jsonify({
-                "status": "error",
-                "message": "Backend failed to load",
-                "errors": [str(e), str(e2)]
-            })
-            
-        @app.route('/health')
-        def health():
-            return jsonify({"status": "error", "message": "Backend failed to load"})
-            
-        if __name__ == '__main__':
-            port = int(os.environ.get('PORT', 5000))
-            app.run(host='0.0.0.0', port=port, debug=False)
+    if __name__ == '__main__':
+        port = int(os.environ.get('PORT', 5000))
+        app.run(host='0.0.0.0', port=port, debug=False)
