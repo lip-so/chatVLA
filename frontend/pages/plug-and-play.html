@@ -915,7 +915,7 @@
             <p>6-DOF robotic arm with gripper</p>
             <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so101">
               Select SO-101
-            </button>
+          </button>
           </div>
           
           <div class="robot-type-card" data-robot="so100">
@@ -923,17 +923,17 @@
             <p>Compact robotic arm for desktop use</p>
             <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so100">
               Select SO-100
-            </button>
-          </div>
-          
+          </button>
+        </div>
+
           <div class="robot-type-card" data-robot="koch">
             <h4>Koch</h4>
             <p>High-precision research arm</p>
             <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="koch">
               Select Koch
             </button>
-          </div>
-          
+        </div>
+        
 
         </div>
         
@@ -1810,16 +1810,16 @@
       }
 
       async fetchPorts() {
-        const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
-        const response = await fetch(`${apiUrl}/api/plugplay/list-ports`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const response = await fetch(`${apiUrl}/api/plugplay/list-ports`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
 
-        const data = await response.json();
-        
+          const data = await response.json();
+          
         if (!response.ok) {
           throw new Error(data.error || 'Failed to fetch ports');
         }
@@ -1892,7 +1892,7 @@
             this.showLeaderPortFinderResult(false, `Multiple devices were unplugged. Please reconnect all devices and try again with only the leader device.`);
             this.updateLeaderPortFinderStatus('Multiple changes detected', 'error');
           }
-          
+
         } catch (error) {
           this.updateLeaderPortFinderStatus('Unable to complete detection', 'error');
           this.showLeaderPortFinderResult(false, `Please check your connection and try again.`);
@@ -1974,7 +1974,7 @@
               <p>Your leader device is connected to:</p>
               <div class="detected-port">${message}</div>
               <p style="margin-top: 1rem;"><i class="fas fa-plug" style="color: #22c55e;"></i> Please reconnect your leader device to continue.</p>
-            </div>
+          </div>
           `;
         } else {
           resultEl.innerHTML = `
@@ -2034,33 +2034,33 @@
           const ports = await this.fetchPorts();
           this.availablePorts = ports;
           
-          const selectors = [
-            'calibrationPort', 'leaderPort', 'followerPort', 
-            'recordingLeaderPort', 'recordingFollowerPort'
-          ];
+        const selectors = [
+          'calibrationPort', 'leaderPort', 'followerPort', 
+          'recordingLeaderPort', 'recordingFollowerPort'
+        ];
 
-          selectors.forEach(selectorId => {
-            const selector = document.getElementById(selectorId);
+        selectors.forEach(selectorId => {
+          const selector = document.getElementById(selectorId);
             if (!selector) return;
             
-            const currentValue = selector.value;
-            
-            // Clear existing options except the first one
-            selector.innerHTML = selector.children[0].outerHTML;
-            
-            // Add port options
-            this.availablePorts.forEach(port => {
-              const option = document.createElement('option');
-              option.value = port.port;
-              option.textContent = `${port.port} - ${port.description || 'Unknown Device'}`;
-              selector.appendChild(option);
-            });
-
-            // Restore selection if still valid
-            if (currentValue && this.availablePorts.some(p => p.port === currentValue)) {
-              selector.value = currentValue;
-            }
+          const currentValue = selector.value;
+          
+          // Clear existing options except the first one
+          selector.innerHTML = selector.children[0].outerHTML;
+          
+          // Add port options
+          this.availablePorts.forEach(port => {
+            const option = document.createElement('option');
+            option.value = port.port;
+            option.textContent = `${port.port} - ${port.description || 'Unknown Device'}`;
+            selector.appendChild(option);
           });
+
+          // Restore selection if still valid
+          if (currentValue && this.availablePorts.some(p => p.port === currentValue)) {
+            selector.value = currentValue;
+          }
+        });
         } catch (error) {
           console.error('Failed to update port selectors:', error);
         }

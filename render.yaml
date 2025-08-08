@@ -3,7 +3,7 @@ services:
     name: chatvla-backend
     runtime: python
     buildCommand: pip install -r requirements-production.txt
-    startCommand: python start.py
+    startCommand: python main.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
