@@ -881,7 +881,7 @@
           <div id="installStatus" class="install-status">
             <div class="status-message">
               <i class="fas fa-check-circle"></i>
-              <span id="statusText">✅ LeRobot is pre-installed on Tune Robotics servers</span>
+              <span id="statusText">✅ LeRobot is pre-installed on ChatVLA backend</span>
             </div>
           </div>
           
@@ -962,9 +962,14 @@
     let socket = null;
     let installPath = null;
 
-  // Hosted mode: always use Railway backend
-  let API_URL = 'https://web-production-fdfaa.up.railway.app';
+  // Dynamic API URL detection
+  let API_URL = window.location.origin;
   let isLocalInstaller = false;
+  
+  // If running on localhost, try to connect to local backend
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    API_URL = 'http://localhost:5000';
+  }
   
   // Hosted mode: no local commands needed
   
@@ -976,13 +981,13 @@
       position: fixed; top: 0; left: 0; right: 0; padding: 12px; text-align: center; 
       z-index: 10000; font-family: monospace; animation: slideDown 0.3s ease;
       background: linear-gradient(90deg, #212121 0%, #000 100%); color: #fff; font-size: 13px;`;
-    banner.textContent = 'Hosted mode: compute runs on Tune Robotics servers. Connect your local USB ports and camera below.';
+    banner.textContent = 'ChatVLA Backend: Connect your local USB ports and camera for robot control.';
     document.body.appendChild(banner);
   })();
   
   // Hosted mode: no local installation needed
   window.showInstallInstructions = function() {
-    console.log('ℹ️ Hosted mode: No local installation required');
+    console.log('ℹ️ ChatVLA mode: No local installation required');
   };
   
   // No-op in hosted mode
@@ -1010,7 +1015,7 @@
     
     socket.on('connect', () => {
       console.log('✅ SocketIO connected');
-      addLog('terminal', '🔗 Connected to Tune Robotics servers', 'success');
+      addLog('terminal', '🔗 Connected to ChatVLA backend', 'success');
     });
     
     socket.on('disconnect', () => {

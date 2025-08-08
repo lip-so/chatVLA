@@ -2,9 +2,11 @@ services:
   - type: web
     name: chatvla-backend
     runtime: python
-    buildCommand: pip install -r requirements-minimal.txt
+    buildCommand: pip install -r requirements-deploy.txt
     startCommand: python start.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: PORT
+        value: 10000
     autoDeploy: true

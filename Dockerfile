@@ -24,4 +24,4 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 # Start the backend
-CMD ["python", "-m", "backend.api.main"]
+CMD ["python", "start.py"]
