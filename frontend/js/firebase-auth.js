@@ -156,7 +156,7 @@ class FirebaseAuthManager {
   }
 
   redirectToLogin() {
-          window.location.href = '/frontend/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+          window.location.href = window.location.origin + '/frontend/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
   }
 
   redirectAfterLogin() {

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (demoMode === 'vision-only' && isRestrictedPage) {
     // Redirect to Vision page with a message
     alert('This feature is not available in demo mode. Please contact us for full access.');
-    window.location.href = '/pages/vision.html';
+            window.location.href = window.location.origin + '/frontend/pages/vision.html';
     return;
   }
   

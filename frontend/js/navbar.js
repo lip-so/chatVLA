@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Always redirect to home
-    window.location.href = '/';
+                window.location.href = window.location.origin + '/';
   }
   
   // Initialize navbar immediately
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.onAuthStateChanged(window.firebaseAuth, (user) => {
               if (!user) {
                 // User not authenticated, redirect to login
-                window.location.href = '/frontend/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                window.location.href = window.location.origin + '/frontend/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
               }
             });
           }

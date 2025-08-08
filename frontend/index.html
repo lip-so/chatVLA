@@ -9,8 +9,8 @@ title: "Home"
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Tune Robotics: Chat with your robot and make it do your dishes. Tune your robot, instantly.">
   <title>Tune Robotics</title>
-  <link rel="icon" type="image/png" href="/assets/logo.png">
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" type="image/png" href="./assets/logo.png">
+  <link rel="stylesheet" href="./css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   
   <style>
@@ -77,7 +77,7 @@ title: "Home"
 <body>
   <nav class="navbar">
     <div class="navbar-container">
-      <a href="/" class="logo">Tune</a>
+              <a href="./" class="logo">Tune</a>
       <div class="nav-links">
         <span class="nav-links-features" style="display: none;">
           <a href="/frontend/pages/databench.html">DataBench</a>
@@ -96,8 +96,8 @@ title: "Home"
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-content">
       <span class="mobile-menu-features" style="display: none;">
-        <a href="/frontend/pages/databench.html">DataBench</a>
-        <a href="/frontend/pages/plug-and-play.html">Plug & Play</a>
+        <a href="./pages/databench.html">DataBench</a>
+        <a href="./pages/plug-and-play.html">Plug & Play</a>
       </span>
     </div>
   </div>
@@ -128,9 +128,9 @@ title: "Home"
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   
-  <script src="/js/firebase-auth-browser.js"></script>
-  <script src="/js/navbar.js"></script>
-  <script src="/js/app.js"></script>
+  <script src="./js/firebase-auth-browser.js"></script>
+<script src="./js/navbar.js"></script>
+<script src="./js/app.js"></script>
   <script>
     // Update landing actions based on auth state
     function updateLandingActions(user = null) {
@@ -181,8 +181,8 @@ title: "Home"
         
         // User is authenticated - show all platform features
         landingActions.innerHTML = `
-          <a href="/frontend/pages/plug-and-play.html" class="cta-button primary">Get Started</a>
-          <a href="/frontend/pages/databench.html" class="cta-button">DataBench</a>
+                <a href="./pages/plug-and-play.html" class="cta-button primary">Get Started</a>
+      <a href="./pages/databench.html" class="cta-button">DataBench</a>
         `;
         
         // Show navigation features
@@ -196,9 +196,9 @@ title: "Home"
         
         // User is not authenticated - show vision + contact us/register
         landingActions.innerHTML = `
-          <a href="/frontend/pages/vision.html" class="cta-button">Vision</a>
+          <a href="./pages/vision.html" class="cta-button">Vision</a>
           <a href="mailto:yo@tunerobotics.xyz" class="cta-button">Contact Us</a>
-          <a href="/frontend/pages/register.html" class="cta-button primary">Get Started</a>
+          <a href="./pages/register.html" class="cta-button primary">Get Started</a>
         `;
         
         // Hide navigation features
