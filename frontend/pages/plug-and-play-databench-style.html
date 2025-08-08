@@ -822,6 +822,36 @@
           <h3><i class="fas fa-robot"></i> Select Your Robot</h3>
           <div class="robot-grid" id="robotGrid">
             <!-- Robot cards will be inserted here -->
+            <div class="robot-card" data-robot="koch" onclick="selectRobot('koch')">
+              <div class="robot-checkbox"></div>
+              <div class="robot-title">
+                <span class="robot-code">KOCH</span>
+                Koch
+              </div>
+              <p class="robot-description">
+                Advanced robotics platform with precise control and learning capabilities
+              </p>
+            </div>
+            <div class="robot-card" data-robot="so100" onclick="selectRobot('so100')">
+              <div class="robot-checkbox"></div>
+              <div class="robot-title">
+                <span class="robot-code">SO100</span>
+                SO-100
+              </div>
+              <p class="robot-description">
+                Advanced robotics platform with precise control and learning capabilities
+              </p>
+            </div>
+            <div class="robot-card selected" data-robot="so101" onclick="selectRobot('so101')">
+              <div class="robot-checkbox"></div>
+              <div class="robot-title">
+                <span class="robot-code">SO101</span>
+                SO-101
+              </div>
+              <p class="robot-description">
+                Advanced robotics platform with precise control and learning capabilities
+              </p>
+            </div>
           </div>
         </div>
 
@@ -1016,17 +1046,48 @@
 
     // Initialize robot grid
     function initRobotGrid() {
-      console.log('Initializing robot grid...');
+      console.log('🤖 Initializing robot grid...');
+      
+      // Debug: Check if robots object exists
+      console.log('Robots object:', typeof robots, robots);
+      
       const grid = document.getElementById('robotGrid');
       console.log('Grid element:', grid);
-      console.log('Robots:', robots);
       
       if (!grid) {
-        console.error('robotGrid element not found!');
+        console.error('❌ CRITICAL: robotGrid element not found!');
+        // Try to find any element with robot in its ID
+        const allElements = document.querySelectorAll('[id*="robot"]');
+        console.log('Elements with "robot" in ID:', allElements);
         return;
       }
       
-      Object.entries(robots).forEach(([key, robot]) => {
+      // Check if grid already has robot cards (from HTML fallback)
+      const existingCards = grid.querySelectorAll('.robot-card');
+      if (existingCards.length > 0) {
+        console.log(`Grid already has ${existingCards.length} robot cards from HTML, skipping JavaScript generation`);
+        // Just ensure one is selected
+        if (!grid.querySelector('.robot-card.selected')) {
+          selectRobot('so101');
+        }
+        return;
+      }
+      
+      // Clear existing content only if no cards present
+      grid.innerHTML = '';
+      console.log('Cleared grid, adding robot cards...');
+      
+      // Check if robots object has entries
+      const robotEntries = Object.entries(robots);
+      console.log(`Found ${robotEntries.length} robots to display`);
+      
+      if (robotEntries.length === 0) {
+        console.error('❌ No robots defined in robots object!');
+        grid.innerHTML = '<p style="color: red;">No robots available. Please check configuration.</p>';
+        return;
+      }
+      
+      robotEntries.forEach(([key, robot]) => {
         console.log(`Creating card for robot: ${key}`, robot);
         const card = document.createElement('div');
         card.className = 'robot-card';
@@ -1043,13 +1104,26 @@
         `;
         card.onclick = () => selectRobot(key);
         grid.appendChild(card);
-        console.log(`Added card for ${key} to grid`);
+        console.log(`✅ Added card for ${key} to grid`);
       });
       
-      // Auto-select SO101 as default
-      selectRobot('so101');
+      // Check if cards were actually added
+      console.log(`Grid now has ${grid.children.length} children`);
+      console.log('Grid HTML:', grid.innerHTML.substring(0, 200) + '...');
       
-      console.log('Robot grid initialization complete. Grid children:', grid.children.length);
+      // Auto-select SO101 as default if it exists
+      if (robots['so101']) {
+        console.log('Auto-selecting SO101...');
+        selectRobot('so101');
+      } else {
+        console.log('SO101 not found, selecting first robot...');
+        const firstRobot = robotEntries[0];
+        if (firstRobot) {
+          selectRobot(firstRobot[0]);
+        }
+      }
+      
+      console.log('✅ Robot grid initialization complete. Grid children:', grid.children.length);
     }
 
     // Initialize choice cards
@@ -1098,13 +1172,24 @@
       });
     }
 
-    // Select robot
-    function selectRobot(robotKey) {
-      document.querySelectorAll('.robot-card').forEach(card => {
+    // Select robot - make it globally accessible
+    window.selectRobot = function(robotKey) {
+      console.log(`Selecting robot: ${robotKey}`);
+      const cards = document.querySelectorAll('.robot-card');
+      console.log(`Found ${cards.length} robot cards`);
+      
+      cards.forEach(card => {
         card.classList.remove('selected');
       });
-      document.querySelector(`[data-robot="${robotKey}"]`).classList.add('selected');
-      selectedRobot = robotKey;
+      
+      const targetCard = document.querySelector(`[data-robot="${robotKey}"]`);
+      if (targetCard) {
+        targetCard.classList.add('selected');
+        selectedRobot = robotKey;
+        console.log(`✅ Selected robot: ${robotKey}`);
+      } else {
+        console.error(`❌ Could not find robot card for: ${robotKey}`);
+      }
     }
 
     // Hosted mode: installation choice functions removed
