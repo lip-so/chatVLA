@@ -661,10 +661,10 @@
     <div class="navbar-container">
       <a href="/" class="logo">Tune</a>
       <div class="nav-links">
-        <a href="vision.html">Vision</a>
-        <a href="databench.html">DataBench</a>
-        <a href="plug-and-play.html">Plug & Play</a>
-        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+        <span class="nav-links-features">
+          <a href="/frontend/pages/databench.html">DataBench</a>
+          <a href="/frontend/pages/plug-and-play.html">Plug & Play</a>
+        </span>
       </div>
     </div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle">
@@ -677,10 +677,10 @@
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-content">
-      <a href="vision.html">Vision</a>
-      <a href="databench.html">DataBench</a>
-      <a href="plug-and-play.html">Plug & Play</a>
-      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      <span class="mobile-menu-features">
+        <a href="/frontend/pages/databench.html">DataBench</a>
+        <a href="/frontend/pages/plug-and-play.html">Plug & Play</a>
+      </span>
     </div>
   </div>
 
@@ -1033,6 +1033,16 @@
   </footer>
   
   <script src="/js/navbar.js"></script>
+  <script>
+    // Show navigation features by default on Plug & Play page
+    document.addEventListener('DOMContentLoaded', () => {
+      const navLinksFeatures = document.querySelector('.nav-links-features');
+      const mobileMenuFeatures = document.querySelector('.mobile-menu-features');
+      
+      if (navLinksFeatures) navLinksFeatures.style.display = 'flex';
+      if (mobileMenuFeatures) mobileMenuFeatures.style.display = 'block';
+    });
+  </script>
   <script>
     class PlugPlayUI {
       constructor() {
