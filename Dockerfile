@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements-deploy.txt .
-RUN pip install --no-cache-dir -r requirements-deploy.txt
+COPY requirements-production.txt .
+RUN pip install --no-cache-dir -r requirements-production.txt
 
 # Copy the entire application
 COPY . .
@@ -22,6 +22,7 @@ EXPOSE 8080
 ENV PORT=8080
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
+ENV FIREBASE_OPTIONAL=true
 
 # Start the backend
 CMD ["python", "start.py"]

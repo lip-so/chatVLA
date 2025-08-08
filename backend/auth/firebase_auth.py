@@ -73,8 +73,12 @@ To get credentials:
                 """)
                 return False
 
-# Initialize Firebase
-firebase_initialized = initialize_firebase()
+# Initialize Firebase (optional in production)
+firebase_optional = os.environ.get('FIREBASE_OPTIONAL', 'false').lower() == 'true'
+firebase_initialized = initialize_firebase() if not firebase_optional else False
+
+if firebase_optional and not firebase_initialized:
+    print("ℹ️ Firebase authentication disabled (FIREBASE_OPTIONAL=true)")
 
 firebase_bp = Blueprint('firebase_auth', __name__, url_prefix='/api/auth')
 
