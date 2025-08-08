@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 """
-Cloud-deployable Plug & Play API for Tune Robotics website.
-Provides LeRobot installation guidance and USB port information via web interface.
+LeRobot Plug & Play API for Tune Robotics website.
+Provides direct robot control via LeRobot API - calibration, teleoperation, and recording.
+All computation happens on Tune Robotics backend, communicating with user's local hardware.
 """
 
 import os
 import json
 import logging
+import threading
+import time
+import traceback
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
+
+# Setup logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Try to import pyserial for USB port detection
 try:
@@ -21,6 +29,35 @@ try:
 except ImportError:
     SERIAL_AVAILABLE = False
 
+# Try to import LeRobot components
+try:
+    # Add the ref/lerobot directory to the Python path
+    import sys
+    lerobot_path = Path(__file__).parent.parent.parent / "ref"
+    sys.path.insert(0, str(lerobot_path))
+    
+    from lerobot.robots.so101_follower import SO101FollowerConfig, SO101Follower
+    from lerobot.robots.so100_follower import SO100FollowerConfig, SO100Follower
+    from lerobot.robots.koch_follower import KochFollowerConfig, KochFollower
+    
+    from lerobot.teleoperators.so101_leader import SO101LeaderConfig, SO101Leader
+    from lerobot.teleoperators.so100_leader import SO100LeaderConfig, SO100Leader
+    from lerobot.teleoperators.koch_leader import KochLeaderConfig, KochLeader
+    
+    from lerobot.cameras.opencv.configuration_opencv import OpenCVCameraConfig
+    from lerobot.datasets.lerobot_dataset import LeRobotDataset
+    from lerobot.datasets.utils import hw_to_dataset_features
+    from lerobot.record import record_loop
+    from lerobot.utils.control_utils import init_keyboard_listener
+    from lerobot.utils.visualization_utils import _init_rerun
+    from lerobot.utils.utils import log_say
+    
+    LEROBOT_AVAILABLE = True
+    logger.info("✅ LeRobot API loaded successfully")
+except ImportError as e:
+    LEROBOT_AVAILABLE = False
+    logger.warning(f"⚠️ LeRobot not available: {e}")
+
 # Check if databench is available
 try:
     from pathlib import Path
@@ -28,10 +65,6 @@ try:
     DATABENCH_AVAILABLE = databench_path.exists()
 except:
     DATABENCH_AVAILABLE = False
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tune-robotics-plug-and-play'
@@ -54,17 +87,29 @@ def index():
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
+    capabilities = [
+        "USB port detection",
+        "Robot configuration"
+    ]
+    
+    if LEROBOT_AVAILABLE:
+        capabilities.extend([
+            "LeRobot calibration",
+            "LeRobot teleoperation", 
+            "LeRobot dataset recording",
+            "Camera integration"
+        ])
+    else:
+        capabilities.append("LeRobot simulation mode")
+    
     return jsonify({
         "status": "healthy",
-        "service": "Tune Robotics Plug & Play API",
-        "version": "1.0.0",
+        "service": "Tune Robotics LeRobot Plug & Play API",
+        "version": "2.0.0",
         "timestamp": datetime.now().isoformat(),
-        "capabilities": [
-            "Installation guidance",
-            "System requirements checking",
-            "USB port information",
-            "LeRobot setup instructions"
-        ]
+        "lerobot_available": LEROBOT_AVAILABLE,
+        "serial_available": SERIAL_AVAILABLE,
+        "capabilities": capabilities
     })
 
 @app.route('/api/system_info', methods=['GET'])
@@ -247,10 +292,17 @@ def status():
     """Service status endpoint"""
     return jsonify({
         "status": "online",
-        "service": "Tune Robotics Plug & Play",
-        "mode": "guidance",
-        "description": "Provides installation guidance and setup instructions"
+        "service": "Tune Robotics LeRobot Plug & Play",
+        "mode": "direct_control" if LEROBOT_AVAILABLE else "simulation",
+        "description": "Provides direct robot control via LeRobot API"
     })
+
+# ============================================================================
+# LeRobot API Endpoints
+# ============================================================================
+
+# Global robot state management
+robot_sessions = {}
 
 # WebSocket events for real-time guidance
 @socketio.on('connect')

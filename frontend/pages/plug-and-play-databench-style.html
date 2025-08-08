@@ -807,7 +807,7 @@
   <main class="main">
     <div class="databench-hero">
       <h1>Plug & Play</h1>
-      <p class="subtitle">Complete LeRobot Pipeline with Automated Setup</p>
+      <p class="subtitle">Direct LeRobot Control - No Installation Required</p>
       <button class="info-button" id="infoButton" title="Learn about the plug & play system">
         <i class="fas fa-info-circle"></i>
         How does this work?
@@ -826,47 +826,22 @@
         </div>
 
         <div class="form-section">
-          <h3><i class="fas fa-folder"></i> Installation</h3>
-          <div id="installationChoice" class="installation-choice">
-            <div class="choice-card" id="newInstallChoice" data-choice="new">
-              <div class="choice-title">Fresh Installation</div>
-              <div class="choice-description">Download and install LeRobot from scratch</div>
-            </div>
-            <div class="choice-card" id="existingInstallChoice" data-choice="existing">
-              <div class="choice-title">Use Existing</div>
-              <div class="choice-description">Use an existing LeRobot installation</div>
-            </div>
-          </div>
-
-          <div id="existingInstallations" class="existing-installations hidden">
-            <h4 style="margin-top: 0;">Auto-detected Installations:</h4>
-            <div id="installationList"></div>
-            <div style="margin-top: 1rem;">
-              <h4>Or select manually:</h4>
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="file" id="folderPicker" webkitdirectory style="display: none;" onchange="handleFolderSelect(event)">
-                <button class="btn-secondary" onclick="document.getElementById('folderPicker').click()">
-                  <i class="fas fa-folder-open"></i> Browse Folder
-                </button>
-                <span style="font-size: 0.8rem; color: var(--text-secondary);">Select the LeRobot folder</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="installPath">Installation Path</label>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <input type="text" id="installPath" class="form-input" placeholder="~/lerobot" value="~/lerobot" style="flex: 1;">
-              <button class="btn-secondary" onclick="document.getElementById('folderPicker').click()" style="white-space: nowrap;">
-                <i class="fas fa-folder-open"></i> Browse
-              </button>
-            </div>
-            <div class="form-help">Where to install or find LeRobot</div>
+          <h3><i class="fas fa-rocket"></i> Ready to Go!</h3>
+          <p style="margin-bottom: 1.5rem;">LeRobot is running on our servers. Just connect your robot hardware and start controlling it directly.</p>
+          
+          <div style="background: var(--surface-hover); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+            <h4 style="margin-top: 0; color: var(--accent);"><i class="fas fa-info-circle"></i> What's Different?</h4>
+            <ul style="margin-bottom: 0; padding-left: 1.5rem;">
+              <li>✅ No installation required - LeRobot runs on Tune Robotics servers</li>
+              <li>✅ Connect your robot hardware via USB and camera</li>
+              <li>✅ All computation happens in the cloud</li>
+              <li>✅ Your robot responds in real-time</li>
+            </ul>
           </div>
         </div>
 
         <div style="text-align: center;">
-          <button id="continueBtn" class="btn-primary" disabled>Continue with Setup</button>
+          <button id="continueBtn" class="btn-primary">Start Robot Control</button>
         </div>
       </div>
 
@@ -918,19 +893,19 @@
           <div id="pipelineContent" class="hidden">
             <p style="margin-bottom: 1.5rem;">Your LeRobot installation is complete! Use these tools to work with your robot:</p>
             <div class="pipeline-actions">
-              <button class="pipeline-btn" onclick="runCmd('calibrate')">
+              <button class="pipeline-btn" onclick="startCalibration()">
                 <i class="fas fa-sliders-h"></i><br>Calibrate
               </button>
-              <button class="pipeline-btn" onclick="runCmd('teleoperate')">
+              <button class="pipeline-btn" onclick="startTeleoperation()">
                 <i class="fas fa-gamepad"></i><br>Teleoperate
               </button>
-              <button class="pipeline-btn" onclick="runCmd('record')">
-                <i class="fas fa-video"></i><br>Record
+              <button class="pipeline-btn" onclick="startRecording()">
+                <i class="fas fa-video"></i><br>Record Dataset
               </button>
-              <button class="pipeline-btn" onclick="runCmd('train')">
-                <i class="fas fa-brain"></i><br>Train
+              <button class="pipeline-btn" onclick="showTrainingInfo()">
+                <i class="fas fa-brain"></i><br>Train Model
               </button>
-              <button class="pipeline-btn" onclick="runCmd('deploy')">
+              <button class="pipeline-btn" onclick="showDeploymentInfo()">
                 <i class="fas fa-rocket"></i><br>Deploy
               </button>
             </div>
@@ -1263,116 +1238,326 @@
       }
     }
 
-    // Run pipeline command (hosted mode - directly execute)
-    function runCmd(cmd) {
-      console.log(`🚀 Running ${cmd} command in hosted mode`);
-      // In hosted mode, always execute directly - no local installer needed
-
-      // Helpers
-      const leaderPort = (portDetectionState.detected_ports || {}).leader;
-      const followerPort = (portDetectionState.detected_ports || {}).follower;
+    // ============================================================================
+    // New LeRobot API Functions
+    // ============================================================================
+    
+    function startCalibration() {
+      console.log('🚀 Starting LeRobot calibration');
+      
+      const leaderPort = (portDetectionState.detected_ports || {}).leader || getSelectedPort('leader');
+      const followerPort = (portDetectionState.detected_ports || {}).follower || getSelectedPort('follower');
       const robotBase = selectedRobot || 'so101';
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+      modal.innerHTML = `
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 600px; max-width: 95vw; border: 1px solid var(--border);">
+          <h3 style="margin-top:0;"><i class="fas fa-sliders-h"></i> LeRobot Calibration</h3>
+          <div style="display:flex; gap:8px; margin-bottom: 10px;">
+            <button id="btnCalibLeader" class="btn-secondary" ${!leaderPort ? 'disabled' : ''}><i class="fas fa-compass"></i> Calibrate Leader</button>
+            <button id="btnCalibFollower" class="btn-secondary" ${!followerPort ? 'disabled' : ''}><i class="fas fa-cogs"></i> Calibrate Follower</button>
+            <button id="btnCloseCalib" class="btn-primary" style="margin-left:auto;">Close</button>
+          </div>
+          <div style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+            Leader Port: <code>${leaderPort || 'Not detected'}</code> | 
+            Follower Port: <code>${followerPort || 'Not detected'}</code>
+          </div>
+          <textarea id="calibrationLog" style="width:100%; height: 300px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Ready for calibration...</textarea>
+        </div>`;
+      document.body.appendChild(modal);
 
-      if (cmd === 'calibrate') {
-        const modal = document.createElement('div');
-        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
-        modal.innerHTML = `
-          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 600px; max-width: 95vw; border: 1px solid var(--border);">
-            <h3 style="margin-top:0;">Calibration</h3>
-            <div style="display:flex; gap:8px; margin-bottom: 10px;">
-              <button id="btnCalibLeader" class="btn-secondary" ${!leaderPort ? 'disabled' : ''}><i class="fas fa-compass"></i> Calibrate Leader (${leaderPort || 'not detected'})</button>
-              <button id="btnCalibFollower" class="btn-secondary" ${!followerPort ? 'disabled' : ''}><i class="fas fa-cogs"></i> Calibrate Follower (${followerPort || 'not detected'})</button>
-              <button id="btnCloseCalib" class="btn-primary" style="margin-left:auto;">Close</button>
-            </div>
-            <textarea id="calibrationLog" style="width:100%; height: 300px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly></textarea>
-          </div>`;
-        document.body.appendChild(modal);
-
-        const start = async (role, port) => {
-          const resp = await fetch(`${API_URL}/api/plugplay/calibrate`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role, robot_type: robotBase, port })
+      const calibrateRobot = async (role, port) => {
+        const logArea = document.getElementById('calibrationLog');
+        logArea.value += `\n[${new Date().toLocaleTimeString()}] Starting ${role} calibration...`;
+        
+        try {
+          const resp = await fetch(`${API_URL}/api/lerobot/calibrate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              robot_type: robotBase, 
+              role: role, 
+              port: port 
+            })
           });
           const data = await resp.json();
-          addLog('terminal', `${role} calibration: ${data.success ? 'started' : ('failed: ' + (data.error||''))}`, data.success ? 'success' : 'error');
-        };
-        const close = () => modal.remove();
-        document.getElementById('btnCalibLeader')?.addEventListener('click', () => leaderPort && start('leader', leaderPort));
-        document.getElementById('btnCalibFollower')?.addEventListener('click', () => followerPort && start('follower', followerPort));
-        document.getElementById('btnCloseCalib')?.addEventListener('click', close);
-        return;
-      }
-
-      if (cmd === 'teleoperate') {
-        if (!leaderPort || !followerPort) {
-          addLog('terminal', 'Missing leader or follower port. Complete port detection first.', 'warning');
-          return;
+          
+          if (data.success) {
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ ${role} calibration started successfully`;
+          } else {
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ ${role} calibration failed: ${data.error}`;
+          }
+        } catch (error) {
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ ${role} calibration error: ${error.message}`;
         }
-        const modal = document.createElement('div');
-        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
-        modal.innerHTML = `
-          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 700px; max-width: 95vw; border: 1px solid var(--border);">
-            <h3 style="margin-top:0;">Teleoperation</h3>
-            <div style="display:flex; gap:8px; margin-bottom: 10px;">
-              <button id="btnStopTeleop" class="btn-secondary"><i class="fas fa-stop"></i> Stop</button>
-              <button id="btnCloseTeleop" class="btn-primary" style="margin-left:auto;">Close</button>
-            </div>
-            <textarea id="teleopLog" style="width:100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Starting teleop...</textarea>
-          </div>`;
-        document.body.appendChild(modal);
+        logArea.scrollTop = logArea.scrollHeight;
+      };
+      
+      document.getElementById('btnCalibLeader')?.addEventListener('click', () => leaderPort && calibrateRobot('leader', leaderPort));
+      document.getElementById('btnCalibFollower')?.addEventListener('click', () => followerPort && calibrateRobot('follower', followerPort));
+      document.getElementById('btnCloseCalib')?.addEventListener('click', () => modal.remove());
+    }
 
-        fetch(`${API_URL}/api/plugplay/start-teleop`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ robot_type: robotBase, leader_type: robotBase, follower_port: followerPort, leader_port: leaderPort })
-        }).then(r => r.json()).then(d => {
-          if (!d.success) addLog('terminal', 'Teleop failed to start: ' + (d.error || ''), 'error');
-        }).catch(err => addLog('terminal', 'Teleop start error: ' + err.message, 'error'));
-
-        document.getElementById('btnStopTeleop').addEventListener('click', async () => {
-          try { await fetch(`${API_URL}/api/plugplay/stop-teleop`, { method: 'POST' }); } catch (e) {}
-        });
-        document.getElementById('btnCloseTeleop').addEventListener('click', () => modal.remove());
+    function startTeleoperation() {
+      console.log('🚀 Starting LeRobot teleoperation');
+      
+      const leaderPort = (portDetectionState.detected_ports || {}).leader || getSelectedPort('leader');
+      const followerPort = (portDetectionState.detected_ports || {}).follower || getSelectedPort('follower');
+      const robotBase = selectedRobot || 'so101';
+      
+      if (!leaderPort || !followerPort) {
+        alert('Both leader and follower ports are required for teleoperation. Please complete port detection first.');
         return;
       }
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+      modal.innerHTML = `
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 700px; max-width: 95vw; border: 1px solid var(--border);">
+          <h3 style="margin-top:0;"><i class="fas fa-gamepad"></i> LeRobot Teleoperation</h3>
+          <div style="display:flex; gap:8px; margin-bottom: 10px;">
+            <button id="btnStartTeleop" class="btn-primary"><i class="fas fa-play"></i> Start</button>
+            <button id="btnStopTeleop" class="btn-secondary" disabled><i class="fas fa-stop"></i> Stop</button>
+            <button id="btnCloseTeleop" class="btn-secondary" style="margin-left:auto;">Close</button>
+          </div>
+          <div style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+            Leader: <code>${leaderPort}</code> → Follower: <code>${followerPort}</code>
+          </div>
+          <textarea id="teleopLog" style="width:100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Ready to start teleoperation...</textarea>
+        </div>`;
+      document.body.appendChild(modal);
 
-      if (cmd === 'record') {
-        if (!leaderPort || !followerPort) {
-          addLog('terminal', 'Missing leader or follower port. Complete port detection first.', 'warning');
-          return;
+      let currentSessionId = null;
+      
+      const startTeleopSession = async () => {
+        const logArea = document.getElementById('teleopLog');
+        const startBtn = document.getElementById('btnStartTeleop');
+        const stopBtn = document.getElementById('btnStopTeleop');
+        
+        logArea.value += `\n[${new Date().toLocaleTimeString()}] Starting teleoperation session...`;
+        startBtn.disabled = true;
+        
+        try {
+          const resp = await fetch(`${API_URL}/api/lerobot/start-teleop`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              robot_type: robotBase,
+              leader_port: leaderPort,
+              follower_port: followerPort
+            })
+          });
+          const data = await resp.json();
+          
+          if (data.success) {
+            currentSessionId = data.session_id;
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Teleoperation started! Move the leader arm to control the follower.`;
+            stopBtn.disabled = false;
+          } else {
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Failed to start teleoperation: ${data.error}`;
+            startBtn.disabled = false;
+          }
+        } catch (error) {
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Teleoperation error: ${error.message}`;
+          startBtn.disabled = false;
         }
-        const repoId = prompt('Enter Hugging Face repo_id (e.g., yourname/robot-dataset):');
-        if (!repoId) return;
-        const fps = parseInt(prompt('FPS (default 30):') || '30', 10);
-        const episodes = parseInt(prompt('Number of episodes (default 5):') || '5', 10);
-        const epTime = parseInt(prompt('Episode time seconds (default 60):') || '60', 10);
-        const resetTime = parseInt(prompt('Reset time seconds (default 10):') || '10', 10);
+        logArea.scrollTop = logArea.scrollHeight;
+      };
+      
+      const stopTeleopSession = async () => {
+        const logArea = document.getElementById('teleopLog');
+        const startBtn = document.getElementById('btnStartTeleop');
+        const stopBtn = document.getElementById('btnStopTeleop');
+        
+        logArea.value += `\n[${new Date().toLocaleTimeString()}] Stopping teleoperation...`;
+        stopBtn.disabled = true;
+        
+        try {
+          await fetch(`${API_URL}/api/lerobot/stop-teleop`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: currentSessionId })
+          });
+          
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Teleoperation stopped`;
+          startBtn.disabled = false;
+          currentSessionId = null;
+        } catch (error) {
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Stop error: ${error.message}`;
+          stopBtn.disabled = false;
+        }
+        logArea.scrollTop = logArea.scrollHeight;
+      };
+      
+      document.getElementById('btnStartTeleop')?.addEventListener('click', startTeleopSession);
+      document.getElementById('btnStopTeleop')?.addEventListener('click', stopTeleopSession);
+      document.getElementById('btnCloseTeleop')?.addEventListener('click', () => {
+        if (currentSessionId) stopTeleopSession();
+        modal.remove();
+      });
+    }
 
-        const modal = document.createElement('div');
-        modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
-        modal.innerHTML = `
-          <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 700px; max-width: 95vw; border: 1px solid var(--border);">
-            <h3 style="margin-top:0;">Recording</h3>
-            <div style="display:flex; gap:8px; margin-bottom: 10px;">
-              <button id="btnStopRec" class="btn-secondary"><i class="fas fa-stop"></i> Stop</button>
-              <button id="btnCloseRec" class="btn-primary" style="margin-left:auto;">Close</button>
-            </div>
-            <textarea id="recordingLog" style="width:100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Starting recording...</textarea>
-          </div>`;
-        document.body.appendChild(modal);
-
-        fetch(`${API_URL}/api/plugplay/start-recording`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ robot_type: robotBase, leader_type: robotBase, follower_port: followerPort, leader_port: leaderPort, repo_id: repoId, fps, num_episodes: episodes, episode_time_sec: epTime, reset_time_sec: resetTime })
-        }).then(r => r.json()).then(d => {
-          if (!d.success) addLog('terminal', 'Recording failed to start: ' + (d.error || ''), 'error');
-        }).catch(err => addLog('terminal', 'Recording start error: ' + err.message, 'error'));
-
-        document.getElementById('btnStopRec').addEventListener('click', async () => {
-          try { await fetch(`${API_URL}/api/plugplay/stop-recording`, { method: 'POST' }); } catch (e) {}
-        });
-        document.getElementById('btnCloseRec').addEventListener('click', () => modal.remove());
+    function startRecording() {
+      console.log('🚀 Starting LeRobot dataset recording');
+      
+      const leaderPort = (portDetectionState.detected_ports || {}).leader || getSelectedPort('leader');
+      const followerPort = (portDetectionState.detected_ports || {}).follower || getSelectedPort('follower');
+      const robotBase = selectedRobot || 'so101';
+      
+      if (!leaderPort || !followerPort) {
+        alert('Both leader and follower ports are required for recording. Please complete port detection first.');
         return;
       }
+      
+      // Get recording parameters
+      const repoId = prompt('Enter Hugging Face repo_id (e.g., yourname/robot-dataset):');
+      if (!repoId) return;
+      
+      const numEpisodes = parseInt(prompt('Number of episodes (default 5):') || '5', 10);
+      const fps = parseInt(prompt('FPS (default 30):') || '30', 10);
+      const episodeTime = parseInt(prompt('Episode time in seconds (default 60):') || '60', 10);
+      const resetTime = parseInt(prompt('Reset time in seconds (default 10):') || '10', 10);
+      const taskDescription = prompt('Task description:') || 'Robot task';
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+      modal.innerHTML = `
+        <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; width: 800px; max-width: 95vw; border: 1px solid var(--border);">
+          <h3 style="margin-top:0;"><i class="fas fa-video"></i> LeRobot Dataset Recording</h3>
+          <div style="display:flex; gap:8px; margin-bottom: 10px;">
+            <button id="btnStartRec" class="btn-primary"><i class="fas fa-play"></i> Start Recording</button>
+            <button id="btnStopRec" class="btn-secondary" disabled><i class="fas fa-stop"></i> Stop</button>
+            <button id="btnCloseRec" class="btn-secondary" style="margin-left:auto;">Close</button>
+          </div>
+          <div style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+            Dataset: <code>${repoId}</code> | Episodes: ${numEpisodes} | FPS: ${fps}<br>
+            Task: "${taskDescription}"
+          </div>
+          <textarea id="recordingLog" style="width:100%; height: 350px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--surface-hover); color: var(--text-primary); border:1px solid var(--border); border-radius: 6px; padding: 8px;" readonly>Ready to start recording...</textarea>
+        </div>`;
+      document.body.appendChild(modal);
+
+      let currentSessionId = null;
+      
+      const startRecordingSession = async () => {
+        const logArea = document.getElementById('recordingLog');
+        const startBtn = document.getElementById('btnStartRec');
+        const stopBtn = document.getElementById('btnStopRec');
+        
+        logArea.value += `\n[${new Date().toLocaleTimeString()}] Starting recording session...`;
+        startBtn.disabled = true;
+        
+        try {
+          const resp = await fetch(`${API_URL}/api/lerobot/start-recording`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              robot_type: robotBase,
+              leader_port: leaderPort,
+              follower_port: followerPort,
+              repo_id: repoId,
+              num_episodes: numEpisodes,
+              fps: fps,
+              episode_time_sec: episodeTime,
+              reset_time_sec: resetTime,
+              task_description: taskDescription
+            })
+          });
+          const data = await resp.json();
+          
+          if (data.success) {
+            currentSessionId = data.session_id;
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Recording started! Session: ${data.session_id}`;
+            stopBtn.disabled = false;
+          } else {
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Failed to start recording: ${data.error}`;
+            startBtn.disabled = false;
+          }
+        } catch (error) {
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Recording error: ${error.message}`;
+          startBtn.disabled = false;
+        }
+        logArea.scrollTop = logArea.scrollHeight;
+      };
+      
+      const stopRecordingSession = async () => {
+        const logArea = document.getElementById('recordingLog');
+        const startBtn = document.getElementById('btnStartRec');
+        const stopBtn = document.getElementById('btnStopRec');
+        
+        logArea.value += `\n[${new Date().toLocaleTimeString()}] Stopping recording...`;
+        stopBtn.disabled = true;
+        
+        try {
+          await fetch(`${API_URL}/api/lerobot/stop-recording`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: currentSessionId })
+          });
+          
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Recording stopped`;
+          startBtn.disabled = false;
+          currentSessionId = null;
+        } catch (error) {
+          logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Stop error: ${error.message}`;
+          stopBtn.disabled = false;
+        }
+        logArea.scrollTop = logArea.scrollHeight;
+      };
+      
+      document.getElementById('btnStartRec')?.addEventListener('click', startRecordingSession);
+      document.getElementById('btnStopRec')?.addEventListener('click', stopRecordingSession);
+      document.getElementById('btnCloseRec')?.addEventListener('click', () => {
+        if (currentSessionId) stopRecordingSession();
+        modal.remove();
+      });
+    }
+
+    function showTrainingInfo() {
+      const modal = document.createElement('div');
+      modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+      modal.innerHTML = `
+        <div style="background: var(--surface); padding: 2rem; border-radius: 12px; width: 600px; max-width: 95vw; border: 1px solid var(--border);">
+          <h3 style="margin-top:0;"><i class="fas fa-brain"></i> Model Training</h3>
+          <p>Model training is available through the LeRobot CLI or Python API:</p>
+          <div style="background: var(--surface-hover); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+            <code>python -m lerobot.train --config-name=act_real --dataset.repo_id=your-dataset</code>
+          </div>
+          <p>For more advanced training options, visit the <a href="https://github.com/huggingface/lerobot" target="_blank">LeRobot documentation</a>.</p>
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="btn-primary" onclick="this.closest('.modal').remove()">Close</button>
+          </div>
+        </div>`;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+    }
+
+    function showDeploymentInfo() {
+      const modal = document.createElement('div');
+      modal.style.cssText = `position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); z-index: 1000;`;
+      modal.innerHTML = `
+        <div style="background: var(--surface); padding: 2rem; border-radius: 12px; width: 600px; max-width: 95vw; border: 1px solid var(--border);">
+          <h3 style="margin-top:0;"><i class="fas fa-rocket"></i> Model Deployment</h3>
+          <p>Deploy your trained models using the LeRobot evaluation tools:</p>
+          <div style="background: var(--surface-hover); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+            <code>python -m lerobot.eval --config-name=eval_real --policy.path=your-model</code>
+          </div>
+          <p>Models can also be deployed directly through the teleoperation interface by loading a policy instead of using manual control.</p>
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="btn-primary" onclick="this.closest('.modal').remove()">Close</button>
+          </div>
+        </div>`;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+    }
+
+    // Helper function to get selected ports
+    function getSelectedPort(role) {
+      // This would get the port from the port selection UI
+      // For now, return null - this should be implemented based on your port detection UI
+      return window.serialPorts && window.serialPorts[role] ? 
+        window.serialPorts[role].getInfo().usbProductId : null;
     }
 
     // Add event listener for manual path input

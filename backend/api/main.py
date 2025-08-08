@@ -30,6 +30,9 @@ from plug_and_play.api import (
     SERIAL_AVAILABLE
 )
 
+# Import LeRobot API blueprint
+from plug_and_play.lerobot_api import lerobot_bp, set_socketio
+
 # Import Firebase authentication module
 from auth.firebase_auth import firebase_bp, requires_firebase_auth
 
@@ -47,6 +50,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-i
 # Initialize extensions
 CORS(app, origins=["*"])
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Set up LeRobot API with socketio
+set_socketio(socketio)
 
 # Initialize managers
 databench_evaluator = DataBenchEvaluator()
@@ -690,6 +696,7 @@ def save_port_config():
 app.register_blueprint(firebase_bp)  # Firebase auth blueprint
 app.register_blueprint(databench_bp)
 app.register_blueprint(plugplay_bp)
+app.register_blueprint(lerobot_bp)  # LeRobot API blueprint
 
 # ============================================================================
 # WebSocket Events (for Plug & Play) - Protected
