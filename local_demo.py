@@ -50,6 +50,11 @@ def serve_page(filename):
     """Serve pages from the pages directory"""
     return send_from_directory(os.path.join(app.static_folder, 'pages'), filename)
 
+@app.route('/frontend/<path:filename>')
+def serve_frontend_file(filename):
+    """Serve frontend files with /frontend/ prefix for GitHub Pages compatibility"""
+    return send_from_directory(app.static_folder, filename)
+
 @app.route('/css/<path:filename>')
 def serve_css(filename):
     """Serve CSS files"""
