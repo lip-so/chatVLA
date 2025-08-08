@@ -24,7 +24,7 @@
       --text-muted: #a0aec0;
       --border: #e2e8f0;
       --border-light: #f1f5f9;
-      --success: #22c55e;
+      --success: #666666;
       --warning: #f59e0b;
       --error: #ef4444;
       --info: #3b82f6;
@@ -36,10 +36,248 @@
       --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
     
-    .plugplay-content {
-      max-width: 1000px;
+    .plugplay-wrapper {
+      display: flex;
+      gap: 2rem;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 4rem 2rem;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .plugplay-content {
+      flex: 1;
+      max-width: 900px;
+      padding: 0;
+    }
+
+    .workflow-sidebar {
+      width: 200px;
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .sidebar-header {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .workflow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      background: var(--surface-hover);
+      border: 1px solid transparent;
+    }
+
+    .workflow-step:hover {
+      transform: translateX(2px);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .workflow-step.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .workflow-step.completed {
+      background: rgba(100, 100, 100, 0.1);
+      border-color: rgba(100, 100, 100, 0.3);
+    }
+
+    .workflow-step.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .workflow-step.locked:hover {
+      transform: none;
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      background: white;
+      color: var(--accent);
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .workflow-step.active .step-icon {
+      background: white;
+      color: var(--accent);
+      border-color: white;
+    }
+
+    .workflow-step.completed .step-icon {
+      background: #666666;
+      color: white;
+      border-color: #666666;
+    }
+
+    .step-content {
+      flex: 1;
+      display: none;
+    }
+
+    .step-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.75rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .step-description {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      line-height: 1.2;
+      display: none;
+    }
+
+    .workflow-step.active .step-description {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .workflow-step.completed .step-description {
+      color: var(--text-secondary);
+    }
+
+    .workflow-section {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .workflow-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-title i {
+      color: var(--accent);
+      font-size: 2.5rem;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .progress-bar {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .progress-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.3rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border-light);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #666666, #444444);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .next-section-btn {
+      margin-top: 2rem;
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .next-section-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .next-section-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .operation-section {
@@ -121,9 +359,9 @@
     }
 
     .status-running {
-      background: rgba(34, 197, 94, 0.1);
-      color: #16a34a;
-      border: 1px solid rgba(34, 197, 94, 0.2);
+      background: rgba(100, 100, 100, 0.1);
+      color: #666666;
+      border: 1px solid rgba(100, 100, 100, 0.2);
     }
 
     .status-error {
@@ -278,7 +516,7 @@
     }
 
     .log-entry.success {
-      color: #34d399;
+      color: #999999;
     }
 
     .log-entry.warning {
@@ -367,6 +605,30 @@
       color: rgba(0, 0, 0, 0.9);
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1280px) {
+      .plugplay-wrapper {
+        flex-direction: column;
+      }
+
+      .workflow-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        order: -1;
+      }
+
+      .workflow-steps {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .workflow-step {
+        min-width: 200px;
+      }
     }
 
     /* Enhanced tablet responsiveness */
@@ -609,7 +871,7 @@
     }
 
     .step.completed {
-      background: #22c55e;
+      background: #666666;
       color: white;
     }
 
@@ -622,7 +884,7 @@
     }
 
     .step-line.completed {
-      background: #22c55e;
+      background: #666666;
     }
 
     .step-content {
@@ -669,10 +931,10 @@
       margin: 1rem 0;
     }
 
-    .port-finder-result.success {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      color: #16a34a;
+          .port-finder-result.success {
+     background: rgba(100, 100, 100, 0.1);
+     border: 1px solid rgba(100, 100, 100, 0.3);
+     color: #666666;
     }
 
     .port-finder-result.error {
@@ -703,33 +965,90 @@
       }
     }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
 
-    @keyframes slideOut {
-      from {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateX(100px);
-      }
-    }
 
     .button-group {
       display: flex;
       gap: 1rem;
       margin-bottom: 1.5rem;
       flex-wrap: wrap;
+    }
+
+    /* Info Modal Styles */
+    .info-modal {
+      background: white;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      position: relative;
+    }
+
+    .modal-header {
+      background: var(--accent);
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .modal-content {
+      padding: 2rem;
+      max-height: calc(90vh - 80px);
+      overflow-y: auto;
+    }
+
+    .info-section {
+      margin-bottom: 2rem;
+    }
+
+    .info-section h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-section p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .info-section ul {
+      margin-top: 0.5rem;
+      padding-left: 1.5rem;
+    }
+
+    .info-section li {
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+
+
+
+
+    @media (max-width: 768px) {
+      .info-modal {
+        width: 95%;
+        margin: 1rem;
+      }
+      
+      .modal-content {
+        padding: 1rem;
+      }
     }
 
     .btn {
@@ -787,7 +1106,7 @@
     /* Robot Type Selection Styles */
     .robot-type-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
       margin: 2rem 0;
     }
@@ -800,6 +1119,10 @@
       text-align: center;
       transition: all 0.3s ease;
       position: relative;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .robot-type-card:hover {
@@ -809,8 +1132,8 @@
     }
 
     .robot-type-card.selected {
-      border-color: #22c55e;
-      background: rgba(34, 197, 94, 0.05);
+      border-color: #666666;
+      background: rgba(100, 100, 100, 0.05);
     }
 
     .robot-type-card.selected::after {
@@ -818,7 +1141,7 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: #22c55e;
+      background: #666666;
       color: white;
       width: 24px;
       height: 24px;
@@ -851,8 +1174,8 @@
     }
 
     .selected-robot-display {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: rgba(100, 100, 100, 0.1);
+      border: 1px solid rgba(100, 100, 100, 0.3);
       border-radius: 12px;
       padding: 1rem 1.5rem;
       display: flex;
@@ -875,6 +1198,12 @@
       }
     }
 
+    @media (max-width: 768px) {
+      .robot-type-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
     @media (max-width: 480px) {
       .robot-type-grid {
         grid-template-columns: 1fr;
@@ -915,7 +1244,7 @@
       <h1 class="landing-super-title">Plug & Play</h1>
       <h2 class="landing-title">Easy Robotics with LeRobot</h2>
       <div class="landing-actions">
-        <button class="cta-button" id="infoButton" title="Learn about LeRobot operations">
+        <button class="cta-button" id="infoButton" title="Learn about LeRobot operations" onclick="openInstallationGuide()">
           <i class="fas fa-info-circle"></i>
           How it works
         </button>
@@ -924,402 +1253,501 @@
     </div>
   </main>
 
-  <div class="plugplay-content">
-    <!-- Robot Type Selection -->
-    <form class="evaluation-form" id="robotTypeSelectionForm">
-      <div class="form-section">
-        <h3><i class="fas fa-robot"></i> Select Your Robot Type</h3>
-        
-        <p class="form-help">Choose your robot model first. This will automatically configure all settings throughout the page.</p>
-        
-        <div class="robot-type-grid">
-          <div class="robot-type-card" data-robot="so101">
-            <h4>SO-101</h4>
-            <p>6-DOF robotic arm with gripper</p>
-            <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so101">
-              Select SO-101
-          </button>
-          </div>
-          
-          <div class="robot-type-card" data-robot="so100">
-            <h4>SO-100</h4>
-            <p>Compact robotic arm for desktop use</p>
-            <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so100">
-              Select SO-100
-          </button>
+  <div class="plugplay-wrapper">
+    <div class="plugplay-content">
+      <!-- Section 1: Robot Type Selection -->
+      <div class="workflow-section active" id="robotSelectionSection">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-robot"></i>
+            Select Your Robot Type
+          </h2>
+          <p class="section-subtitle">Choose your robot model to begin. This will automatically configure all settings throughout the workflow.</p>
         </div>
+        
+        <form class="evaluation-form" id="robotTypeSelectionForm">
+          <div class="form-section">
+            <div class="robot-type-grid">
+              <div class="robot-type-card" data-robot="so101">
+                <h4>SO-101</h4>
+                <p>6-DOF robotic arm with gripper</p>
+                <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so101">
+                  Select SO-101
+                </button>
+              </div>
+              
+              <div class="robot-type-card" data-robot="so100">
+                <h4>SO-100</h4>
+                <p>Compact robotic arm for desktop use</p>
+                <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="so100">
+                  Select SO-100
+                </button>
+              </div>
 
-          <div class="robot-type-card" data-robot="koch">
-            <h4>Koch</h4>
-            <p>High-precision research arm</p>
-            <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="koch">
-              Select Koch
+              <div class="robot-type-card" data-robot="koch">
+                <h4>Koch</h4>
+                <p>High-precision research arm</p>
+                <button type="button" class="btn btn-primary select-robot-btn" data-robot-type="koch">
+                  Select Koch
+                </button>
+              </div>
+            </div>
+            
+            <div class="selected-robot-display" id="selectedRobotDisplay" style="display: none;">
+              <i class="fas fa-check-circle" style="color: #666666;"></i>
+              <span>Selected Robot: <strong id="selectedRobotName"></strong></span>
+              <button type="button" class="btn btn-secondary" id="changeRobotBtn" style="margin-left: 1rem;">
+                <i class="fas fa-exchange-alt"></i>
+                Change
+              </button>
+            </div>
+
+            <button type="button" class="next-section-btn" id="nextToPortDetection" style="display: none;">
+              Continue to Port Detection
+              <i class="fas fa-arrow-right"></i>
             </button>
-        </div>
-        
-
-        </div>
-        
-        <div class="selected-robot-display" id="selectedRobotDisplay" style="display: none;">
-          <i class="fas fa-check-circle" style="color: #22c55e;"></i>
-          <span>Selected Robot: <strong id="selectedRobotName"></strong></span>
-          <button type="button" class="btn btn-secondary" id="changeRobotBtn" style="margin-left: 1rem;">
-            <i class="fas fa-exchange-alt"></i>
-            Change
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Find Follower Port Form -->
-    <form class="evaluation-form" id="findFollowerPortForm">
-      <div class="form-section">
-        <h3><i class="fas fa-search"></i> Find Follower Port</h3>
-        
-        <p class="form-help">Automatically detect which port your follower robot is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your robot.</p>
-
-        <div class="port-finder-steps">
-          <div class="step-indicator" id="stepIndicator">
-            <div class="step active" id="step1">1</div>
-            <div class="step-line"></div>
-            <div class="step" id="step2">2</div>
-            <div class="step-line"></div>
-            <div class="step" id="step3">3</div>
           </div>
-          
-          <div class="step-content" id="stepContent">
-            <div class="step-panel active" id="stepPanel1">
-              <h4>Step 1: Initial Scan</h4>
-              <p>First, we'll scan all available ports while your robot is connected.</p>
-              <button type="button" class="run-button" id="startPortFinderBtn">
-                <i class="fas fa-play"></i>
-                Start Port Detection
-              </button>
-            </div>
+        </form>
+      </div>
+
+      <!-- Section 2: Port Detection -->
+      <div class="workflow-section" id="portDetectionSection">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-usb"></i>
+            Port Detection
+          </h2>
+          <p class="section-subtitle">Let's find and connect your robots. We'll detect both follower and leader ports.</p>
+        </div>
+
+        <!-- Find Follower Port Form -->
+        <form class="evaluation-form" id="findFollowerPortForm">
+          <div class="form-section">
+            <h3><i class="fas fa-search"></i> Find Follower Port</h3>
             
-            <div class="step-panel" id="stepPanel2">
-              <h4>Step 2: Unplug Robot</h4>
-              <p class="unplug-instruction">
-                <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
-                Please <strong>unplug the USB cable</strong> from your follower robot and press the button below when done.
-              </p>
-              <button type="button" class="run-button" id="confirmUnplugBtn">
-                <i class="fas fa-check"></i>
-                Robot Unplugged - Continue
-              </button>
-            </div>
-            
-            <div class="step-panel" id="stepPanel3">
-              <h4>Step 3: Results</h4>
-              <div id="portFinderResult">
-                <!-- Results will be shown here -->
+            <p class="form-help">Automatically detect which port your follower robot is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your robot.</p>
+
+            <div class="port-finder-steps">
+              <div class="step-indicator" id="stepIndicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step-line"></div>
+                <div class="step" id="step2">2</div>
+                <div class="step-line"></div>
+                <div class="step" id="step3">3</div>
               </div>
-              <button type="button" class="run-button" id="restartPortFinderBtn" style="display: none;">
-                <i class="fas fa-redo"></i>
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="status-indicator" id="portFinderStatus">
-          <i class="fas fa-circle"></i>
-          Ready to find port
-        </div>
-      </div>
-    </form>
-
-    <!-- Find Leader Port Form -->
-    <form class="evaluation-form" id="findLeaderPortForm">
-      <div class="form-section">
-        <h3><i class="fas fa-gamepad"></i> Find Leader Port</h3>
-        
-        <p class="form-help">Automatically detect which port your leader robot (teleoperator) is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your leader device.</p>
-
-        <div class="port-finder-steps">
-          <div class="step-indicator" id="leaderStepIndicator">
-            <div class="step active" id="leaderStep1">1</div>
-            <div class="step-line"></div>
-            <div class="step" id="leaderStep2">2</div>
-            <div class="step-line"></div>
-            <div class="step" id="leaderStep3">3</div>
-          </div>
-          
-          <div class="step-content" id="leaderStepContent">
-            <div class="step-panel active" id="leaderStepPanel1">
-              <h4>Step 1: Initial Scan</h4>
-              <p>First, we'll scan all available ports while your leader device is connected.</p>
-              <button type="button" class="run-button" id="startLeaderPortFinderBtn">
-                <i class="fas fa-play"></i>
-                Start Leader Port Detection
-              </button>
-            </div>
-            
-            <div class="step-panel" id="leaderStepPanel2">
-              <h4>Step 2: Unplug Leader Device</h4>
-              <p class="unplug-instruction">
-                <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
-                Please <strong>unplug the USB cable</strong> from your leader robot/teleoperator device and press the button below when done.
-              </p>
-              <button type="button" class="run-button" id="confirmLeaderUnplugBtn">
-                <i class="fas fa-check"></i>
-                Leader Device Unplugged - Continue
-              </button>
-            </div>
-            
-            <div class="step-panel" id="leaderStepPanel3">
-              <h4>Step 3: Results</h4>
-              <div id="leaderPortFinderResult">
-                <!-- Results will be shown here -->
+              
+              <div class="step-content" id="stepContent">
+                <div class="step-panel active" id="stepPanel1">
+                  <h4>Step 1: Initial Scan</h4>
+                  <p>First, we'll scan all available ports while your robot is connected.</p>
+                  <button type="button" class="run-button" id="startPortFinderBtn">
+                    <i class="fas fa-play"></i>
+                    Start Port Detection
+                  </button>
+                </div>
+                
+                <div class="step-panel" id="stepPanel2">
+                  <h4>Step 2: Unplug Robot</h4>
+                  <p class="unplug-instruction">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
+                    Please <strong>unplug the USB cable</strong> from your follower robot and press the button below when done.
+                  </p>
+                  <button type="button" class="run-button" id="confirmUnplugBtn">
+                    <i class="fas fa-check"></i>
+                    Robot Unplugged - Continue
+                  </button>
+                </div>
+                
+                <div class="step-panel" id="stepPanel3">
+                  <h4>Step 3: Results</h4>
+                  <div id="portFinderResult">
+                    <!-- Results will be shown here -->
+                  </div>
+                  <button type="button" class="run-button" id="restartPortFinderBtn" style="display: none;">
+                    <i class="fas fa-redo"></i>
+                    Try Again
+                  </button>
+                </div>
               </div>
-              <button type="button" class="run-button" id="restartLeaderPortFinderBtn" style="display: none;">
-                <i class="fas fa-redo"></i>
-                Try Again
-              </button>
+            </div>
+            
+            <div class="status-indicator" id="portFinderStatus">
+              <i class="fas fa-circle"></i>
+              Ready to find port
             </div>
           </div>
-        </div>
-        
-        <div class="status-indicator" id="leaderPortFinderStatus">
-          <i class="fas fa-circle"></i>
-          Ready to find leader port
-        </div>
-      </div>
-    </form>
+        </form>
 
-    <!-- Robot Operations -->
-    <form class="evaluation-form" id="robotOperationsForm">
-      <div class="config-tabs">
-        <button type="button" class="config-tab active" data-tab="calibration">
-          <i class="fas fa-cog"></i>
-          Calibration
+        <!-- Find Leader Port Form -->
+        <form class="evaluation-form" id="findLeaderPortForm">
+          <div class="form-section">
+            <h3><i class="fas fa-gamepad"></i> Find Leader Port</h3>
+            
+            <p class="form-help">Automatically detect which port your leader robot (teleoperator) is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your leader device.</p>
+
+            <div class="port-finder-steps">
+              <div class="step-indicator" id="leaderStepIndicator">
+                <div class="step active" id="leaderStep1">1</div>
+                <div class="step-line"></div>
+                <div class="step" id="leaderStep2">2</div>
+                <div class="step-line"></div>
+                <div class="step" id="leaderStep3">3</div>
+              </div>
+              
+              <div class="step-content" id="leaderStepContent">
+                <div class="step-panel active" id="leaderStepPanel1">
+                  <h4>Step 1: Initial Scan</h4>
+                  <p>First, we'll scan all available ports while your leader device is connected.</p>
+                  <button type="button" class="run-button" id="startLeaderPortFinderBtn">
+                    <i class="fas fa-play"></i>
+                    Start Leader Port Detection
+                  </button>
+                </div>
+                
+                <div class="step-panel" id="leaderStepPanel2">
+                  <h4>Step 2: Unplug Leader Device</h4>
+                  <p class="unplug-instruction">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
+                    Please <strong>unplug the USB cable</strong> from your leader robot/teleoperator device and press the button below when done.
+                  </p>
+                  <button type="button" class="run-button" id="confirmLeaderUnplugBtn">
+                    <i class="fas fa-check"></i>
+                    Leader Device Unplugged - Continue
+                  </button>
+                </div>
+                
+                <div class="step-panel" id="leaderStepPanel3">
+                  <h4>Step 3: Results</h4>
+                  <div id="leaderPortFinderResult">
+                    <!-- Results will be shown here -->
+                  </div>
+                  <button type="button" class="run-button" id="restartLeaderPortFinderBtn" style="display: none;">
+                    <i class="fas fa-redo"></i>
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="status-indicator" id="leaderPortFinderStatus">
+              <i class="fas fa-circle"></i>
+              Ready to find leader port
+            </div>
+          </div>
+        </form>
+
+        <button type="button" class="next-section-btn" id="nextToCalibration" style="display: none;">
+          Continue to Calibration
+          <i class="fas fa-arrow-right"></i>
         </button>
-        <button type="button" class="config-tab" data-tab="teleoperation">
-          <i class="fas fa-gamepad"></i>
-          Teleoperation
-        </button>
-        <button type="button" class="config-tab" data-tab="recording">
-          <i class="fas fa-video"></i>
-          Dataset Recording
-        </button>
-      </div>
-
-      <!-- Calibration Panel -->
-      <div class="config-panel active" id="calibrationPanel">
-        <div class="form-section">
-          <h3><i class="fas fa-cog"></i> Robot Calibration</h3>
-          
-          <p class="form-help">Calibrate your robot arms to ensure proper joint positioning and movement ranges.</p>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="calibrationRole" class="form-label">Robot Role</label>
-              <select id="calibrationRole" class="form-input">
-                <option value="follower">Follower (Main Robot)</option>
-                <option value="leader">Leader (Teleoperator)</option>
-              </select>
-              <p class="form-help">Select whether this is the main robot or teleoperation device</p>
-            </div>
-
-            <div class="form-group">
-              <label for="calibrationRobotType" class="form-label">Robot Type</label>
-              <select id="calibrationRobotType" class="form-input">
-                <option value="so101">SO101</option>
-                <option value="so100">SO100</option>
-                <option value="koch">Koch</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="calibrationPort" class="form-label">USB Port</label>
-              <select id="calibrationPort" class="form-input">
-                <option value="">Select a port...</option>
-              </select>
-              <p class="form-help">Choose the USB port your robot is connected to</p>
-            </div>
-          </div>
-
-          <button type="button" class="run-button" id="startCalibrationBtn">
-            <i class="fas fa-play"></i>
-            Start Calibration
-          </button>
-
-          <div class="log-container" id="calibrationLogs">
-            <!-- Calibration logs will appear here -->
-          </div>
-          
-          <div class="status-indicator" id="calibrationStatus">
-            <i class="fas fa-circle"></i>
-            Idle
-          </div>
-        </div>
       </div>
 
-      <!-- Teleoperation Panel -->
-      <div class="config-panel" id="teleoperationPanel">
-        <div class="operation-header">
-          <div class="operation-title">
+      <!-- Section 3: Calibration -->
+      <div class="workflow-section" id="calibrationSection">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-cog"></i>
+            Robot Calibration
+          </h2>
+          <p class="section-subtitle">Calibrate your robot arms to ensure proper joint positioning and movement ranges.</p>
+        </div>
+
+        <form class="evaluation-form" id="calibrationForm">
+          <div class="form-section">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="calibrationRole" class="form-label">Robot Role</label>
+                <select id="calibrationRole" class="form-input">
+                  <option value="follower">Follower (Main Robot)</option>
+                  <option value="leader">Leader (Teleoperator)</option>
+                </select>
+                <p class="form-help">Select whether this is the main robot or teleoperation device</p>
+              </div>
+
+              <div class="form-group">
+                <label for="calibrationRobotType" class="form-label">Robot Type</label>
+                <select id="calibrationRobotType" class="form-input">
+                  <option value="so101">SO101</option>
+                  <option value="so100">SO100</option>
+                  <option value="koch">Koch</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="calibrationPort" class="form-label">USB Port</label>
+                <select id="calibrationPort" class="form-input">
+                  <option value="">Select a port...</option>
+                </select>
+                <p class="form-help">Choose the USB port your robot is connected to</p>
+              </div>
+            </div>
+
+            <button type="button" class="run-button" id="startCalibrationBtn">
+              <i class="fas fa-play"></i>
+              Start Calibration
+            </button>
+
+            <div class="log-container" id="calibrationLogs">
+              <!-- Calibration logs will appear here -->
+            </div>
+            
+            <div class="status-indicator" id="calibrationStatus">
+              <i class="fas fa-circle"></i>
+              Idle
+            </div>
+
+            <button type="button" class="next-section-btn" id="nextToTeleoperation" style="display: none;">
+              Continue to Teleoperation
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Section 4: Teleoperation -->
+      <div class="workflow-section" id="teleoperationSection">
+        <div class="section-header">
+          <h2 class="section-title">
             <i class="fas fa-gamepad"></i>
             Teleoperation
-          </div>
-          <div class="status-indicator" id="teleopStatus">
-            <i class="fas fa-circle"></i>
-            Idle
-          </div>
+          </h2>
+          <p class="section-subtitle">Control your robot in real-time using a leader device. Set up both leader and follower robots.</p>
         </div>
 
-        <p class="form-help">Control your robot in real-time using a leader device. Set up both leader and follower robots.</p>
+        <form class="evaluation-form" id="teleoperationForm">
+          <div class="form-section">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="leaderType" class="form-label">Leader Robot Type</label>
+                <select id="leaderType" class="form-select">
+                  <option value="so101">SO101 Leader</option>
+                  <option value="so100">SO100 Leader</option>
+                  <option value="koch">Koch Leader</option>
+                </select>
+              </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="leaderType" class="form-label">Leader Robot Type</label>
-            <select id="leaderType" class="form-select">
-              <option value="so101">SO101 Leader</option>
-              <option value="so100">SO100 Leader</option>
-              <option value="koch">Koch Leader</option>
-            </select>
+              <div class="form-group">
+                <label for="followerType" class="form-label">Follower Robot Type</label>
+                <select id="followerType" class="form-select">
+                  <option value="so101">SO101 Follower</option>
+                  <option value="so100">SO100 Follower</option>
+                  <option value="koch">Koch Follower</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="leaderPort" class="form-label">Leader Port</label>
+                <select id="leaderPort" class="form-select">
+                  <option value="">Select leader port...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="followerPort" class="form-label">Follower Port</label>
+                <select id="followerPort" class="form-select">
+                  <option value="">Select follower port...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <input type="checkbox" id="useCameras" style="margin-right: 0.5rem;">
+                  Enable Camera Feed
+                </label>
+                <p class="form-help">Show real-time camera feed during teleoperation</p>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button class="btn btn-primary" id="startTeleopBtn">
+                <i class="fas fa-play"></i>
+                Start Teleoperation
+              </button>
+              <button class="btn btn-danger" id="stopTeleopBtn" disabled>
+                <i class="fas fa-stop"></i>
+                Stop Teleoperation
+              </button>
+            </div>
+
+            <div class="camera-preview" id="cameraPreview" style="display: none;">
+              <i class="fas fa-camera"></i>
+              Camera feed will appear here
+            </div>
+
+            <div class="log-container" id="teleopLogs">
+              <!-- Teleoperation logs will appear here -->
+            </div>
+
+            <div class="status-indicator" id="teleopStatus">
+              <i class="fas fa-circle"></i>
+              Idle
+            </div>
+
+            <button type="button" class="next-section-btn" id="nextToRecording" style="display: none;">
+              Continue to Dataset Recording
+              <i class="fas fa-arrow-right"></i>
+            </button>
           </div>
-
-          <div class="form-group">
-            <label for="followerType" class="form-label">Follower Robot Type</label>
-            <select id="followerType" class="form-select">
-              <option value="so101">SO101 Follower</option>
-              <option value="so100">SO100 Follower</option>
-              <option value="koch">Koch Follower</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="leaderPort" class="form-label">Leader Port</label>
-            <select id="leaderPort" class="form-select">
-              <option value="">Select leader port...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="followerPort" class="form-label">Follower Port</label>
-            <select id="followerPort" class="form-select">
-              <option value="">Select follower port...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <input type="checkbox" id="useCameras" style="margin-right: 0.5rem;">
-              Enable Camera Feed
-            </label>
-            <p class="form-help">Show real-time camera feed during teleoperation</p>
-          </div>
-        </div>
-
-        <div class="button-group">
-          <button class="btn btn-primary" id="startTeleopBtn">
-            <i class="fas fa-play"></i>
-            Start Teleoperation
-          </button>
-          <button class="btn btn-danger" id="stopTeleopBtn" disabled>
-            <i class="fas fa-stop"></i>
-            Stop Teleoperation
-          </button>
-        </div>
-
-        <div class="camera-preview" id="cameraPreview" style="display: none;">
-          <i class="fas fa-camera"></i>
-          Camera feed will appear here
-        </div>
-
-        <div class="log-container" id="teleopLogs">
-          <!-- Teleoperation logs will appear here -->
-        </div>
+        </form>
       </div>
 
-      <!-- Recording Panel -->
-      <div class="config-panel" id="recordingPanel">
-        <div class="operation-header">
-          <div class="operation-title">
+      <!-- Section 5: Dataset Recording -->
+      <div class="workflow-section" id="recordingSection">
+        <div class="section-header">
+          <h2 class="section-title">
             <i class="fas fa-video"></i>
             Dataset Recording
+          </h2>
+          <p class="section-subtitle">Record robot demonstrations to create training datasets. Configure recording parameters and robot setup.</p>
+        </div>
+
+        <form class="evaluation-form" id="recordingForm">
+          <div class="form-section">
+            <div class="recording-config">
+              <div class="form-group">
+                <label for="repoId" class="form-label">HuggingFace Repository</label>
+                <input type="text" id="repoId" class="form-input" placeholder="username/dataset-name">
+                <p class="form-help">Where to save the recorded dataset</p>
+              </div>
+
+              <div class="form-group">
+                <label for="numEpisodes" class="form-label">Number of Episodes</label>
+                <input type="number" id="numEpisodes" class="form-input" value="5" min="1" max="100">
+              </div>
+
+              <div class="form-group">
+                <label for="fps" class="form-label">Frame Rate (FPS)</label>
+                <input type="number" id="fps" class="form-input" value="30" min="10" max="60">
+              </div>
+
+              <div class="form-group">
+                <label for="episodeTime" class="form-label">Episode Duration (seconds)</label>
+                <input type="number" id="episodeTime" class="form-input" value="60" min="10" max="300">
+              </div>
+
+              <div class="form-group">
+                <label for="resetTime" class="form-label">Reset Time (seconds)</label>
+                <input type="number" id="resetTime" class="form-input" value="10" min="5" max="60">
+              </div>
+
+              <div class="form-group">
+                <label for="taskDescription" class="form-label">Task Description</label>
+                <input type="text" id="taskDescription" class="form-input" placeholder="Describe the task being recorded">
+              </div>
+
+              <div class="form-group">
+                <label for="recordingRobotType" class="form-label">Robot Type</label>
+                <select id="recordingRobotType" class="form-select">
+                  <option value="so100">SO100</option>
+                  <option value="so101">SO101</option>
+                  <option value="koch">Koch</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="recordingLeaderPort" class="form-label">Leader Port</label>
+                <select id="recordingLeaderPort" class="form-select">
+                  <option value="">Select leader port...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="recordingFollowerPort" class="form-label">Follower Port</label>
+                <select id="recordingFollowerPort" class="form-select">
+                  <option value="">Select follower port...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button class="btn btn-primary" id="startRecordingBtn">
+                <i class="fas fa-play"></i>
+                Start Recording
+              </button>
+              <button class="btn btn-danger" id="stopRecordingBtn" disabled>
+                <i class="fas fa-stop"></i>
+                Stop Recording
+              </button>
+            </div>
+
+            <div class="log-container" id="recordingLogs">
+              <!-- Recording logs will appear here -->
+            </div>
+
+            <div class="status-indicator" id="recordingStatus">
+              <i class="fas fa-circle"></i>
+              Idle
+            </div>
           </div>
-          <div class="status-indicator" id="recordingStatus">
-            <i class="fas fa-circle"></i>
-            Idle
+        </form>
+      </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <div class="workflow-sidebar">
+      <h3 class="sidebar-header">Workflow Progress</h3>
+      <div class="workflow-steps">
+        <div class="workflow-step active" data-section="robotSelectionSection">
+          <div class="step-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Robot Selection</div>
+            <div class="step-description">Choose your robot model</div>
           </div>
         </div>
 
-        <p class="form-help">Record robot demonstrations to create training datasets. Configure recording parameters and robot setup.</p>
-
-        <div class="recording-config">
-          <div class="form-group">
-            <label for="repoId" class="form-label">HuggingFace Repository</label>
-            <input type="text" id="repoId" class="form-input" placeholder="username/dataset-name">
-            <p class="form-help">Where to save the recorded dataset</p>
+        <div class="workflow-step locked" data-section="portDetectionSection">
+          <div class="step-icon">
+            <i class="fas fa-usb"></i>
           </div>
-
-          <div class="form-group">
-            <label for="numEpisodes" class="form-label">Number of Episodes</label>
-            <input type="number" id="numEpisodes" class="form-input" value="5" min="1" max="100">
-          </div>
-
-          <div class="form-group">
-            <label for="fps" class="form-label">Frame Rate (FPS)</label>
-            <input type="number" id="fps" class="form-input" value="30" min="10" max="60">
-          </div>
-
-          <div class="form-group">
-            <label for="episodeTime" class="form-label">Episode Duration (seconds)</label>
-            <input type="number" id="episodeTime" class="form-input" value="60" min="10" max="300">
-          </div>
-
-          <div class="form-group">
-            <label for="resetTime" class="form-label">Reset Time (seconds)</label>
-            <input type="number" id="resetTime" class="form-input" value="10" min="5" max="60">
-          </div>
-
-          <div class="form-group">
-            <label for="taskDescription" class="form-label">Task Description</label>
-            <input type="text" id="taskDescription" class="form-input" placeholder="Describe the task being recorded">
-          </div>
-
-          <div class="form-group">
-            <label for="recordingRobotType" class="form-label">Robot Type</label>
-            <select id="recordingRobotType" class="form-select">
-              <option value="so100">SO100</option>
-              <option value="so101">SO101</option>
-              <option value="koch">Koch</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="recordingLeaderPort" class="form-label">Leader Port</label>
-            <select id="recordingLeaderPort" class="form-select">
-              <option value="">Select leader port...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="recordingFollowerPort" class="form-label">Follower Port</label>
-            <select id="recordingFollowerPort" class="form-select">
-              <option value="">Select follower port...</option>
-            </select>
+          <div class="step-content">
+            <div class="step-title">Port Detection</div>
+            <div class="step-description">Find follower and leader ports</div>
           </div>
         </div>
 
-        <div class="button-group">
-          <button class="btn btn-primary" id="startRecordingBtn">
-            <i class="fas fa-play"></i>
-            Start Recording
-          </button>
-          <button class="btn btn-danger" id="stopRecordingBtn" disabled>
-            <i class="fas fa-stop"></i>
-            Stop Recording
-          </button>
+        <div class="workflow-step locked" data-section="calibrationSection">
+          <div class="step-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Calibration</div>
+            <div class="step-description">Calibrate robot joints</div>
+          </div>
         </div>
 
-        <div class="log-container" id="recordingLogs">
-          <!-- Recording logs will appear here -->
+        <div class="workflow-step locked" data-section="teleoperationSection">
+          <div class="step-icon">
+            <i class="fas fa-gamepad"></i>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Teleoperation</div>
+            <div class="step-description">Control robot in real-time</div>
+          </div>
+        </div>
+
+        <div class="workflow-step locked" data-section="recordingSection">
+          <div class="step-icon">
+            <i class="fas fa-video"></i>
+          </div>
+          <div class="step-content">
+            <div class="step-title">Dataset Recording</div>
+            <div class="step-description">Record training data</div>
+          </div>
         </div>
       </div>
-    </form>
+
+      <div class="progress-bar">
+        <div class="progress-label">
+          <span>Overall Progress</span>
+          <span id="progressPercentage">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Info Modal -->
@@ -1327,7 +1755,7 @@
     <div class="info-modal">
       <div class="modal-header">
         <h2>How Plug & Play Works</h2>
-        <button class="close-button" id="closeModal">&times;</button>
+        <button class="close-button" id="closeModal" onclick="closeModal()">&times;</button>
       </div>
       
       <div class="modal-content">
@@ -1374,10 +1802,20 @@
         <div class="info-section">
           <h3><i class="fas fa-robot"></i> Supported Robots</h3>
           <ul>
-            <li><strong>SO101:</strong> Upgraded version of SO100</li>
-            <li><strong>SO100:</strong> Robust low-cost robotic arm</li>
-            <li><strong>Koch:</strong> Low-cost standart robotic arm</li>
+            <li><strong>SO101:</strong> 6-DOF robotic arm with gripper</li>
+            <li><strong>SO100:</strong> Compact robotic arm for desktop use</li>
+            <li><strong>Koch:</strong> High-precision research arm</li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1403,7 +1841,8 @@
           leader: null,
           follower: null
         };
-        this.activeTab = 'calibration';
+        this.currentSection = 'robotSelectionSection';
+        this.completedSections = new Set();
         this.portFinderState = {
           currentStep: 1,
           portsBefore: [],
@@ -1419,6 +1858,113 @@
         this.selectedRobotType = null;
         this.initializeEventListeners();
         this.initializeSocketIO();
+        this.initializeWorkflow();
+      }
+
+      initializeWorkflow() {
+        // Initialize first section as active
+        this.showSection('robotSelectionSection');
+        
+        // Add click handlers to sidebar steps
+        document.querySelectorAll('.workflow-step').forEach(step => {
+          step.addEventListener('click', (e) => {
+            const section = e.currentTarget.dataset.section;
+            if (!e.currentTarget.classList.contains('locked')) {
+              this.showSection(section);
+            }
+          });
+        });
+      }
+
+      showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.workflow-section').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // Show selected section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.classList.add('active');
+          this.currentSection = sectionId;
+        }
+        
+        // Update sidebar
+        this.updateSidebarState();
+      }
+
+      updateSidebarState() {
+        document.querySelectorAll('.workflow-step').forEach(step => {
+          const stepSection = step.dataset.section;
+          
+          // Remove all states
+          step.classList.remove('active', 'completed');
+          
+          // Set active state
+          if (stepSection === this.currentSection) {
+            step.classList.add('active');
+          }
+          
+          // Set completed state
+          if (this.completedSections.has(stepSection)) {
+            step.classList.add('completed');
+            step.classList.remove('locked');
+          }
+        });
+        
+        // Update progress bar
+        this.updateProgress();
+      }
+
+      updateProgress() {
+        const totalSections = 5;
+        const completedCount = this.completedSections.size;
+        const percentage = Math.round((completedCount / totalSections) * 100);
+        
+        document.getElementById('progressPercentage').textContent = `${percentage}%`;
+        document.getElementById('progressFill').style.width = `${percentage}%`;
+      }
+
+      completeSection(sectionId) {
+        this.completedSections.add(sectionId);
+        
+        // Show next section button
+        const nextButtons = {
+          'robotSelectionSection': 'nextToPortDetection',
+          'portDetectionSection': 'nextToCalibration',
+          'calibrationSection': 'nextToTeleoperation',
+          'teleoperationSection': 'nextToRecording'
+        };
+        
+        const nextButtonId = nextButtons[sectionId];
+        if (nextButtonId) {
+          const nextButton = document.getElementById(nextButtonId);
+          if (nextButton) {
+            nextButton.style.display = 'block';
+          }
+        }
+        
+        // Unlock next section
+        const sectionOrder = ['robotSelectionSection', 'portDetectionSection', 'calibrationSection', 'teleoperationSection', 'recordingSection'];
+        const currentIndex = sectionOrder.indexOf(sectionId);
+        if (currentIndex < sectionOrder.length - 1) {
+          const nextSection = sectionOrder[currentIndex + 1];
+          const nextStep = document.querySelector(`.workflow-step[data-section="${nextSection}"]`);
+          if (nextStep) {
+            nextStep.classList.remove('locked');
+          }
+        }
+        
+        this.updateSidebarState();
+      }
+
+      navigateToNextSection() {
+        const sectionOrder = ['robotSelectionSection', 'portDetectionSection', 'calibrationSection', 'teleoperationSection', 'recordingSection'];
+        const currentIndex = sectionOrder.indexOf(this.currentSection);
+        if (currentIndex < sectionOrder.length - 1) {
+          const nextSection = sectionOrder[currentIndex + 1];
+          this.showSection(nextSection);
+        }
       }
 
       initializeEventListeners() {
@@ -1428,9 +1974,25 @@
         });
         document.getElementById('changeRobotBtn')?.addEventListener('click', () => this.changeRobotType());
 
-        // Tab switching
-        document.querySelectorAll('.config-tab').forEach(tab => {
-          tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        // Next section buttons
+        document.getElementById('nextToPortDetection')?.addEventListener('click', () => {
+          this.completeSection('robotSelectionSection');
+          this.navigateToNextSection();
+        });
+        
+        document.getElementById('nextToCalibration')?.addEventListener('click', () => {
+          this.completeSection('portDetectionSection');
+          this.navigateToNextSection();
+        });
+        
+        document.getElementById('nextToTeleoperation')?.addEventListener('click', () => {
+          this.completeSection('calibrationSection');
+          this.navigateToNextSection();
+        });
+        
+        document.getElementById('nextToRecording')?.addEventListener('click', () => {
+          this.completeSection('teleoperationSection');
+          this.navigateToNextSection();
         });
 
         // Port finder (Follower)
@@ -1464,6 +2026,8 @@
             this.hideInfoModal();
           }
         });
+
+        
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             this.hideInfoModal();
@@ -1524,8 +2088,11 @@
         // Auto-populate all robot type dropdowns
         this.populateAllRobotTypes(robotType);
         
-        // Show a success notification
-        this.showNotification(`Robot type set to ${robotNames[robotType]}. All settings have been configured.`);
+        // Show the next button
+        const nextButton = document.getElementById('nextToPortDetection');
+        if (nextButton) {
+          nextButton.style.display = 'block';
+        }
       }
       
       changeRobotType() {
@@ -1553,62 +2120,15 @@
           if (selector) {
             selector.value = robotType;
             // Disable the selector since robot type is already chosen
-            selector.style.background = 'rgba(34, 197, 94, 0.05)';
-            selector.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                      selector.style.background = 'rgba(100, 100, 100, 0.05)';
+          selector.style.borderColor = 'rgba(100, 100, 100, 0.3)';
           }
         });
       }
       
-      showNotification(message) {
-        // Create a temporary notification
-        const notification = document.createElement('div');
-        notification.className = 'notification-toast';
-        notification.innerHTML = `
-          <i class="fas fa-check-circle"></i>
-          <span>${message}</span>
-        `;
-        notification.style.cssText = `
-          position: fixed;
-          top: 100px;
-          right: 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 1rem 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          font-family: 'Inter', sans-serif;
-          font-size: 0.95rem;
-          z-index: 10000;
-          animation: slideIn 0.3s ease-out;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-          notification.style.animation = 'slideOut 0.3s ease-out';
-          setTimeout(() => notification.remove(), 300);
-        }, 3000);
-      }
 
-      switchTab(tabName) {
-        // Update active tab
-        document.querySelectorAll('.config-tab').forEach(tab => {
-          tab.classList.remove('active');
-        });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-        // Update active panel
-        document.querySelectorAll('.config-panel').forEach(panel => {
-          panel.classList.remove('active');
-        });
-        document.getElementById(`${tabName}Panel`).classList.add('active');
 
-        this.activeTab = tabName;
-      }
 
       // Port Finder Methods
       async startPortFinder() {
@@ -1755,7 +2275,7 @@
               <h4><i class="fas fa-check-circle"></i> Success!</h4>
               <p>Your follower robot is connected to:</p>
               <div class="detected-port">${message}</div>
-              <p style="margin-top: 1rem;"><i class="fas fa-plug" style="color: #22c55e;"></i> Please reconnect your robot to continue.</p>
+              <p style="margin-top: 1rem;"><i class="fas fa-plug" style="color: #666666;"></i> Please reconnect your robot to continue.</p>
             </div>
           `;
         } else {
@@ -1807,10 +2327,19 @@
           calibrationStatus.className = 'status-indicator status-idle';
           
           // Add a temporary highlight effect
-          calibrationStatus.style.background = 'rgba(34, 197, 94, 0.1)';
+          calibrationStatus.style.background = 'rgba(100, 100, 100, 0.1)';
           setTimeout(() => {
             calibrationStatus.style.background = '';
           }, 3000);
+        }
+        
+        // Check if both ports are detected
+        if (this.portFinderState.detectedPort && this.leaderPortFinderState.detectedPort) {
+          // Show the next button to go to calibration
+          const nextButton = document.getElementById('nextToCalibration');
+          if (nextButton) {
+            nextButton.style.display = 'block';
+          }
         }
         
         // Scroll to calibration section if not visible
@@ -1996,7 +2525,7 @@
               <h4><i class="fas fa-check-circle"></i> Success!</h4>
               <p>Your leader device is connected to:</p>
               <div class="detected-port">${message}</div>
-              <p style="margin-top: 1rem;"><i class="fas fa-plug" style="color: #22c55e;"></i> Please reconnect your leader device to continue.</p>
+              <p style="margin-top: 1rem;"><i class="fas fa-plug" style="color: #666666;"></i> Please reconnect your leader device to continue.</p>
           </div>
           `;
         } else {
@@ -2135,6 +2664,12 @@
 
           this.addLogEntry('calibrationLogs', `✅ Calibration started for ${role} on ${port}`, 'success');
           
+          // Show next button on successful calibration
+          const nextButton = document.getElementById('nextToTeleoperation');
+          if (nextButton) {
+            nextButton.style.display = 'block';
+          }
+          
         } catch (error) {
           console.error('Calibration failed:', error);
           this.addLogEntry('calibrationLogs', `❌ Calibration failed: ${error.message}`, 'error');
@@ -2220,6 +2755,12 @@
           }
 
           this.addLogEntry('teleopLogs', `✅ Teleoperation started: ${leaderType} -> ${followerType}`, 'success');
+          
+          // Show next button on successful teleoperation start
+          const nextButton = document.getElementById('nextToRecording');
+          if (nextButton) {
+            nextButton.style.display = 'block';
+          }
           
         } catch (error) {
           console.error('Teleoperation failed:', error);
@@ -2375,11 +2916,47 @@
       }
     }
 
+    // Global function for opening info modal (fallback)
+    function openInstallationGuide() {
+      try {
+        if (window.plugPlayUI && window.plugPlayUI.showInfoModal) {
+          window.plugPlayUI.showInfoModal();
+        } else {
+          const modal = document.getElementById('infoModal');
+          if (modal) {
+            modal.classList.add('show');
+          }
+        }
+      } catch (error) {
+        console.error('Error opening info modal:', error);
+      }
+    }
+
+    function closeModal() {
+      try {
+        if (window.plugPlayUI && window.plugPlayUI.hideInfoModal) {
+          window.plugPlayUI.hideInfoModal();
+        } else {
+          const modal = document.getElementById('infoModal');
+          if (modal) {
+            modal.classList.remove('show');
+          }
+        }
+      } catch (error) {
+        console.error('Error closing modal:', error);
+      }
+    }
+
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', () => {
+      try {
       window.plugPlayUI = new PlugPlayUI();
-      // Load available ports into selectors
-      window.plugPlayUI.updatePortSelectors();
+        // Load available ports into selectors
+        window.plugPlayUI.updatePortSelectors();
+      } catch (error) {
+        console.error('Error initializing PlugPlayUI:', error);
+        console.log('Installation guide will use fallback functions');
+      }
     });
   </script>
 </body>
