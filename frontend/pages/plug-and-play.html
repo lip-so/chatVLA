@@ -39,7 +39,7 @@
     .plugplay-wrapper {
       display: flex;
       gap: 2rem;
-      max-width: 1400px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 2rem;
       position: relative;
@@ -47,119 +47,154 @@
 
     .plugplay-content {
       flex: 1;
-      max-width: 900px;
+      max-width: 680px;
       padding: 0;
+      margin: 0 auto;
     }
 
     .workflow-sidebar {
-      width: 200px;
+      width: 160px;
       position: sticky;
       top: 100px;
-      height: fit-content;
+      height: auto;
+      max-height: fit-content;
       background: var(--surface);
-      border-radius: 16px;
+      border-radius: 10px;
       padding: 1rem;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      z-index: 10;
     }
 
     .sidebar-header {
       font-family: 'Inter', sans-serif;
       font-size: 0.9rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border-light);
+      line-height: 1.2;
+      text-align: center;
     }
 
     .workflow-steps {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 0.5rem;
     }
 
     .workflow-step {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       position: relative;
-      background: var(--surface-hover);
-      border: 1px solid transparent;
+      background: transparent;
+      border: none;
+      pointer-events: auto;
+      min-height: 36px;
+      max-height: 36px;
+      height: 36px;
     }
 
     .workflow-step:hover {
-      transform: translateX(2px);
-      background: var(--surface);
-      border-color: var(--border);
+      transform: translateX(1px);
+      background: var(--surface-hover);
+      cursor: pointer;
     }
 
     .workflow-step.active {
       background: var(--accent);
       color: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      min-height: 36px;
+      max-height: 36px;
+      height: 36px;
     }
 
     .workflow-step.completed {
-      background: rgba(100, 100, 100, 0.1);
-      border-color: rgba(100, 100, 100, 0.3);
+      background: rgba(100, 100, 100, 0.08);
+      min-height: 36px;
+      max-height: 36px;
+      height: 36px;
     }
 
-    .workflow-step.locked {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .workflow-step.locked:hover {
-      transform: none;
+    .workflow-step.completed:not(.active) {
+      background: transparent;
+      min-height: 36px;
+      max-height: 36px;
+      height: 36px;
     }
 
     .step-icon {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
-      background: white;
+      font-size: 0.75rem;
+      background: var(--border-light);
       color: var(--accent);
-      border: 1.5px solid var(--border);
+      border: none;
       flex-shrink: 0;
+      transition: all 0.3s ease;
+      position: relative;
+      font-weight: 600;
+    }
+
+    .workflow-step:hover .step-icon {
+      background: var(--border);
+      transform: scale(1.02);
     }
 
     .workflow-step.active .step-icon {
       background: white;
       color: var(--accent);
-      border-color: white;
     }
 
     .workflow-step.completed .step-icon {
       background: #666666;
       color: white;
-      border-color: #666666;
+    }
+    
+    .workflow-step.completed .step-icon::after {
+      content: '✓';
+      position: absolute;
+      font-size: 0.75rem;
+      font-weight: bold;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .step-content {
       flex: 1;
-      display: none;
+      display: flex;
+      align-items: center;
+      line-height: 1;
+      height: 100%;
     }
 
     .step-title {
       font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 0.75rem;
-      margin-bottom: 0.1rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      margin: 0;
+      line-height: 1.2;
+      padding: 0;
     }
 
     .step-description {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: var(--text-secondary);
-      line-height: 1.2;
-      display: none;
+      line-height: 1.15;
+      display: none; /* hide to keep items compact */
     }
 
     .workflow-step.active .step-description {
@@ -176,7 +211,7 @@
     }
 
     .workflow-section.active {
-      display: block;
+      display: block !important;
     }
 
     @keyframes fadeIn {
@@ -192,47 +227,48 @@
 
     .section-header {
       background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
-      border-radius: 24px;
-      padding: 2rem;
-      margin-bottom: 2rem;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-light);
     }
 
     .section-title {
       font-family: 'Inter', sans-serif;
-      font-size: 2rem;
+      font-size: 1.35rem;
       font-weight: 700;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .section-title i {
       color: var(--accent);
-      font-size: 2.5rem;
+      font-size: 1.8rem;
     }
 
     .section-subtitle {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       color: var(--text-secondary);
       line-height: 1.5;
     }
 
     .progress-bar {
-      margin-top: 1rem;
-      padding-top: 1rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
       border-top: 1px solid var(--border-light);
     }
 
     .progress-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-secondary);
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
       display: flex;
       justify-content: space-between;
+      font-weight: 500;
     }
 
     .progress-track {
@@ -250,15 +286,15 @@
     }
 
     .next-section-btn {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       width: 100%;
       font-family: 'Inter', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #ffffff;
       background: var(--accent);
       border: 1px solid var(--accent);
-      padding: 1rem 2rem;
+      padding: 0.875rem 1.75rem;
       cursor: pointer;
       transition: all 0.3s ease;
       border-radius: 50px;
@@ -268,7 +304,7 @@
       gap: 0.75rem;
     }
 
-    .next-section-btn:hover {
+    .next-section-btn:hover:not(:disabled) {
       background: var(--accent-hover);
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
@@ -282,19 +318,19 @@
 
     .operation-section {
       background: var(--surface);
-      border-radius: 24px;
-      padding: 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow-md);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
     }
 
     .evaluation-form {
       background: var(--surface);
-      border-radius: 24px;
-      padding: 2.5rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow-md);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border);
     }
 
@@ -302,21 +338,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 2rem;
+      margin-bottom: 0.75rem;
       flex-wrap: wrap;
       gap: 1rem;
     }
 
     .form-section {
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .form-section h3 {
       font-family: 'Inter', sans-serif;
-      font-size: 1.25rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -329,20 +365,20 @@
     .operation-title {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       font-family: 'Inter', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: var(--text-primary);
     }
 
     .operation-title i {
       color: var(--accent);
-      font-size: 1.75rem;
+      font-size: 1.5rem;
     }
 
     .status-indicator {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.5rem 1rem;
@@ -350,6 +386,7 @@
       font-size: 0.875rem;
       font-weight: 500;
       font-family: 'Inter', sans-serif;
+      margin-top: 0.5rem;
     }
 
     .status-idle {
@@ -372,19 +409,19 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
     }
 
     .run-button {
       font-family: 'Inter', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #ffffff;
       background: rgba(0, 0, 0, 0.9);
       border: 1px solid rgba(0, 0, 0, 0.8);
-      padding: 1rem 2.5rem;
+      padding: 0.875rem 2rem;
       text-decoration: none;
       cursor: pointer;
       transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
@@ -397,10 +434,10 @@
       overflow: hidden;
       width: 100%;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
 
-    .run-button:hover {
+    .run-button:hover:not(:disabled) {
       background: rgba(0, 0, 0, 0.95);
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
@@ -427,10 +464,10 @@
 
     .form-input, .form-select {
       width: 100%;
-      padding: 0.875rem 1rem;
+      padding: 0.75rem 0.875rem;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.925rem;
       font-family: 'Inter', sans-serif;
       transition: border-color 0.2s ease;
       background: var(--surface);
@@ -442,6 +479,7 @@
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+      background: white;
     }
 
     .form-help {
@@ -453,16 +491,16 @@
 
     .port-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.875rem;
       margin: 1rem 0;
     }
 
     .port-card {
       background: var(--surface-hover);
       border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1rem;
+      border-radius: 10px;
+      padding: 0.875rem;
       transition: all 0.3s ease;
       cursor: pointer;
       position: relative;
@@ -471,6 +509,7 @@
     .port-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+      border-color: var(--accent);
     }
 
     .port-card.selected {
@@ -491,19 +530,34 @@
 
     .log-container {
       background: #1a1a1a;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-      max-height: 300px;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+      max-height: 250px;
       overflow-y: auto;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       line-height: 1.5;
       display: none;
+      scrollbar-width: thin;
+      scrollbar-color: #444 #1a1a1a;
+    }
+
+    .log-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .log-container::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
     }
 
     .log-container.show {
-      display: block;
+      display: block !important;
     }
 
     .log-entry {
@@ -607,8 +661,8 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Responsive Design */
-    @media (max-width: 1280px) {
+    /* Responsive Design - Consolidated 1024px breakpoint */
+    @media (max-width: 1024px) {
       .plugplay-wrapper {
         flex-direction: column;
       }
@@ -627,12 +681,11 @@
       }
 
       .workflow-step {
-        min-width: 200px;
+        min-width: 45px;
+        flex-shrink: 0;
       }
-    }
-
-    /* Enhanced tablet responsiveness */
-    @media (max-width: 1024px) {
+      
+      /* Enhanced tablet responsiveness */
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -643,6 +696,41 @@
     }
 
     @media (max-width: 768px) {
+      .plugplay-wrapper {
+        flex-direction: column-reverse;
+        gap: 1rem;
+      }
+
+      .workflow-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        display: flex;
+        flex-direction: row;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .sidebar-header {
+        display: none !important;
+      }
+
+      .workflow-steps {
+        flex-direction: row;
+        gap: 0.5rem;
+        overflow-x: auto;
+        flex: 1;
+      }
+
+      .workflow-step {
+        flex-shrink: 0;
+        min-width: 40px;
+      }
+
+      .progress-bar {
+        display: none !important;
+      }
+
       .form-grid, .port-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -725,7 +813,7 @@
     }
 
     .modal-overlay.show {
-      display: flex;
+      display: flex !important;
       align-items: center;
       justify-content: center;
       padding: 2rem;
@@ -733,9 +821,9 @@
 
     .info-modal {
       background: var(--surface);
-      border-radius: 24px;
-      padding: 2.5rem;
-      max-width: 800px;
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 650px;
       max-height: 80vh;
       overflow-y: auto;
       box-shadow: var(--shadow-lg);
@@ -766,7 +854,7 @@
 
     .modal-header h2 {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       font-weight: 700;
       color: var(--text-primary);
       margin: 0;
@@ -794,9 +882,9 @@
     }
 
     .info-section {
-      padding: 1.5rem;
+      padding: 1.25rem;
       background: var(--surface-hover);
-      border-radius: 16px;
+      border-radius: 12px;
       border: 1px solid var(--border-light);
     }
 
@@ -840,6 +928,38 @@
     }
 
     /* Port Finder Styles */
+    .port-detection-container {
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .detection-state {
+      animation: fadeInSlide 0.4s ease-out;
+    }
+
+    .unplug-message {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .unplug-message h4 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .unplug-message p {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* Legacy styles for compatibility */
     .port-finder-steps {
       margin: 2rem 0;
     }
@@ -1071,9 +1191,15 @@
       color: white;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       background: rgba(0, 0, 0, 0.8);
       transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .btn-secondary {
@@ -1082,9 +1208,15 @@
       border: 1px solid var(--border);
     }
 
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
       background: var(--border-light);
       transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+    
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .btn-danger {
@@ -1092,9 +1224,15 @@
       color: white;
     }
 
-    .btn-danger:hover {
+    .btn-danger:hover:not(:disabled) {
       background: #b91c1c;
       transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-danger:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .btn:disabled {
@@ -1106,29 +1244,31 @@
     /* Robot Type Selection Styles */
     .robot-type-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin: 2rem 0;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem auto;
+      max-width: 600px;
     }
 
     .robot-type-card {
       background: var(--surface-hover);
-      border: 2px solid var(--border-light);
-      border-radius: 16px;
-      padding: 2rem 1.5rem;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 1rem;
       text-align: center;
       transition: all 0.3s ease;
       position: relative;
-      min-height: 200px;
+      min-height: 100px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
     .robot-type-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
       border-color: var(--accent);
+      background: white;
     }
 
     .robot-type-card.selected {
@@ -1139,63 +1279,74 @@
     .robot-type-card.selected::after {
       content: '✓';
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       background: #666666;
       color: white;
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      font-size: 0.75rem;
     }
 
     .robot-type-card h4 {
       font-family: 'Inter', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
 
     .robot-type-card p {
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
-      margin-bottom: 1rem;
-      line-height: 1.4;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
     }
 
     .select-robot-btn {
       width: 100%;
-      padding: 0.75rem;
-      font-size: 0.95rem;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      background: var(--accent);
+      color: white;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .select-robot-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
     }
 
     .selected-robot-display {
       background: rgba(100, 100, 100, 0.1);
       border: 1px solid rgba(100, 100, 100, 0.3);
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      padding: 0.875rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      margin-top: 1.5rem;
+      margin-top: 1.25rem;
       font-family: 'Inter', sans-serif;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .selected-robot-display strong {
       color: var(--text-primary);
       font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
-      .robot-type-grid {
-        grid-template-columns: 1fr 1fr;
-      }
     }
 
     @media (max-width: 768px) {
@@ -1306,6 +1457,9 @@
               Continue to Port Detection
               <i class="fas fa-arrow-right"></i>
             </button>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); text-align: center; margin-top: 0.5rem; display: none;" id="navHint">
+              Or use the sidebar to navigate to any section
+            </p>
           </div>
         </form>
       </div>
@@ -1314,7 +1468,6 @@
       <div class="workflow-section" id="portDetectionSection">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fas fa-usb"></i>
             Port Detection
           </h2>
           <p class="section-subtitle">Let's find and connect your robots. We'll detect both follower and leader ports.</p>
@@ -1325,49 +1478,38 @@
           <div class="form-section">
             <h3><i class="fas fa-search"></i> Find Follower Port</h3>
             
-            <p class="form-help">Automatically detect which port your follower robot is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your robot.</p>
+            <p class="form-help">Automatically detect which port your follower robot is connected to.</p>
 
-            <div class="port-finder-steps">
-              <div class="step-indicator" id="stepIndicator">
-                <div class="step active" id="step1">1</div>
-                <div class="step-line"></div>
-                <div class="step" id="step2">2</div>
-                <div class="step-line"></div>
-                <div class="step" id="step3">3</div>
+            <div class="port-detection-container">
+              <!-- Initial state with start button -->
+              <div id="followerPortInitial" class="detection-state active">
+                <button type="button" class="run-button" id="startPortFinderBtn">
+                  <i class="fas fa-play"></i>
+                  Start Follower Port Detection
+                </button>
               </div>
-              
-              <div class="step-content" id="stepContent">
-                <div class="step-panel active" id="stepPanel1">
-                  <h4>Step 1: Initial Scan</h4>
-                  <p>First, we'll scan all available ports while your robot is connected.</p>
-                  <button type="button" class="run-button" id="startPortFinderBtn">
-                    <i class="fas fa-play"></i>
-                    Start Port Detection
-                  </button>
+
+              <!-- Unplug instruction state -->
+              <div id="followerPortUnplug" class="detection-state" style="display: none;">
+                <div class="unplug-message">
+                  <h4>Unplug Your Follower Robot</h4>
+                  <p>Please <strong>unplug the USB cable</strong> from your follower robot, then press Enter or click the button below.</p>
                 </div>
-                
-                <div class="step-panel" id="stepPanel2">
-                  <h4>Step 2: Unplug Robot</h4>
-                  <p class="unplug-instruction">
-                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
-                    Please <strong>unplug the USB cable</strong> from your follower robot and press the button below when done.
-                  </p>
-                  <button type="button" class="run-button" id="confirmUnplugBtn">
-                    <i class="fas fa-check"></i>
-                    Robot Unplugged - Continue
-                  </button>
+                <button type="button" class="run-button" id="confirmUnplugBtn">
+                  <i class="fas fa-keyboard"></i>
+                  Press Enter or Click Here
+                </button>
+              </div>
+
+              <!-- Result state -->
+              <div id="followerPortResult" class="detection-state" style="display: none;">
+                <div id="portFinderResult">
+                  <!-- Results will be shown here -->
                 </div>
-                
-                <div class="step-panel" id="stepPanel3">
-                  <h4>Step 3: Results</h4>
-                  <div id="portFinderResult">
-                    <!-- Results will be shown here -->
-                  </div>
-                  <button type="button" class="run-button" id="restartPortFinderBtn" style="display: none;">
-                    <i class="fas fa-redo"></i>
-                    Try Again
-                  </button>
-                </div>
+                <button type="button" class="run-button" id="restartPortFinderBtn">
+                  <i class="fas fa-redo"></i>
+                  Try Again
+                </button>
               </div>
             </div>
             
@@ -1383,49 +1525,38 @@
           <div class="form-section">
             <h3><i class="fas fa-gamepad"></i> Find Leader Port</h3>
             
-            <p class="form-help">Automatically detect which port your leader robot (teleoperator) is connected to. This interactive process will help you identify the correct port by unplugging and reconnecting your leader device.</p>
+            <p class="form-help">Automatically detect which port your leader robot (teleoperator) is connected to.</p>
 
-            <div class="port-finder-steps">
-              <div class="step-indicator" id="leaderStepIndicator">
-                <div class="step active" id="leaderStep1">1</div>
-                <div class="step-line"></div>
-                <div class="step" id="leaderStep2">2</div>
-                <div class="step-line"></div>
-                <div class="step" id="leaderStep3">3</div>
+            <div class="port-detection-container">
+              <!-- Initial state with start button -->
+              <div id="leaderPortInitial" class="detection-state active">
+                <button type="button" class="run-button" id="startLeaderPortFinderBtn">
+                  <i class="fas fa-play"></i>
+                  Start Leader Port Detection
+                </button>
               </div>
-              
-              <div class="step-content" id="leaderStepContent">
-                <div class="step-panel active" id="leaderStepPanel1">
-                  <h4>Step 1: Initial Scan</h4>
-                  <p>First, we'll scan all available ports while your leader device is connected.</p>
-                  <button type="button" class="run-button" id="startLeaderPortFinderBtn">
-                    <i class="fas fa-play"></i>
-                    Start Leader Port Detection
-                  </button>
+
+              <!-- Unplug instruction state -->
+              <div id="leaderPortUnplug" class="detection-state" style="display: none;">
+                <div class="unplug-message">
+                  <h4>Unplug Your Leader Device</h4>
+                  <p>Please <strong>unplug the USB cable</strong> from your leader robot/teleoperator, then press Enter or click the button below.</p>
                 </div>
-                
-                <div class="step-panel" id="leaderStepPanel2">
-                  <h4>Step 2: Unplug Leader Device</h4>
-                  <p class="unplug-instruction">
-                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 0.5rem;"></i>
-                    Please <strong>unplug the USB cable</strong> from your leader robot/teleoperator device and press the button below when done.
-                  </p>
-                  <button type="button" class="run-button" id="confirmLeaderUnplugBtn">
-                    <i class="fas fa-check"></i>
-                    Leader Device Unplugged - Continue
-                  </button>
+                <button type="button" class="run-button" id="confirmLeaderUnplugBtn">
+                  <i class="fas fa-keyboard"></i>
+                  Press Enter or Click Here
+                </button>
+              </div>
+
+              <!-- Result state -->
+              <div id="leaderPortResult" class="detection-state" style="display: none;">
+                <div id="leaderPortFinderResult">
+                  <!-- Results will be shown here -->
                 </div>
-                
-                <div class="step-panel" id="leaderStepPanel3">
-                  <h4>Step 3: Results</h4>
-                  <div id="leaderPortFinderResult">
-                    <!-- Results will be shown here -->
-                  </div>
-                  <button type="button" class="run-button" id="restartLeaderPortFinderBtn" style="display: none;">
-                    <i class="fas fa-redo"></i>
-                    Try Again
-                  </button>
-                </div>
+                <button type="button" class="run-button" id="restartLeaderPortFinderBtn">
+                  <i class="fas fa-redo"></i>
+                  Try Again
+                </button>
               </div>
             </div>
             
@@ -1685,62 +1816,47 @@
 
     <!-- Sidebar Navigation -->
     <div class="workflow-sidebar">
-      <h3 class="sidebar-header">Workflow Progress</h3>
+      <h3 class="sidebar-header">Steps</h3>
       <div class="workflow-steps">
         <div class="workflow-step active" data-section="robotSelectionSection">
-          <div class="step-icon">
-            <i class="fas fa-robot"></i>
-          </div>
+          <div class="step-icon">1</div>
           <div class="step-content">
-            <div class="step-title">Robot Selection</div>
-            <div class="step-description">Choose your robot model</div>
+            <div class="step-title">Robot</div>
           </div>
         </div>
 
-        <div class="workflow-step locked" data-section="portDetectionSection">
-          <div class="step-icon">
-            <i class="fas fa-usb"></i>
-          </div>
+        <div class="workflow-step" data-section="portDetectionSection">
+          <div class="step-icon">2</div>
           <div class="step-content">
-            <div class="step-title">Port Detection</div>
-            <div class="step-description">Find follower and leader ports</div>
+            <div class="step-title">Ports</div>
           </div>
         </div>
 
-        <div class="workflow-step locked" data-section="calibrationSection">
-          <div class="step-icon">
-            <i class="fas fa-cog"></i>
-          </div>
+        <div class="workflow-step" data-section="calibrationSection">
+          <div class="step-icon">3</div>
           <div class="step-content">
-            <div class="step-title">Calibration</div>
-            <div class="step-description">Calibrate robot joints</div>
+            <div class="step-title">Calibrate</div>
           </div>
         </div>
 
-        <div class="workflow-step locked" data-section="teleoperationSection">
-          <div class="step-icon">
-            <i class="fas fa-gamepad"></i>
-          </div>
+        <div class="workflow-step" data-section="teleoperationSection">
+          <div class="step-icon">4</div>
           <div class="step-content">
-            <div class="step-title">Teleoperation</div>
-            <div class="step-description">Control robot in real-time</div>
+            <div class="step-title">Control</div>
           </div>
         </div>
 
-        <div class="workflow-step locked" data-section="recordingSection">
-          <div class="step-icon">
-            <i class="fas fa-video"></i>
-          </div>
+        <div class="workflow-step" data-section="recordingSection">
+          <div class="step-icon">5</div>
           <div class="step-content">
-            <div class="step-title">Dataset Recording</div>
-            <div class="step-description">Record training data</div>
+            <div class="step-title">Record</div>
           </div>
         </div>
       </div>
 
       <div class="progress-bar">
         <div class="progress-label">
-          <span>Overall Progress</span>
+          <span>Progress</span>
           <span id="progressPercentage">0%</span>
         </div>
         <div class="progress-track">
@@ -1768,7 +1884,7 @@
         </div>
 
         <div class="info-section">
-          <h3><i class="fas fa-usb"></i> Port Detection</h3>
+            <h3>Port Detection</h3>
           <p>
             Our system detects USB ports where your robots are connected and provides 
             intelligent suggestions for robot types based on the detected hardware.
@@ -1776,7 +1892,7 @@
         </div>
 
         <div class="info-section">
-          <h3><i class="fas fa-cog"></i> Robot Calibration</h3>
+            <h3>Robot Calibration</h3>
           <p>
             Calibrate your robot arms to ensure proper joint positioning and movement ranges. 
             This establishes the baseline for accurate control and teleoperation.
@@ -1784,7 +1900,7 @@
         </div>
 
         <div class="info-section">
-          <h3><i class="fas fa-gamepad"></i> Real-time Teleoperation</h3>
+            <h3>Real-time Teleoperation</h3>
           <p>
             Control your robot in real-time using a leader device. Set up both leader and 
             follower robots for intuitive manual control with optional camera feedback.
@@ -1792,7 +1908,7 @@
         </div>
 
         <div class="info-section">
-          <h3><i class="fas fa-video"></i> Dataset Recording</h3>
+            <h3>Dataset Recording</h3>
           <p>
             Record robot demonstrations to create training datasets. Configure recording 
             parameters and automatically push datasets to Hugging Face Hub for sharing.
@@ -1832,6 +1948,8 @@
   
   <script src="/js/navbar.js"></script>
   <script>
+
+    
     class PlugPlayUI {
       constructor() {
         this.socket = null;
@@ -1864,33 +1982,75 @@
       initializeWorkflow() {
         // Initialize first section as active
         this.showSection('robotSelectionSection');
-        
-        // Add click handlers to sidebar steps
+
+        // Ensure sidebar steps are keyboard and mouse accessible at all times
         document.querySelectorAll('.workflow-step').forEach(step => {
+          // Make focusable
+          step.setAttribute('tabindex', '0');
+          step.setAttribute('role', 'button');
+          step.setAttribute('aria-label', `Go to ${step.querySelector('.step-title')?.textContent ?? 'section'}`);
+
+          // Click to navigate
           step.addEventListener('click', (e) => {
             const section = e.currentTarget.dataset.section;
-            if (!e.currentTarget.classList.contains('locked')) {
+            this.showSection(section);
+          });
+
+          // Enter/Space to navigate
+          step.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const section = e.currentTarget.dataset.section;
               this.showSection(section);
             }
           });
         });
+
+        // Defensive: event delegation in case steps are re-rendered
+        const sidebar = document.querySelector('.workflow-steps');
+        if (sidebar && !sidebar.__navDelegationAttached) {
+          sidebar.addEventListener('click', (e) => {
+            const step = e.target.closest ? e.target.closest('.workflow-step') : null;
+            if (step && step.dataset.section) {
+              this.showSection(step.dataset.section);
+            }
+          }, true);
+          sidebar.addEventListener('keydown', (e) => {
+            const step = e.target.closest ? e.target.closest('.workflow-step') : null;
+            if (step && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              if (step.dataset.section) {
+                this.showSection(step.dataset.section);
+              }
+            }
+          }, true);
+          sidebar.__navDelegationAttached = true;
+        }
       }
 
       showSection(sectionId) {
+        if (!sectionId) return;
         // Hide all sections
         document.querySelectorAll('.workflow-section').forEach(section => {
           section.classList.remove('active');
         });
         
         // Show selected section
-        const targetSection = document.getElementById(sectionId);
+        const targetSection = document.getElementById(sectionId) || document.querySelector(`[id="${sectionId}"]`);
         if (targetSection) {
           targetSection.classList.add('active');
           this.currentSection = sectionId;
+          
+          // Scroll to the section
+          setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          console.error(`Section not found: ${sectionId}`);
         }
         
-        // Update sidebar
-        this.updateSidebarState();
+        // Update sidebar (defer to ensure DOM updates first)
+        requestAnimationFrame(() => this.updateSidebarState());
       }
 
       updateSidebarState() {
@@ -1908,7 +2068,6 @@
           // Set completed state
           if (this.completedSections.has(stepSection)) {
             step.classList.add('completed');
-            step.classList.remove('locked');
           }
         });
         
@@ -1928,7 +2087,7 @@
       completeSection(sectionId) {
         this.completedSections.add(sectionId);
         
-        // Show next section button
+        // Show next section button (optional navigation helper)
         const nextButtons = {
           'robotSelectionSection': 'nextToPortDetection',
           'portDetectionSection': 'nextToCalibration',
@@ -1941,17 +2100,6 @@
           const nextButton = document.getElementById(nextButtonId);
           if (nextButton) {
             nextButton.style.display = 'block';
-          }
-        }
-        
-        // Unlock next section
-        const sectionOrder = ['robotSelectionSection', 'portDetectionSection', 'calibrationSection', 'teleoperationSection', 'recordingSection'];
-        const currentIndex = sectionOrder.indexOf(sectionId);
-        if (currentIndex < sectionOrder.length - 1) {
-          const nextSection = sectionOrder[currentIndex + 1];
-          const nextStep = document.querySelector(`.workflow-step[data-section="${nextSection}"]`);
-          if (nextStep) {
-            nextStep.classList.remove('locked');
           }
         }
         
@@ -2004,6 +2152,23 @@
         document.getElementById('startLeaderPortFinderBtn').addEventListener('click', () => this.startLeaderPortFinder());
         document.getElementById('confirmLeaderUnplugBtn').addEventListener('click', () => this.confirmLeaderUnplug());
         document.getElementById('restartLeaderPortFinderBtn').addEventListener('click', () => this.restartLeaderPortFinder());
+
+        // Add keyboard support for port finding
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            // Check which port finding state is active and trigger the appropriate action
+            const followerUnplugVisible = document.getElementById('followerPortUnplug').style.display !== 'none';
+            const leaderUnplugVisible = document.getElementById('leaderPortUnplug').style.display !== 'none';
+            
+            if (followerUnplugVisible) {
+              e.preventDefault();
+              this.confirmUnplug();
+            } else if (leaderUnplugVisible) {
+              e.preventDefault();
+              this.confirmLeaderUnplug();
+            }
+          }
+        });
 
         // Calibration
         document.getElementById('startCalibrationBtn').addEventListener('click', () => this.startCalibration());
@@ -2088,10 +2253,14 @@
         // Auto-populate all robot type dropdowns
         this.populateAllRobotTypes(robotType);
         
-        // Show the next button
+        // Show the next button and hint
         const nextButton = document.getElementById('nextToPortDetection');
+        const navHint = document.getElementById('navHint');
         if (nextButton) {
           nextButton.style.display = 'block';
+        }
+        if (navHint) {
+          navHint.style.display = 'block';
         }
       }
       
@@ -2132,8 +2301,6 @@
 
       // Port Finder Methods
       async startPortFinder() {
-        this.portFinderState.currentStep = 1;
-        this.updatePortFinderStep(1);
         this.updatePortFinderStatus('Scanning connected devices...', 'running');
 
         try {
@@ -2142,13 +2309,11 @@
           this.portFinderState.portsBefore = ports;
           
           // Show port count in status
-          this.updatePortFinderStatus(`Found ${ports.length} connected devices`, 'idle');
+          this.updatePortFinderStatus(`Found ${ports.length} connected devices. Please unplug your follower robot.`, 'idle');
           
-          // Move to step 2
-          setTimeout(() => {
-            this.updatePortFinderStep(2);
-            this.updatePortFinderStatus('Please unplug your follower robot', 'running');
-          }, 1000);
+          // Switch to unplug state
+          document.getElementById('followerPortInitial').style.display = 'none';
+          document.getElementById('followerPortUnplug').style.display = 'block';
           
         } catch (error) {
           this.updatePortFinderStatus('Unable to scan ports. Please check connection.', 'error');
@@ -2171,15 +2336,16 @@
           const portsAfter = this.portFinderState.portsAfter.map(p => p.port);
           const portsDiff = portsBefore.filter(port => !portsAfter.includes(port));
           
-          // Move to step 3 and show results
-          this.updatePortFinderStep(3);
+          // Switch to result state
+          document.getElementById('followerPortUnplug').style.display = 'none';
+          document.getElementById('followerPortResult').style.display = 'block';
           
           if (portsDiff.length === 1) {
             const detectedPort = portsDiff[0];
             this.portFinderState.detectedPort = detectedPort;
             
             this.showPortFinderResult(true, detectedPort);
-            this.updatePortFinderStatus('✅ Port detected successfully!', 'idle');
+            this.updatePortFinderStatus(`✅ Follower Port Detected: ${detectedPort}`, 'idle');
             
             // Auto-populate port selectors
             this.populateDetectedPort(detectedPort);
@@ -2212,10 +2378,11 @@
         };
         
         // Reset UI
-        this.updatePortFinderStep(1);
+        document.getElementById('followerPortResult').style.display = 'none';
+        document.getElementById('followerPortUnplug').style.display = 'none';
+        document.getElementById('followerPortInitial').style.display = 'block';
         this.updatePortFinderStatus('Ready to find port', 'idle');
         document.getElementById('portFinderResult').innerHTML = '';
-        document.getElementById('restartPortFinderBtn').style.display = 'none';
       }
 
       updatePortFinderStep(step) {
@@ -2381,8 +2548,6 @@
 
       // Leader Port Finder Methods
       async startLeaderPortFinder() {
-        this.leaderPortFinderState.currentStep = 1;
-        this.updateLeaderPortFinderStep(1);
         this.updateLeaderPortFinderStatus('Scanning connected devices...', 'running');
 
         try {
@@ -2391,13 +2556,11 @@
           this.leaderPortFinderState.portsBefore = ports;
           
           // Show port count in status
-          this.updateLeaderPortFinderStatus(`Found ${ports.length} connected devices`, 'idle');
+          this.updateLeaderPortFinderStatus(`Found ${ports.length} connected devices. Please unplug your leader device.`, 'idle');
           
-          // Move to step 2
-          setTimeout(() => {
-            this.updateLeaderPortFinderStep(2);
-            this.updateLeaderPortFinderStatus('Please unplug your leader device', 'running');
-          }, 1000);
+          // Switch to unplug state
+          document.getElementById('leaderPortInitial').style.display = 'none';
+          document.getElementById('leaderPortUnplug').style.display = 'block';
           
         } catch (error) {
           this.updateLeaderPortFinderStatus('Unable to scan ports. Please check connection.', 'error');
@@ -2420,15 +2583,16 @@
           const portsAfter = this.leaderPortFinderState.portsAfter.map(p => p.port);
           const portsDiff = portsBefore.filter(port => !portsAfter.includes(port));
           
-          // Move to step 3 and show results
-          this.updateLeaderPortFinderStep(3);
+          // Switch to result state
+          document.getElementById('leaderPortUnplug').style.display = 'none';
+          document.getElementById('leaderPortResult').style.display = 'block';
           
           if (portsDiff.length === 1) {
             const detectedPort = portsDiff[0];
             this.leaderPortFinderState.detectedPort = detectedPort;
             
             this.showLeaderPortFinderResult(true, detectedPort);
-            this.updateLeaderPortFinderStatus('✅ Leader port detected successfully!', 'idle');
+            this.updateLeaderPortFinderStatus(`✅ Leader Port Detected: ${detectedPort}`, 'idle');
             
             // Auto-populate port selectors
             this.populateDetectedLeaderPort(detectedPort);
@@ -2461,10 +2625,11 @@
         };
         
         // Reset UI
-        this.updateLeaderPortFinderStep(1);
+        document.getElementById('leaderPortResult').style.display = 'none';
+        document.getElementById('leaderPortUnplug').style.display = 'none';
+        document.getElementById('leaderPortInitial').style.display = 'block';
         this.updateLeaderPortFinderStatus('Ready to find leader port', 'idle');
         document.getElementById('leaderPortFinderResult').innerHTML = '';
-        document.getElementById('restartLeaderPortFinderBtn').style.display = 'none';
       }
 
       updateLeaderPortFinderStep(step) {
@@ -2961,3 +3126,4 @@
   </script>
 </body>
 </html>
+
