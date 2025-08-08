@@ -90,21 +90,31 @@
       gap: 0.5rem;
       padding: 0.6rem 0.8rem;
       border-radius: 6px;
-      cursor: pointer;
+      cursor: pointer !important;
       transition: all 0.2s ease;
       position: relative;
       background: transparent;
-      border: none;
-      pointer-events: auto;
+      border: 1px solid transparent;
       min-height: 36px;
       max-height: 36px;
       height: 36px;
+      z-index: 1;
+      user-select: none;
+    }
+    
+    .workflow-step * {
+      pointer-events: none;
     }
 
     .workflow-step:hover {
-      transform: translateX(1px);
+      transform: translateX(2px);
       background: var(--surface-hover);
       cursor: pointer;
+    }
+    
+    .workflow-step:active {
+      transform: translateX(0);
+      background: var(--border-light);
     }
 
     .workflow-step.active {
@@ -205,13 +215,9 @@
       color: var(--text-secondary);
     }
 
+    /* Remove all display control from CSS - we'll handle it in JavaScript */
     .workflow-section {
-      display: none;
       animation: fadeIn 0.3s ease-out;
-    }
-
-    .workflow-section.active {
-      display: block !important;
     }
 
     @keyframes fadeIn {
@@ -1818,35 +1824,35 @@
     <div class="workflow-sidebar">
       <h3 class="sidebar-header">Steps</h3>
       <div class="workflow-steps">
-        <div class="workflow-step active" data-section="robotSelectionSection">
+        <div class="workflow-step active" data-section="robotSelectionSection" onclick="navigateToSection('robotSelectionSection')">
           <div class="step-icon">1</div>
           <div class="step-content">
             <div class="step-title">Robot</div>
           </div>
         </div>
 
-        <div class="workflow-step" data-section="portDetectionSection">
+        <div class="workflow-step" data-section="portDetectionSection" onclick="navigateToSection('portDetectionSection')">
           <div class="step-icon">2</div>
           <div class="step-content">
             <div class="step-title">Ports</div>
           </div>
         </div>
 
-        <div class="workflow-step" data-section="calibrationSection">
+        <div class="workflow-step" data-section="calibrationSection" onclick="navigateToSection('calibrationSection')">
           <div class="step-icon">3</div>
           <div class="step-content">
             <div class="step-title">Calibrate</div>
           </div>
         </div>
 
-        <div class="workflow-step" data-section="teleoperationSection">
+        <div class="workflow-step" data-section="teleoperationSection" onclick="navigateToSection('teleoperationSection')">
           <div class="step-icon">4</div>
           <div class="step-content">
             <div class="step-title">Control</div>
           </div>
         </div>
 
-        <div class="workflow-step" data-section="recordingSection">
+        <div class="workflow-step" data-section="recordingSection" onclick="navigateToSection('recordingSection')">
           <div class="step-icon">5</div>
           <div class="step-content">
             <div class="step-title">Record</div>
@@ -1948,7 +1954,78 @@
   
   <script src="/js/navbar.js"></script>
   <script>
-
+    // Simple global navigation function that WILL work
+    function navigateToSection(sectionId) {
+      console.log('Navigating to:', sectionId);
+      
+      // Get all sections
+      const sections = [
+        'robotSelectionSection',
+        'portDetectionSection', 
+        'calibrationSection',
+        'teleoperationSection',
+        'recordingSection'
+      ];
+      
+      // Hide ALL sections first
+      sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          section.style.display = 'none';
+          section.style.visibility = 'hidden';
+          section.classList.remove('active');
+          // Remove any inline styles that might override
+          section.style.removeProperty('display');
+          section.style.display = 'none';
+        }
+      });
+      
+      // Show the target section - force it to be visible
+      const target = document.getElementById(sectionId);
+      if (target) {
+        // Remove any conflicting styles first
+        target.style.removeProperty('display');
+        target.style.removeProperty('visibility');
+        target.classList.remove('active');
+        
+        // Now set it to visible
+        target.style.display = 'block';
+        target.style.visibility = 'visible';
+        target.style.opacity = '1';
+        target.classList.add('active');
+        console.log('Section shown:', sectionId);
+        
+        // Update sidebar
+        document.querySelectorAll('.workflow-step').forEach(step => {
+          step.classList.remove('active');
+          if (step.getAttribute('data-section') === sectionId) {
+            step.classList.add('active');
+          }
+        });
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+        
+        // Double-check it's visible
+        if (target.style.display !== 'block') {
+          console.error('Failed to show section, forcing display');
+          target.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important;');
+        }
+      } else {
+        console.error('Section not found:', sectionId);
+        // List what sections are available
+        const availableSections = [];
+        sections.forEach(id => {
+          if (document.getElementById(id)) {
+            availableSections.push(id);
+          }
+        });
+        console.log('Available sections:', availableSections);
+      }
+    }
+    
+    // Make it globally available
+    window.navigateToSection = navigateToSection;
     
     class PlugPlayUI {
       constructor() {
@@ -1983,74 +2060,73 @@
         // Initialize first section as active
         this.showSection('robotSelectionSection');
 
-        // Ensure sidebar steps are keyboard and mouse accessible at all times
-        document.querySelectorAll('.workflow-step').forEach(step => {
-          // Make focusable
+        // Add click handlers directly to each step
+        const steps = document.querySelectorAll('.workflow-step');
+        steps.forEach(step => {
+          // Make clickable
+          step.style.cursor = 'pointer';
           step.setAttribute('tabindex', '0');
           step.setAttribute('role', 'button');
-          step.setAttribute('aria-label', `Go to ${step.querySelector('.step-title')?.textContent ?? 'section'}`);
-
-          // Click to navigate
-          step.addEventListener('click', (e) => {
-            const section = e.currentTarget.dataset.section;
-            this.showSection(section);
-          });
-
-          // Enter/Space to navigate
-          step.addEventListener('keydown', (e) => {
+          
+          // Direct click handler
+          step.onclick = () => {
+            const sectionId = step.getAttribute('data-section');
+            if (sectionId) {
+              console.log('Step clicked, navigating to:', sectionId);
+              this.showSection(sectionId);
+            }
+          };
+          
+          // Keyboard support
+          step.onkeydown = (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              const section = e.currentTarget.dataset.section;
-              this.showSection(section);
-            }
-          });
-        });
-
-        // Defensive: event delegation in case steps are re-rendered
-        const sidebar = document.querySelector('.workflow-steps');
-        if (sidebar && !sidebar.__navDelegationAttached) {
-          sidebar.addEventListener('click', (e) => {
-            const step = e.target.closest ? e.target.closest('.workflow-step') : null;
-            if (step && step.dataset.section) {
-              this.showSection(step.dataset.section);
-            }
-          }, true);
-          sidebar.addEventListener('keydown', (e) => {
-            const step = e.target.closest ? e.target.closest('.workflow-step') : null;
-            if (step && (e.key === 'Enter' || e.key === ' ')) {
-              e.preventDefault();
-              if (step.dataset.section) {
-                this.showSection(step.dataset.section);
+              const sectionId = step.getAttribute('data-section');
+              if (sectionId) {
+                console.log('Keyboard navigation to:', sectionId);
+                this.showSection(sectionId);
               }
             }
-          }, true);
-          sidebar.__navDelegationAttached = true;
-        }
+          };
+        });
       }
 
       showSection(sectionId) {
-        if (!sectionId) return;
-        // Hide all sections
+        if (!sectionId) {
+          console.error('No section ID provided');
+          return;
+        }
+        
+        console.log('Showing section:', sectionId);
+        
+        // Hide all workflow sections
+        document.getElementById('robotSelectionSection').style.display = 'none';
+        document.getElementById('portDetectionSection').style.display = 'none';
+        document.getElementById('calibrationSection').style.display = 'none';
+        document.getElementById('teleoperationSection').style.display = 'none';
+        document.getElementById('recordingSection').style.display = 'none';
+        
+        // Remove active class from all
         document.querySelectorAll('.workflow-section').forEach(section => {
           section.classList.remove('active');
         });
         
-        // Show selected section
-        const targetSection = document.getElementById(sectionId) || document.querySelector(`[id="${sectionId}"]`);
+        // Show the selected section
+        const targetSection = document.getElementById(sectionId);
         if (targetSection) {
+          targetSection.style.display = 'block';
           targetSection.classList.add('active');
           this.currentSection = sectionId;
           
-          // Scroll to the section
-          setTimeout(() => {
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
+          // Update sidebar
+          this.updateSidebarState();
+          
+          // Scroll to top of content
+          window.scrollTo(0, 0);
+          console.log('Successfully navigated to:', sectionId);
         } else {
-          console.error(`Section not found: ${sectionId}`);
+          console.error('Section not found:', sectionId);
         }
-        
-        // Update sidebar (defer to ensure DOM updates first)
-        requestAnimationFrame(() => this.updateSidebarState());
       }
 
       updateSidebarState() {
@@ -3114,14 +3190,53 @@
 
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', () => {
+      // FIRST: Initialize all sections to correct state
+      const allSections = [
+        'robotSelectionSection',
+        'portDetectionSection', 
+        'calibrationSection',
+        'teleoperationSection',
+        'recordingSection'
+      ];
+      
+      // Hide all sections except the first one
+      allSections.forEach((id, index) => {
+        const section = document.getElementById(id);
+        if (section) {
+          if (index === 0) {
+            // Show first section
+            section.style.display = 'block';
+            section.style.visibility = 'visible';
+            section.classList.add('active');
+          } else {
+            // Hide all others
+            section.style.display = 'none';
+            section.style.visibility = 'hidden';
+            section.classList.remove('active');
+          }
+        }
+      });
+      
+      console.log('Sections initialized. Navigation is ready!');
+      console.log('Click any step in the sidebar to navigate.');
+      
+      // Add a quick test function
+      window.showPorts = function() {
+        navigateToSection('portDetectionSection');
+      };
+      
       try {
-      window.plugPlayUI = new PlugPlayUI();
+        window.plugPlayUI = new PlugPlayUI();
         // Load available ports into selectors
         window.plugPlayUI.updatePortSelectors();
       } catch (error) {
         console.error('Error initializing PlugPlayUI:', error);
-        console.log('Installation guide will use fallback functions');
       }
+      
+      // Test that navigation works
+      console.log('To show Ports section, type: showPorts()');
+      console.log('Or click "Ports" in the sidebar');
+      console.log('Test any section: navigateToSection("portDetectionSection")');
     });
   </script>
 </body>
