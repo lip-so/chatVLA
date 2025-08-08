@@ -59,10 +59,13 @@ def set_socketio(socket_instance):
 def calibrate():
     """Calibrate robot using LeRobot API"""
     if not LEROBOT_AVAILABLE:
+        # Provide simulation mode for production
         return jsonify({
-            "success": False,
-            "error": "LeRobot not available - running in simulation mode"
-        }), 503
+            "success": True,
+            "message": "Calibration completed (simulation mode)",
+            "mode": "simulation",
+            "note": "Running in simulation mode - LeRobot dependencies not available in production"
+        })
     
     try:
         data = request.get_json()
@@ -103,10 +106,21 @@ def calibrate():
 def start_teleoperation():
     """Start teleoperation using LeRobot API"""
     if not LEROBOT_AVAILABLE:
+        # Provide simulation mode for production
+        import time
+        session_id = f"teleop_sim_{int(time.time())}"
+        robot_sessions[session_id] = {
+            "type": "teleoperation",
+            "status": "running",
+            "mode": "simulation"
+        }
         return jsonify({
-            "success": False,
-            "error": "LeRobot not available - running in simulation mode"
-        }), 503
+            "success": True,
+            "message": "Teleoperation started (simulation mode)",
+            "session_id": session_id,
+            "mode": "simulation",
+            "note": "Running in simulation mode - LeRobot dependencies not available in production"
+        })
     
     try:
         data = request.get_json()
@@ -185,10 +199,21 @@ def stop_teleoperation():
 def start_recording():
     """Start dataset recording using LeRobot API"""
     if not LEROBOT_AVAILABLE:
+        # Provide simulation mode for production
+        import time
+        session_id = f"record_sim_{int(time.time())}"
+        robot_sessions[session_id] = {
+            "type": "recording",
+            "status": "running", 
+            "mode": "simulation"
+        }
         return jsonify({
-            "success": False,
-            "error": "LeRobot not available - running in simulation mode"
-        }), 503
+            "success": True,
+            "message": "Recording started (simulation mode)",
+            "session_id": session_id,
+            "mode": "simulation",
+            "note": "Running in simulation mode - LeRobot dependencies not available in production"
+        })
     
     try:
         data = request.get_json()

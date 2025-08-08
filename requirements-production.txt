@@ -30,14 +30,18 @@ psutil==5.9.0
 numpy==1.24.3
 pandas==2.0.3
 
-# Optional ML dependencies (commented out for minimal deployment)
-# torch>=2.0.0
-# torchvision>=0.15.0
-# transformers>=4.30.0
-# datasets>=2.12.0
-# opencv-python>=4.8.0
-# scipy>=1.10.0
-# matplotlib>=3.7.0
-# scikit-learn>=1.3.0
-# clip-by-openai>=1.0
-# huggingface-hub>=0.16.0
+# LeRobot dependencies (required for production LeRobot functionality)
+torch>=2.0.0,<2.5.0
+torchvision>=0.15.0,<0.20.0
+transformers>=4.30.0,<4.50.0
+datasets>=2.12.0,<3.0.0
+opencv-python-headless>=4.8.0  # Use headless version for production
+scipy>=1.10.0,<2.0.0
+matplotlib>=3.7.0,<4.0.0
+scikit-learn>=1.3.0,<2.0.0
+huggingface-hub>=0.16.0,<1.0.0
+
+# Additional LeRobot dependencies
+accelerate>=0.20.0
+safetensors>=0.3.0
+einops>=0.6.0

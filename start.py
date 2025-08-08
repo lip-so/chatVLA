@@ -80,6 +80,63 @@ def create_app():
                 "message": "Simulated port detection (minimal mode)"
             })
         
+        # Add LeRobot API endpoints in minimal mode
+        @app.route('/api/lerobot/calibrate', methods=['POST'])
+        def lerobot_calibrate():
+            return jsonify({
+                "success": True,
+                "message": "Calibration completed (simulation mode)",
+                "mode": "simulation",
+                "note": "Running in minimal mode - LeRobot dependencies not available"
+            })
+        
+        @app.route('/api/lerobot/start-teleop', methods=['POST'])
+        def lerobot_start_teleop():
+            import time
+            session_id = f"teleop_sim_{int(time.time())}"
+            return jsonify({
+                "success": True,
+                "message": "Teleoperation started (simulation mode)",
+                "session_id": session_id,
+                "mode": "simulation",
+                "note": "Running in minimal mode - LeRobot dependencies not available"
+            })
+        
+        @app.route('/api/lerobot/stop-teleop', methods=['POST'])
+        def lerobot_stop_teleop():
+            return jsonify({
+                "success": True,
+                "message": "Teleoperation stopped (simulation mode)"
+            })
+        
+        @app.route('/api/lerobot/start-recording', methods=['POST'])
+        def lerobot_start_recording():
+            import time
+            session_id = f"record_sim_{int(time.time())}"
+            return jsonify({
+                "success": True,
+                "message": "Recording started (simulation mode)",
+                "session_id": session_id,
+                "mode": "simulation",
+                "note": "Running in minimal mode - LeRobot dependencies not available"
+            })
+        
+        @app.route('/api/lerobot/stop-recording', methods=['POST'])
+        def lerobot_stop_recording():
+            return jsonify({
+                "success": True,
+                "message": "Recording stopped (simulation mode)"
+            })
+        
+        @app.route('/api/lerobot/sessions', methods=['GET'])
+        def lerobot_sessions():
+            return jsonify({
+                "success": True,
+                "sessions": {},
+                "mode": "simulation",
+                "note": "Running in minimal mode - LeRobot dependencies not available"
+            })
+        
         @app.route('/api/plugplay/calibrate', methods=['POST'])
         def calibrate():
             return jsonify({

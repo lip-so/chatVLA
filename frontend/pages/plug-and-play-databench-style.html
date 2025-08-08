@@ -1287,7 +1287,11 @@
           const data = await resp.json();
           
           if (data.success) {
-            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ ${role} calibration started successfully`;
+            const modeText = data.mode === 'simulation' ? ' (Simulation Mode)' : '';
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ ${role} calibration started successfully${modeText}`;
+            if (data.note) {
+              logArea.value += `\n[${new Date().toLocaleTimeString()}] ℹ️ ${data.note}`;
+            }
           } else {
             logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ ${role} calibration failed: ${data.error}`;
           }
@@ -1355,7 +1359,14 @@
           
           if (data.success) {
             currentSessionId = data.session_id;
-            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Teleoperation started! Move the leader arm to control the follower.`;
+            const modeText = data.mode === 'simulation' ? ' (Simulation Mode)' : '';
+            const instructions = data.mode === 'simulation' ? 
+              'Running in simulation mode - robot control functions are simulated.' :
+              'Move the leader arm to control the follower.';
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Teleoperation started${modeText}! ${instructions}`;
+            if (data.note) {
+              logArea.value += `\n[${new Date().toLocaleTimeString()}] ℹ️ ${data.note}`;
+            }
             stopBtn.disabled = false;
           } else {
             logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Failed to start teleoperation: ${data.error}`;
@@ -1471,7 +1482,11 @@
           
           if (data.success) {
             currentSessionId = data.session_id;
-            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Recording started! Session: ${data.session_id}`;
+            const modeText = data.mode === 'simulation' ? ' (Simulation Mode)' : '';
+            logArea.value += `\n[${new Date().toLocaleTimeString()}] ✅ Recording started${modeText}! Session: ${data.session_id}`;
+            if (data.note) {
+              logArea.value += `\n[${new Date().toLocaleTimeString()}] ℹ️ ${data.note}`;
+            }
             stopBtn.disabled = false;
           } else {
             logArea.value += `\n[${new Date().toLocaleTimeString()}] ❌ Failed to start recording: ${data.error}`;
