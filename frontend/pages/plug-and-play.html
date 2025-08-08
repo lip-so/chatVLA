@@ -1974,24 +1974,14 @@
           section.style.display = 'none';
           section.style.visibility = 'hidden';
           section.classList.remove('active');
-          // Remove any inline styles that might override
-          section.style.removeProperty('display');
-          section.style.display = 'none';
         }
       });
       
-      // Show the target section - force it to be visible
+      // Show the target section
       const target = document.getElementById(sectionId);
       if (target) {
-        // Remove any conflicting styles first
-        target.style.removeProperty('display');
-        target.style.removeProperty('visibility');
-        target.classList.remove('active');
-        
-        // Now set it to visible
         target.style.display = 'block';
         target.style.visibility = 'visible';
-        target.style.opacity = '1';
         target.classList.add('active');
         console.log('Section shown:', sectionId);
         
@@ -2005,22 +1995,8 @@
         
         // Scroll to top
         window.scrollTo(0, 0);
-        
-        // Double-check it's visible
-        if (target.style.display !== 'block') {
-          console.error('Failed to show section, forcing display');
-          target.setAttribute('style', 'display: block !important; visibility: visible !important; opacity: 1 !important;');
-        }
       } else {
         console.error('Section not found:', sectionId);
-        // List what sections are available
-        const availableSections = [];
-        sections.forEach(id => {
-          if (document.getElementById(id)) {
-            availableSections.push(id);
-          }
-        });
-        console.log('Available sections:', availableSections);
       }
     }
     
@@ -3220,11 +3196,6 @@
       console.log('Sections initialized. Navigation is ready!');
       console.log('Click any step in the sidebar to navigate.');
       
-      // Add a quick test function
-      window.showPorts = function() {
-        navigateToSection('portDetectionSection');
-      };
-      
       try {
         window.plugPlayUI = new PlugPlayUI();
         // Load available ports into selectors
@@ -3234,9 +3205,7 @@
       }
       
       // Test that navigation works
-      console.log('To show Ports section, type: showPorts()');
-      console.log('Or click "Ports" in the sidebar');
-      console.log('Test any section: navigateToSection("portDetectionSection")');
+      console.log('Test navigation by typing: navigateToSection("calibrationSection")');
     });
   </script>
 </body>
