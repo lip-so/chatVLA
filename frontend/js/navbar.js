@@ -82,12 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // Desktop navbar - show login/signup buttons
       const loginLink = document.createElement('a');
-      loginLink.href = '/frontend/pages/login.html';
+      loginLink.href = '/pages/login.html';
       loginLink.className = 'auth-link';
       loginLink.textContent = 'Login';
       
       const registerLink = document.createElement('a');
-      registerLink.href = '/frontend/pages/register.html';
+      registerLink.href = '/pages/register.html';
       registerLink.className = 'auth-link primary-auth-link';
       registerLink.textContent = 'Sign Up';
       registerLink.style.cssText = 'background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(51, 51, 51, 0.85)); color: white; padding: 8px 16px; border-radius: 50px; margin-left: 10px; transition: all 0.3s ease;';
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Check authentication on protected pages (disabled for development)
   function checkPageProtection() {
-    const protectedPages = ['/frontend/pages/databench.html', '/frontend/pages/plug-and-play-databench-style.html', '/frontend/pages/port-detection.html'];
+    const protectedPages = ['/pages/databench.html', '/pages/plug-and-play-databench-style.html', '/pages/port-detection.html'];
     const currentPath = window.location.pathname;
     
     // Check if current page is protected

@@ -169,6 +169,38 @@ def serve_assets(filename):
     """Serve asset files"""
     return send_from_directory(os.path.join(app.static_folder, 'assets'), filename)
 
+# ----------------------------------------------------------------------------
+# Legacy path compatibility: support old '/frontend/...'
+# ----------------------------------------------------------------------------
+@app.route('/frontend/<path:filename>')
+def serve_legacy_frontend(filename):
+    """Serve files requested via legacy '/frontend/...' URLs.
+
+    This preserves backward compatibility after migrating to '/css', '/js',
+    '/assets', and '/pages' paths.
+    """
+    try:
+        # Map '/frontend/pages/...' -> '/pages/...'
+        if filename.startswith('pages/'):
+            return send_from_directory(os.path.join(app.static_folder, 'pages'), filename.split('pages/', 1)[1])
+        # Map '/frontend/css/...' -> '/css/...'
+        if filename.startswith('css/'):
+            return send_from_directory(os.path.join(app.static_folder, 'css'), filename.split('css/', 1)[1])
+        # Map '/frontend/js/...' -> '/js/...'
+        if filename.startswith('js/'):
+            return send_from_directory(os.path.join(app.static_folder, 'js'), filename.split('js/', 1)[1])
+        # Map '/frontend/assets/...' -> '/assets/...'
+        if filename.startswith('assets/'):
+            return send_from_directory(os.path.join(app.static_folder, 'assets'), filename.split('assets/', 1)[1])
+        # '/frontend/index.html' -> '/index.html'
+        if filename == 'index.html':
+            return send_from_directory(app.static_folder, 'index.html')
+        # Fallback attempt: serve from static root
+        return send_from_directory(app.static_folder, filename)
+    except Exception:
+        from flask import abort
+        abort(404)
+
 @app.route('/health')
 def health():
     """Unified health check endpoint"""

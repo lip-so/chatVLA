@@ -5,13 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentPage = window.location.pathname;
   
   // Define restricted pages
-  const restrictedPages = ['/frontend/pages/databench.html', '/frontend/pages/plug-and-play-databench-style.html'];
-  const isRestrictedPage = restrictedPages.some(page => currentPage.includes(page.replace('/frontend/pages/', '')));
+  const restrictedPages = ['/pages/databench.html', '/pages/plug-and-play-databench-style.html'];
+  const isRestrictedPage = restrictedPages.some(page => currentPage.includes(page.replace('/pages/', '')));
   
   if (demoMode === 'vision-only' && isRestrictedPage) {
     // Redirect to Vision page with a message
     alert('This feature is not available in demo mode. Please contact us for full access.');
-    window.location.href = '/frontend/pages/vision.html';
+    window.location.href = '/pages/vision.html';
     return;
   }
   

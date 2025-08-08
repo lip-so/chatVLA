@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tune Robotics - Plug & Play</title>
-  <link rel="icon" type="image/png" href="/frontend/assets/logo.png">
-  <link rel="stylesheet" href="/frontend/css/styles.css">
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -950,8 +950,8 @@
   </footer>
 
   <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
-  <script src="/frontend/js/navbar.js"></script>
-  <script src="/frontend/js/auth.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/auth.js"></script>
   <script>
     // Robot configurations
     const robots = {
@@ -1693,26 +1693,40 @@
       }
     });
 
-    // Initialize authentication manager
-    window.authManager = new AuthManager();
+    // Initialize authentication manager (tolerate missing /js/auth.js in some deployments)
+    if (typeof AuthManager === 'function') {
+      window.authManager = new AuthManager();
+    } else {
+      window.authManager = {
+        isAuthenticated: () => false,
+        user: null,
+      };
+      console.warn('AuthManager not found; proceeding without auth integration');
+    }
     
-    // Initialize on load
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM loaded, initializing...');
+    // Robust DOM-ready helper to ensure handlers bind in all environments
+    function onReady(callback) {
+      if (document.readyState !== 'loading') {
+        callback();
+      } else {
+        document.addEventListener('DOMContentLoaded', callback);
+      }
+    }
+
+    // Initialize and bind Start button when DOM is ready (or immediately if already ready)
+    onReady(function() {
+      console.log('DOM ready, initializing...');
       init();
-      
-      // Handle "Start Robot Control" button
+
       const continueBtn = document.getElementById('continueBtn');
       if (continueBtn) {
         continueBtn.addEventListener('click', function() {
           console.log('🚀 Starting robot control interface');
-          
-          // Add visual feedback
+
           const originalText = this.innerHTML;
           this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading Robot Control...';
           this.disabled = true;
-          
-          // Small delay for visual feedback, then show interface
+
           setTimeout(() => {
             showRobotControlInterface();
             this.innerHTML = originalText;

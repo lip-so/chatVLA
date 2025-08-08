@@ -2,9 +2,21 @@
 const AppConfig = {
   // Get the appropriate API URL based on environment
   getApiUrl() {
-    // Railway backend URL - PRODUCTION
-    // Your Railway deployment: web-production-fdfaa.up.railway.app
-    return 'https://web-production-fdfaa.up.railway.app';
+    // Prefer same-origin in production to avoid CORS and mixed-content issues
+    try {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:5000';
+      }
+      // Allow manual override via global variable if defined
+      if (window.APP_API_URL && typeof window.APP_API_URL === 'string') {
+        return window.APP_API_URL;
+      }
+      return window.location.origin;
+    } catch (e) {
+      // Fallback to relative root
+      return '';
+    }
   },
   
   // API endpoints mapping

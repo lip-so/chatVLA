@@ -4,15 +4,21 @@ import os
 import json
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from firebase_admin import firestore
+try:
+    from firebase_admin import firestore  # type: ignore
+    FIREBASE_LIB_AVAILABLE = True
+except Exception:
+    firestore = None  # type: ignore
+    FIREBASE_LIB_AVAILABLE = False
+
 from .firebase_auth import firebase_initialized
 
 class FirestoreService:
     """Service for managing robot port configurations in Firebase Firestore"""
     
     def __init__(self):
-        if not firebase_initialized:
-            raise Exception("Firebase not initialized. Please check your Firebase configuration.")
+        if not (FIREBASE_LIB_AVAILABLE and firebase_initialized):
+            raise Exception("Firebase not available (optional mode). Configure Firebase to enable Firestore features.")
         
         self.db = firestore.client()
         self.collection_name = 'robot_port_configurations'
