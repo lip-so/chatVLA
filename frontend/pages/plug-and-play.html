@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plug & Play - LeRobot Integration for Robotics Development. Calibrate, teleoperate, and record datasets with ease.">
+  <title>Tune Robotics - Plug & Play</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="/js/config.js"></script>
+  <script src="/js/access-control.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    .plugplay-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 90vh;
+      padding: 8rem 2rem 4rem 2rem;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f0f0f0 100%);
+      color: #000000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plugplay-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .plugplay-hero h1 {
+      font-size: 2.5rem;
+      font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      color: #000000;
+      text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        1px 1px 0px rgba(0, 0, 0, 0.8),
+        2px 2px 0px rgba(0, 0, 0, 0.6);
+      text-transform: uppercase;
+      line-height: 1.1;
+      position: relative;
+      background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+    }
+
+    .plugplay-hero .subtitle {
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.8);
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      line-height: 1.7;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
+
+    .plugplay-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .operation-section {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .evaluation-form {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .operation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-section h3 i {
+      color: var(--accent);
+    }
+
+    .operation-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .operation-title i {
+      color: var(--accent);
+      font-size: 1.75rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .status-idle {
+      background: rgba(156, 163, 175, 0.1);
+      color: #6b7280;
+      border: 1px solid rgba(156, 163, 175, 0.2);
+    }
+
+    .status-running {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .run-button {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.8);
+      padding: 1rem 2.5rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      border-radius: 50px;
+      backdrop-filter: blur(20px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .run-button:hover {
+      background: rgba(0, 0, 0, 0.95);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .run-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s ease;
+      background: var(--surface);
+      color: var(--text-primary);
+      box-sizing: border-box;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-help {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .port-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .port-card {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .port-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .port-card.selected {
+      border-color: var(--accent);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .port-card .port-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .port-card .port-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .log-container {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .log-container.show {
+      display: block;
+    }
+
+    .log-entry {
+      margin-bottom: 0.25rem;
+      color: #e5e7eb;
+    }
+
+    .log-entry.info {
+      color: #60a5fa;
+    }
+
+    .log-entry.success {
+      color: #34d399;
+    }
+
+    .log-entry.warning {
+      color: #fbbf24;
+    }
+
+    .log-entry.error {
+      color: #f87171;
+    }
+
+    .config-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 2rem;
+    }
+
+    .config-tab {
+      padding: 1rem 2rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    .config-tab.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent);
+    }
+
+    .config-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .config-panel {
+      display: none;
+    }
+
+    .config-panel.active {
+      display: block;
+    }
+
+    .recording-config {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .camera-preview {
+      background: #000;
+      border-radius: 8px;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+
+    .info-button {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.7);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      padding: 0.75rem 1.5rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 25px;
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-button:hover {
+      background: rgba(255, 255, 255, 1);
+      color: rgba(0, 0, 0, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Enhanced tablet responsiveness */
+    @media (max-width: 1024px) {
+      .plugplay-hero {
+        padding: 6rem 2rem 3rem 2rem;
+      }
+      
+      .plugplay-hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .plugplay-content {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .plugplay-hero {
+        padding: 5rem 1.5rem 2rem 1.5rem;
+        min-height: 85vh;
+      }
+      
+      .plugplay-hero h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .plugplay-hero .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-button {
+        font-size: 0.8rem;
+        padding: 0.6rem 1.2rem;
+      }
+      
+      .form-grid, .port-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .plugplay-content {
+        padding: 2rem 1rem;
+      }
+
+      .operation-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .config-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .config-tab {
+        padding: 0.75rem 1.5rem;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .plugplay-hero {
+        padding: 4rem 1rem 1.5rem 1rem;
+        min-height: 80vh;
+      }
+      
+      .plugplay-hero h1 {
+        font-size: 1.5rem;
+        letter-spacing: 0.02em;
+      }
+      
+      .plugplay-hero .subtitle {
+        font-size: 0.9rem;
+      }
+      
+      .plugplay-content {
+        padding: 1.5rem 0.75rem;
+      }
+      
+      .info-button {
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+      }
+
+      .operation-section {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+
+      .operation-title {
+        font-size: 1.25rem;
+      }
+
+      .log-container {
+        padding: 1rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .info-modal {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      position: relative;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .modal-header h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .close-button:hover {
+      background: var(--border-light);
+      color: var(--text-primary);
+    }
+
+    .modal-content {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .info-section {
+      padding: 1.5rem;
+      background: var(--surface-hover);
+      border-radius: 16px;
+      border: 1px solid var(--border-light);
+    }
+
+    .info-section h3 {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .info-section h3 i {
+      color: var(--accent);
+    }
+
+    .info-section p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .info-section ul {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .info-section li {
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .info-section li strong {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/" class="logo">Tune</a>
+      <div class="nav-links">
+        <a href="vision.html">Vision</a>
+        <a href="databench.html">DataBench</a>
+        <a href="plug-and-play.html">Plug & Play</a>
+        <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+  
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-content">
+      <a href="vision.html">Vision</a>
+      <a href="databench.html">DataBench</a>
+      <a href="plug-and-play.html">Plug & Play</a>
+      <a href="mailto:yo@tunerobotics.xyz">Contact</a>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="plugplay-hero">
+      <h1>Plug & Play</h1>
+      <p class="subtitle">LeRobot Integration for Robotics Development</p>
+      <button class="info-button" id="infoButton" title="Learn about LeRobot operations">
+        <i class="fas fa-info-circle"></i>
+        How does Plug & Play work?
+      </button>
+    </div>
+  </main>
+
+  <div class="plugplay-content">
+    <!-- Port Detection Form -->
+    <form class="evaluation-form" id="portDetectionForm">
+      <div class="form-section">
+        <h3><i class="fas fa-usb"></i> Port Detection</h3>
+        
+        <p class="form-help">Detect available USB ports for robot connections. Make sure your robots are connected before scanning.</p>
+
+        <div class="button-group">
+          <button type="button" class="btn btn-primary" id="scanPortsBtn">
+            <i class="fas fa-search"></i>
+            Scan Ports
+          </button>
+          <button type="button" class="btn btn-secondary" id="refreshPortsBtn">
+            <i class="fas fa-sync"></i>
+            Refresh
+          </button>
+        </div>
+
+        <div class="port-grid" id="portGrid">
+          <!-- Ports will be populated here -->
+        </div>
+        
+        <div class="status-indicator" id="portStatus">
+          <i class="fas fa-circle"></i>
+          Ready to scan
+        </div>
+      </div>
+    </form>
+
+    <!-- Robot Operations -->
+    <form class="evaluation-form" id="robotOperationsForm">
+      <div class="config-tabs">
+        <button type="button" class="config-tab active" data-tab="calibration">
+          <i class="fas fa-cog"></i>
+          Calibration
+        </button>
+        <button type="button" class="config-tab" data-tab="teleoperation">
+          <i class="fas fa-gamepad"></i>
+          Teleoperation
+        </button>
+        <button type="button" class="config-tab" data-tab="recording">
+          <i class="fas fa-video"></i>
+          Dataset Recording
+        </button>
+      </div>
+
+      <!-- Calibration Panel -->
+      <div class="config-panel active" id="calibrationPanel">
+        <div class="form-section">
+          <h3><i class="fas fa-cog"></i> Robot Calibration</h3>
+          
+          <p class="form-help">Calibrate your robot arms to ensure proper joint positioning and movement ranges.</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="calibrationRole" class="form-label">Robot Role</label>
+              <select id="calibrationRole" class="form-input">
+                <option value="follower">Follower (Main Robot)</option>
+                <option value="leader">Leader (Teleoperator)</option>
+              </select>
+              <p class="form-help">Select whether this is the main robot or teleoperation device</p>
+            </div>
+
+            <div class="form-group">
+              <label for="calibrationRobotType" class="form-label">Robot Type</label>
+              <select id="calibrationRobotType" class="form-input">
+                <option value="so101">SO101</option>
+                <option value="so100">SO100</option>
+                <option value="koch">Koch</option>
+                <option value="viperx">ViperX</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="calibrationPort" class="form-label">USB Port</label>
+              <select id="calibrationPort" class="form-input">
+                <option value="">Select a port...</option>
+              </select>
+              <p class="form-help">Choose the USB port your robot is connected to</p>
+            </div>
+          </div>
+
+          <button type="button" class="run-button" id="startCalibrationBtn">
+            <i class="fas fa-play"></i>
+            Start Calibration
+          </button>
+
+          <div class="log-container" id="calibrationLogs">
+            <!-- Calibration logs will appear here -->
+          </div>
+          
+          <div class="status-indicator" id="calibrationStatus">
+            <i class="fas fa-circle"></i>
+            Idle
+          </div>
+        </div>
+      </div>
+
+      <!-- Teleoperation Panel -->
+      <div class="config-panel" id="teleoperationPanel">
+        <div class="operation-header">
+          <div class="operation-title">
+            <i class="fas fa-gamepad"></i>
+            Teleoperation
+          </div>
+          <div class="status-indicator" id="teleopStatus">
+            <i class="fas fa-circle"></i>
+            Idle
+          </div>
+        </div>
+
+        <p class="form-help">Control your robot in real-time using a leader device. Set up both leader and follower robots.</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="leaderType" class="form-label">Leader Robot Type</label>
+            <select id="leaderType" class="form-select">
+              <option value="so101">SO101 Leader</option>
+              <option value="so100">SO100 Leader</option>
+              <option value="koch">Koch Leader</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="followerType" class="form-label">Follower Robot Type</label>
+            <select id="followerType" class="form-select">
+              <option value="so101">SO101 Follower</option>
+              <option value="so100">SO100 Follower</option>
+              <option value="koch">Koch Follower</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="leaderPort" class="form-label">Leader Port</label>
+            <select id="leaderPort" class="form-select">
+              <option value="">Select leader port...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="followerPort" class="form-label">Follower Port</label>
+            <select id="followerPort" class="form-select">
+              <option value="">Select follower port...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="useCameras" style="margin-right: 0.5rem;">
+              Enable Camera Feed
+            </label>
+            <p class="form-help">Show real-time camera feed during teleoperation</p>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="startTeleopBtn">
+            <i class="fas fa-play"></i>
+            Start Teleoperation
+          </button>
+          <button class="btn btn-danger" id="stopTeleopBtn" disabled>
+            <i class="fas fa-stop"></i>
+            Stop Teleoperation
+          </button>
+        </div>
+
+        <div class="camera-preview" id="cameraPreview" style="display: none;">
+          <i class="fas fa-camera"></i>
+          Camera feed will appear here
+        </div>
+
+        <div class="log-container" id="teleopLogs">
+          <!-- Teleoperation logs will appear here -->
+        </div>
+      </div>
+
+      <!-- Recording Panel -->
+      <div class="config-panel" id="recordingPanel">
+        <div class="operation-header">
+          <div class="operation-title">
+            <i class="fas fa-video"></i>
+            Dataset Recording
+          </div>
+          <div class="status-indicator" id="recordingStatus">
+            <i class="fas fa-circle"></i>
+            Idle
+          </div>
+        </div>
+
+        <p class="form-help">Record robot demonstrations to create training datasets. Configure recording parameters and robot setup.</p>
+
+        <div class="recording-config">
+          <div class="form-group">
+            <label for="repoId" class="form-label">HuggingFace Repository</label>
+            <input type="text" id="repoId" class="form-input" placeholder="username/dataset-name">
+            <p class="form-help">Where to save the recorded dataset</p>
+          </div>
+
+          <div class="form-group">
+            <label for="numEpisodes" class="form-label">Number of Episodes</label>
+            <input type="number" id="numEpisodes" class="form-input" value="5" min="1" max="100">
+          </div>
+
+          <div class="form-group">
+            <label for="fps" class="form-label">Frame Rate (FPS)</label>
+            <input type="number" id="fps" class="form-input" value="30" min="10" max="60">
+          </div>
+
+          <div class="form-group">
+            <label for="episodeTime" class="form-label">Episode Duration (seconds)</label>
+            <input type="number" id="episodeTime" class="form-input" value="60" min="10" max="300">
+          </div>
+
+          <div class="form-group">
+            <label for="resetTime" class="form-label">Reset Time (seconds)</label>
+            <input type="number" id="resetTime" class="form-input" value="10" min="5" max="60">
+          </div>
+
+          <div class="form-group">
+            <label for="taskDescription" class="form-label">Task Description</label>
+            <input type="text" id="taskDescription" class="form-input" placeholder="Describe the task being recorded">
+          </div>
+
+          <div class="form-group">
+            <label for="recordingRobotType" class="form-label">Robot Type</label>
+            <select id="recordingRobotType" class="form-select">
+              <option value="so100">SO100</option>
+              <option value="so101">SO101</option>
+              <option value="koch">Koch</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recordingLeaderPort" class="form-label">Leader Port</label>
+            <select id="recordingLeaderPort" class="form-select">
+              <option value="">Select leader port...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recordingFollowerPort" class="form-label">Follower Port</label>
+            <select id="recordingFollowerPort" class="form-select">
+              <option value="">Select follower port...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="startRecordingBtn">
+            <i class="fas fa-play"></i>
+            Start Recording
+          </button>
+          <button class="btn btn-danger" id="stopRecordingBtn" disabled>
+            <i class="fas fa-stop"></i>
+            Stop Recording
+          </button>
+        </div>
+
+        <div class="log-container" id="recordingLogs">
+          <!-- Recording logs will appear here -->
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="info-modal">
+      <div class="modal-header">
+        <h2>How Plug & Play Works</h2>
+        <button class="close-button" id="closeModal">&times;</button>
+      </div>
+      
+      <div class="modal-content">
+        <div class="info-section">
+          <h3><i class="fas fa-cloud"></i> Cloud-Powered Robotics</h3>
+          <p>
+            Plug & Play runs LeRobot entirely in the cloud on Tune Robotics servers. 
+            You don't need to install anything locally - just connect your robots and start working.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3><i class="fas fa-usb"></i> Port Detection</h3>
+          <p>
+            Our system detects USB ports where your robots are connected and provides 
+            intelligent suggestions for robot types based on the detected hardware.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3><i class="fas fa-cog"></i> Robot Calibration</h3>
+          <p>
+            Calibrate your robot arms to ensure proper joint positioning and movement ranges. 
+            This establishes the baseline for accurate control and teleoperation.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3><i class="fas fa-gamepad"></i> Real-time Teleoperation</h3>
+          <p>
+            Control your robot in real-time using a leader device. Set up both leader and 
+            follower robots for intuitive manual control with optional camera feedback.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3><i class="fas fa-video"></i> Dataset Recording</h3>
+          <p>
+            Record robot demonstrations to create training datasets. Configure recording 
+            parameters and automatically push datasets to Hugging Face Hub for sharing.
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3><i class="fas fa-robot"></i> Supported Robots</h3>
+          <ul>
+            <li><strong>SO101:</strong> 6-DOF robotic arm with gripper</li>
+            <li><strong>SO100:</strong> Compact robotic arm for desktop use</li>
+            <li><strong>Koch:</strong> High-precision research arm</li>
+            <li><strong>ViperX:</strong> Interbotix robotic arm series</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>
+      Email: <a href="mailto:yo@tunerobotics.xyz">yo@tunerobotics.xyz</a> | 
+      <a href="https://github.com/huggingface/lerobot" target="_blank">
+        <i class="fab fa-github"></i> LeRobot Repository
+      </a>
+    </p>
+  </footer>
+  
+  <script src="/js/navbar.js"></script>
+  <script>
+    class PlugPlayUI {
+      constructor() {
+        this.socket = null;
+        this.availablePorts = [];
+        this.selectedPorts = {
+          calibration: null,
+          leader: null,
+          follower: null
+        };
+        this.activeTab = 'calibration';
+        this.initializeEventListeners();
+        this.initializeSocketIO();
+      }
+
+      initializeEventListeners() {
+        // Tab switching
+        document.querySelectorAll('.config-tab').forEach(tab => {
+          tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        });
+
+        // Port detection
+        document.getElementById('scanPortsBtn').addEventListener('click', () => this.scanPorts());
+        document.getElementById('refreshPortsBtn').addEventListener('click', () => this.scanPorts());
+
+        // Calibration
+        document.getElementById('startCalibrationBtn').addEventListener('click', () => this.startCalibration());
+        document.getElementById('stopCalibrationBtn').addEventListener('click', () => this.stopCalibration());
+
+        // Teleoperation
+        document.getElementById('startTeleopBtn').addEventListener('click', () => this.startTeleoperation());
+        document.getElementById('stopTeleopBtn').addEventListener('click', () => this.stopTeleoperation());
+        document.getElementById('useCameras').addEventListener('change', (e) => this.toggleCameraPreview(e.target.checked));
+
+        // Recording
+        document.getElementById('startRecordingBtn').addEventListener('click', () => this.startRecording());
+        document.getElementById('stopRecordingBtn').addEventListener('click', () => this.stopRecording());
+
+        // Info modal
+        document.getElementById('infoButton').addEventListener('click', () => this.showInfoModal());
+        document.getElementById('closeModal').addEventListener('click', () => this.hideInfoModal());
+        document.getElementById('infoModal').addEventListener('click', (e) => {
+          if (e.target.id === 'infoModal') {
+            this.hideInfoModal();
+          }
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.hideInfoModal();
+          }
+        });
+
+        // Auto-scan ports on load
+        setTimeout(() => this.scanPorts(), 1000);
+      }
+
+      initializeSocketIO() {
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          this.socket = io(apiUrl);
+          
+          this.socket.on('connect', () => {
+            console.log('Connected to server');
+          });
+
+          this.socket.on('calibration_log', (data) => {
+            this.addLogEntry('calibrationLogs', data.message, data.level);
+          });
+
+          this.socket.on('teleoperation_log', (data) => {
+            this.addLogEntry('teleopLogs', data.message, data.level);
+          });
+
+          this.socket.on('recording_log', (data) => {
+            this.addLogEntry('recordingLogs', data.message, data.level);
+          });
+
+        } catch (error) {
+          console.warn('SocketIO not available:', error);
+        }
+      }
+
+      switchTab(tabName) {
+        // Update active tab
+        document.querySelectorAll('.config-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+        // Update active panel
+        document.querySelectorAll('.config-panel').forEach(panel => {
+          panel.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Panel`).classList.add('active');
+
+        this.activeTab = tabName;
+      }
+
+      async scanPorts() {
+        const scanBtn = document.getElementById('scanPortsBtn');
+        const refreshBtn = document.getElementById('refreshPortsBtn');
+        const statusIndicator = document.getElementById('portStatus');
+        
+        // Update UI
+        scanBtn.disabled = true;
+        refreshBtn.disabled = true;
+        scanBtn.innerHTML = '<span class="loading-spinner"></span> Scanning...';
+        statusIndicator.innerHTML = '<i class="fas fa-circle pulse"></i> Scanning ports...';
+        statusIndicator.className = 'status-indicator status-running';
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const response = await fetch(`${apiUrl}/api/plugplay/list-ports`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            this.availablePorts = data.ports || [];
+            this.displayPorts();
+            this.updatePortSelectors();
+            
+            statusIndicator.innerHTML = `<i class="fas fa-circle"></i> Found ${this.availablePorts.length} ports`;
+            statusIndicator.className = 'status-indicator status-idle';
+          } else {
+            throw new Error(data.error || 'Failed to scan ports');
+          }
+
+        } catch (error) {
+          console.error('Port scan failed:', error);
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Scan failed';
+          statusIndicator.className = 'status-indicator status-error';
+          
+          // Show mock ports for demo
+          this.availablePorts = [
+            { port: '/dev/ttyUSB0', description: 'USB Serial Device', manufacturer: 'FTDI' },
+            { port: '/dev/ttyUSB1', description: 'USB Serial Device', manufacturer: 'FTDI' },
+            { port: '/dev/tty.usbmodem585A0076891', description: 'Arduino Compatible', manufacturer: 'Arduino' }
+          ];
+          this.displayPorts();
+          this.updatePortSelectors();
+        } finally {
+          // Reset buttons
+          scanBtn.disabled = false;
+          refreshBtn.disabled = false;
+          scanBtn.innerHTML = '<i class="fas fa-search"></i> Scan Ports';
+        }
+      }
+
+      displayPorts() {
+        const portGrid = document.getElementById('portGrid');
+        
+        if (this.availablePorts.length === 0) {
+          portGrid.innerHTML = '<p class="form-help">No ports detected. Make sure your robots are connected and try scanning again.</p>';
+          return;
+        }
+
+        portGrid.innerHTML = this.availablePorts.map(port => `
+          <div class="port-card" data-port="${port.port}">
+            <div class="port-name">${port.port}</div>
+            <div class="port-description">${port.description || 'Unknown Device'}</div>
+            ${port.manufacturer ? `<div class="port-description">${port.manufacturer}</div>` : ''}
+          </div>
+        `).join('');
+
+        // Add click handlers
+        document.querySelectorAll('.port-card').forEach(card => {
+          card.addEventListener('click', () => this.selectPort(card.dataset.port));
+        });
+      }
+
+      selectPort(port) {
+        // Visual feedback
+        document.querySelectorAll('.port-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelector(`[data-port="${port}"]`).classList.add('selected');
+      }
+
+      updatePortSelectors() {
+        const selectors = [
+          'calibrationPort', 'leaderPort', 'followerPort', 
+          'recordingLeaderPort', 'recordingFollowerPort'
+        ];
+
+        selectors.forEach(selectorId => {
+          const selector = document.getElementById(selectorId);
+          const currentValue = selector.value;
+          
+          // Clear existing options except the first one
+          selector.innerHTML = selector.children[0].outerHTML;
+          
+          // Add port options
+          this.availablePorts.forEach(port => {
+            const option = document.createElement('option');
+            option.value = port.port;
+            option.textContent = `${port.port} - ${port.description || 'Unknown Device'}`;
+            selector.appendChild(option);
+          });
+
+          // Restore selection if still valid
+          if (currentValue && this.availablePorts.some(p => p.port === currentValue)) {
+            selector.value = currentValue;
+          }
+        });
+      }
+
+      async startCalibration() {
+        const role = document.getElementById('calibrationRole').value;
+        const robotType = document.getElementById('calibrationRobotType').value;
+        const port = document.getElementById('calibrationPort').value;
+
+        if (!port) {
+          alert('Please select a USB port first');
+          return;
+        }
+
+        const startBtn = document.getElementById('startCalibrationBtn');
+        const stopBtn = document.getElementById('stopCalibrationBtn');
+        const statusIndicator = document.getElementById('calibrationStatus');
+        const logsContainer = document.getElementById('calibrationLogs');
+
+        // Update UI
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        startBtn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+        statusIndicator.innerHTML = '<i class="fas fa-circle pulse"></i> Running';
+        statusIndicator.className = 'status-indicator status-running';
+        logsContainer.classList.add('show');
+        logsContainer.innerHTML = '';
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const response = await fetch(`${apiUrl}/api/plugplay/calibrate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              role: role,
+              robot_type: robotType,
+              port: port
+            })
+          });
+
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Calibration failed');
+          }
+
+          this.addLogEntry('calibrationLogs', `✅ Calibration started for ${role} on ${port}`, 'success');
+          
+        } catch (error) {
+          console.error('Calibration failed:', error);
+          this.addLogEntry('calibrationLogs', `❌ Calibration failed: ${error.message}`, 'error');
+          
+          // Reset UI on error
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Calibration';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Error';
+          statusIndicator.className = 'status-indicator status-error';
+        }
+      }
+
+      async stopCalibration() {
+        const startBtn = document.getElementById('startCalibrationBtn');
+        const stopBtn = document.getElementById('stopCalibrationBtn');
+        const statusIndicator = document.getElementById('calibrationStatus');
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          await fetch(`${apiUrl}/api/plugplay/stop-calibration`, { method: 'POST' });
+          
+          this.addLogEntry('calibrationLogs', '⏹️ Calibration stopped by user', 'warning');
+          
+        } catch (error) {
+          console.error('Stop calibration failed:', error);
+        } finally {
+          // Reset UI
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Calibration';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Idle';
+          statusIndicator.className = 'status-indicator status-idle';
+        }
+      }
+
+      async startTeleoperation() {
+        const leaderType = document.getElementById('leaderType').value;
+        const followerType = document.getElementById('followerType').value;
+        const leaderPort = document.getElementById('leaderPort').value;
+        const followerPort = document.getElementById('followerPort').value;
+        const useCameras = document.getElementById('useCameras').checked;
+
+        if (!leaderPort || !followerPort) {
+          alert('Please select both leader and follower ports');
+          return;
+        }
+
+        const startBtn = document.getElementById('startTeleopBtn');
+        const stopBtn = document.getElementById('stopTeleopBtn');
+        const statusIndicator = document.getElementById('teleopStatus');
+        const logsContainer = document.getElementById('teleopLogs');
+
+        // Update UI
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        startBtn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+        statusIndicator.innerHTML = '<i class="fas fa-circle pulse"></i> Running';
+        statusIndicator.className = 'status-indicator status-running';
+        logsContainer.classList.add('show');
+        logsContainer.innerHTML = '';
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const response = await fetch(`${apiUrl}/api/plugplay/start-teleop`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              leader_type: leaderType,
+              follower_type: followerType,
+              leader_port: leaderPort,
+              follower_port: followerPort,
+              use_cameras: useCameras
+            })
+          });
+
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Teleoperation failed');
+          }
+
+          this.addLogEntry('teleopLogs', `✅ Teleoperation started: ${leaderType} -> ${followerType}`, 'success');
+          
+        } catch (error) {
+          console.error('Teleoperation failed:', error);
+          this.addLogEntry('teleopLogs', `❌ Teleoperation failed: ${error.message}`, 'error');
+          
+          // Reset UI on error
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Teleoperation';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Error';
+          statusIndicator.className = 'status-indicator status-error';
+        }
+      }
+
+      async stopTeleoperation() {
+        const startBtn = document.getElementById('startTeleopBtn');
+        const stopBtn = document.getElementById('stopTeleopBtn');
+        const statusIndicator = document.getElementById('teleopStatus');
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          await fetch(`${apiUrl}/api/plugplay/stop-teleop`, { method: 'POST' });
+          
+          this.addLogEntry('teleopLogs', '⏹️ Teleoperation stopped by user', 'warning');
+          
+        } catch (error) {
+          console.error('Stop teleoperation failed:', error);
+        } finally {
+          // Reset UI
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Teleoperation';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Idle';
+          statusIndicator.className = 'status-indicator status-idle';
+        }
+      }
+
+      toggleCameraPreview(enabled) {
+        const preview = document.getElementById('cameraPreview');
+        preview.style.display = enabled ? 'flex' : 'none';
+      }
+
+      async startRecording() {
+        const repoId = document.getElementById('repoId').value;
+        const episodes = parseInt(document.getElementById('numEpisodes').value);
+        const fps = parseInt(document.getElementById('fps').value);
+        const episodeTime = parseInt(document.getElementById('episodeTime').value);
+        const resetTime = parseInt(document.getElementById('resetTime').value);
+        const taskDescription = document.getElementById('taskDescription').value;
+        const robotType = document.getElementById('recordingRobotType').value;
+        const leaderPort = document.getElementById('recordingLeaderPort').value;
+        const followerPort = document.getElementById('recordingFollowerPort').value;
+
+        if (!repoId || !taskDescription || !leaderPort || !followerPort) {
+          alert('Please fill in all required fields and select ports');
+          return;
+        }
+
+        const startBtn = document.getElementById('startRecordingBtn');
+        const stopBtn = document.getElementById('stopRecordingBtn');
+        const statusIndicator = document.getElementById('recordingStatus');
+        const logsContainer = document.getElementById('recordingLogs');
+
+        // Update UI
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        startBtn.innerHTML = '<span class="loading-spinner"></span> Starting...';
+        statusIndicator.innerHTML = '<i class="fas fa-circle pulse"></i> Recording';
+        statusIndicator.className = 'status-indicator status-running';
+        logsContainer.classList.add('show');
+        logsContainer.innerHTML = '';
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          const response = await fetch(`${apiUrl}/api/plugplay/start-recording`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              repo_id: repoId,
+              episodes: episodes,
+              fps: fps,
+              episode_time: episodeTime,
+              reset_time: resetTime,
+              task_description: taskDescription,
+              robot_type: robotType,
+              leader_port: leaderPort,
+              follower_port: followerPort
+            })
+          });
+
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Recording failed');
+          }
+
+          this.addLogEntry('recordingLogs', `✅ Recording started: ${episodes} episodes to ${repoId}`, 'success');
+          
+        } catch (error) {
+          console.error('Recording failed:', error);
+          this.addLogEntry('recordingLogs', `❌ Recording failed: ${error.message}`, 'error');
+          
+          // Reset UI on error
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Recording';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Error';
+          statusIndicator.className = 'status-indicator status-error';
+        }
+      }
+
+      async stopRecording() {
+        const startBtn = document.getElementById('startRecordingBtn');
+        const stopBtn = document.getElementById('stopRecordingBtn');
+        const statusIndicator = document.getElementById('recordingStatus');
+
+        try {
+          const apiUrl = window.AppConfig ? window.AppConfig.getApiUrl() : window.location.origin;
+          await fetch(`${apiUrl}/api/plugplay/stop-recording`, { method: 'POST' });
+          
+          this.addLogEntry('recordingLogs', '⏹️ Recording stopped by user', 'warning');
+          
+        } catch (error) {
+          console.error('Stop recording failed:', error);
+        } finally {
+          // Reset UI
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          startBtn.innerHTML = '<i class="fas fa-play"></i> Start Recording';
+          statusIndicator.innerHTML = '<i class="fas fa-circle"></i> Idle';
+          statusIndicator.className = 'status-indicator status-idle';
+        }
+      }
+
+      addLogEntry(containerId, message, level = 'info') {
+        const container = document.getElementById(containerId);
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${level}`;
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        
+        container.appendChild(entry);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      showInfoModal() {
+        document.getElementById('infoModal').classList.add('show');
+      }
+
+      hideInfoModal() {
+        document.getElementById('infoModal').classList.remove('show');
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      window.plugPlayUI = new PlugPlayUI();
+    });
+  </script>
+</body>
+</html>

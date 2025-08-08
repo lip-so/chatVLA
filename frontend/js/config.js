@@ -27,9 +27,23 @@ const AppConfig = {
       results: '/api/databench/results'
     },
     plugplay: {
-      detect: '/api/plugplay/detect',
-      install: '/api/plugplay/install',
-      configure: '/api/plugplay/configure'
+      list_ports: '/api/plugplay/list-ports',
+      list_cameras: '/api/plugplay/list-cameras',
+      calibrate: '/api/plugplay/calibrate',
+      start_teleop: '/api/plugplay/start-teleop',
+      stop_teleop: '/api/plugplay/stop-teleop',
+      start_recording: '/api/plugplay/start-recording',
+      stop_recording: '/api/plugplay/stop-recording',
+      system_info: '/api/plugplay/system-info'
+    },
+    lerobot: {
+      calibrate: '/api/lerobot/calibrate',
+      start_teleop: '/api/lerobot/start-teleop',
+      stop_teleop: '/api/lerobot/stop-teleop',
+      start_recording: '/api/lerobot/start-recording',
+      stop_recording: '/api/lerobot/stop-recording',
+      sessions: '/api/lerobot/sessions',
+      health: '/api/lerobot/health'
     },
     auth: {
       login: '/api/auth/login',

@@ -28,22 +28,42 @@ sys.path.insert(0, str(backend_path))
 
 # Import the API modules
 from databench.api import DataBenchEvaluator, METRIC_CODES, METRIC_NAMES
-from plug_and_play.api import (
-    PlugPlayInstallationManager, 
-    USBPortDetector,
-    DATABENCH_AVAILABLE,
-    SERIAL_AVAILABLE
-)
+from plug_and_play.port_detector import USBPortDetector, detect_cameras
+
+# Try to import existing plug_and_play.api with fallback
+try:
+    from plug_and_play.api import (
+        PlugPlayInstallationManager, 
+        DATABENCH_AVAILABLE,
+        SERIAL_AVAILABLE
+    )
+except ImportError:
+    # Fallback definitions
+    class PlugPlayInstallationManager:
+        def __init__(self):
+            pass
+        def get_status(self):
+            return {"status": "simulation_mode"}
+    
+    DATABENCH_AVAILABLE = True
+    SERIAL_AVAILABLE = True
 
 # Import LeRobot API blueprint (with graceful fallback)
+LEROBOT_BP_AVAILABLE = False
+lerobot_bp = None
+set_socketio = None
+
 try:
-    from plug_and_play.lerobot_api import lerobot_bp, set_socketio
-    LEROBOT_BP_AVAILABLE = True
+    from plug_and_play.lerobot_api import lerobot_bp, set_socketio, FLASK_AVAILABLE
+    if lerobot_bp is not None and FLASK_AVAILABLE:
+        LEROBOT_BP_AVAILABLE = True
+        logger.info("✅ LeRobot API blueprint available")
+    else:
+        logger.warning("⚠️ LeRobot API blueprint created but Flask not available")
 except ImportError as e:
-    logger.warning(f"LeRobot API blueprint not available: {e}")
-    lerobot_bp = None
-    set_socketio = None
-    LEROBOT_BP_AVAILABLE = False
+    logger.warning(f"⚠️ LeRobot API blueprint not available: {e}")
+except Exception as e:
+    logger.warning(f"⚠️ LeRobot API blueprint failed to load: {e}")
 
 # Import Firebase authentication module
 from auth.firebase_auth import firebase_bp, requires_firebase_auth
@@ -300,14 +320,37 @@ def system_info():
 @plugplay_bp.route('/list-ports', methods=['GET'])
 def list_ports():
     """List available USB ports"""
-    if not SERIAL_AVAILABLE:
+    try:
+        ports = usb_detector.scan_ports()
         return jsonify({
-            "error": "USB port detection not available",
+            "success": True,
+            "ports": ports,
+            "serial_available": usb_detector.serial_available
+        })
+    except Exception as e:
+        logger.error(f"Port listing failed: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
             "ports": []
-        }), 503
-        
-    ports = usb_detector.scan_ports()
-    return jsonify({"ports": ports})
+        }), 500
+
+@plugplay_bp.route('/list-cameras', methods=['GET'])
+def list_cameras():
+    """List available cameras"""
+    try:
+        cameras = detect_cameras()
+        return jsonify({
+            "success": True,
+            "cameras": cameras
+        })
+    except Exception as e:
+        logger.error(f"Camera listing failed: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "cameras": []
+        }), 500
 
 @plugplay_bp.route('/start-installation', methods=['POST'])
 def start_installation():
